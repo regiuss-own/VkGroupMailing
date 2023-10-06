@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.Getter;
+import ru.regiuss.vk.group.mailing.controller.MainController;
 
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +52,9 @@ public class VkGroupApp extends Application {
         }
 
 
-        Parent parent = new FXMLLoader(getClass().getResource("/view/main.fxml")).load();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main.fxml"));
+        loader.setController(new MainController(this));
+        Parent parent = loader.load();
         stage.setScene(new Scene(parent));
         stage.show();
     }
