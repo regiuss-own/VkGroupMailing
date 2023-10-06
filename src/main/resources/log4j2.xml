@@ -1,0 +1,29 @@
+<Configuration status="warn">
+    <Properties>
+        <Property name="filename">latest.log</Property>
+    </Properties>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                    pattern="[%d{HH:mm:ss}] [%t/%p]: [%c{1}] %m%n" />
+        </Console>
+        <RollingFile name="file"
+                     append="false"
+                     fileName="${filename}"
+                     filePattern="${filename}">
+            <PatternLayout
+                    pattern="[%d{HH:mm:ss}] [%t/%p]: [%c{1}] %m%n" />
+            <Policies>
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="500 MB"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="ru.regiuss" level="TRACE" />
+        <Root level="INFO">
+            <AppenderRef ref="console" level="INFO" />
+            <AppenderRef ref="file" level="TRACE"/>
+        </Root>
+    </Loggers>
+</Configuration>
