@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
@@ -38,7 +39,7 @@ public class MainController implements Initializable {
     private TextField minSubCountField;
 
     @FXML
-    private ProgressBar progressBar;
+    private StackPane rootPane;
 
     @FXML
     private TextField searchField;
@@ -69,7 +70,10 @@ public class MainController implements Initializable {
 
     @FXML
     void onAuth(ActionEvent event) {
-
+        AuthPopup popup = new AuthPopup();
+        popup.setOnClose(() -> rootPane.getChildren().remove(popup));
+        popup.setOnToken(token -> tokenField.setText(token));
+        rootPane.getChildren().add(popup);
     }
 
     @FXML
