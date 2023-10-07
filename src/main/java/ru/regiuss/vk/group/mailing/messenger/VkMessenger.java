@@ -6,12 +6,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.model.*;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,10 +26,12 @@ public class VkMessenger implements Messenger {
     private static final ObjectMapper OM = new ObjectMapper();
     private static final String VERSION = "5.154";
     private static final String BASE_PATH = "https://api.vk.com";
+    private final Map<String, String> files;
     private final String token;
 
     public VkMessenger(String token) {
         this.token = token;
+        this.files = new HashMap<>(20);
     }
 
     @Override
@@ -54,12 +60,23 @@ public class VkMessenger implements Messenger {
 
     @Override
     public void send(int id, Message message) throws Exception {
-        executeByToken(
+        if (message.getFiles() != null && !message.getFiles().isEmpty()) {
+            for (File file : message.getFiles()) {
+                String mimeType = Files.probeContentType(file.toPath());
+                log.info(mimeType);
+            }
+            /*String uploadUrl;
+            try (InputStream is = executeByToken("/method/photos.getMessagesUploadServer", "POST")) {
+                uploadUrl = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse().get("upload_url").asText();
+            }*/
+
+        }
+        /*executeByToken(
                 "/method/messages.send", "POST",
                 "random_id", 0,
                 "peer_id", id,
                 "message", message.getText()
-        ).close();
+        ).close();*/
     }
 
     @Override

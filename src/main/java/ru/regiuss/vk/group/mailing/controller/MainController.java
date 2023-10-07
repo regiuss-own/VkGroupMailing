@@ -3,11 +3,10 @@ package ru.regiuss.vk.group.mailing.controller;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
 import ru.regiuss.vk.group.mailing.messenger.Messenger;
@@ -15,8 +14,14 @@ import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
 import ru.regiuss.vk.group.mailing.model.Message;
 import ru.regiuss.vk.group.mailing.model.User;
 
+import java.io.File;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.ResourceBundle;
+
 @Log4j2
-public class MainController {
+public class MainController implements Initializable {
 
     private final VkGroupApp app;
 
@@ -27,7 +32,7 @@ public class MainController {
     private TextField messageDelayField;
 
     @FXML
-    private ListView<?> messagesList;
+    private ListView<Message> messagesList;
 
     @FXML
     private TextField minSubCountField;
@@ -59,7 +64,7 @@ public class MainController {
 
     @FXML
     void onAddMessage(ActionEvent event) {
-
+        messagesList.getItems().add(new Message("test", Collections.singletonList(new File("test"))));
     }
 
     @FXML
@@ -95,6 +100,19 @@ public class MainController {
     void onStart(ActionEvent event) throws Exception {
         Messenger messenger = new VkMessenger(tokenField.getText());
         log.info(messenger.search(1, "game"));
-        messenger.send(214686349, new Message("asdsa", null));
+        messenger.send(214686349, new Message("asdsa", Arrays.asList(
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\2023-03-30-23-45-15_1.mp4")
+        )));
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        messagesList.setCellFactory(new Callback<ListView<Message>, ListCell<Message>>() {
+            @Override
+            public ListCell<Message> call(ListView<Message> messageListView) {
+                return null;
+            }
+        });
     }
 }
