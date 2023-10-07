@@ -191,14 +191,15 @@ TextFlow {
 
 .list-cell {
     -fx-text-fill: #000;
+    -fx-border-radius: 8px;
+    -fx-border-color: transparent;
 }
 
 .list-cell:filled:selected:focused, .list-cell:filled:selected {
-    -fx-background-color: linear-gradient(#328BDB 0%, #207BCF 25%, #1973C9 75%, #0A65BF 100%);
+    -fx-border-color: blue;
     -fx-text-fill: white;
 }
 
 .list-cell:filled:hover {
-    -fx-background-color: #0093ff;
-    -fx-text-fill: white;
+    /*-fx-background-color: #0093ff;*/
 }

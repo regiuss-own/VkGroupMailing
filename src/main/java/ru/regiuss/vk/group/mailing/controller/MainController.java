@@ -7,8 +7,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import lombok.extern.log4j.Log4j2;
+import ru.regiuss.vk.group.mailing.MessageListCell;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
 import ru.regiuss.vk.group.mailing.messenger.Messenger;
 import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
@@ -65,7 +67,20 @@ public class MainController implements Initializable {
 
     @FXML
     void onAddMessage(ActionEvent event) {
-        messagesList.getItems().add(new Message("test", Collections.singletonList(new File("test"))));
+        messagesList.getItems().add(new Message("Lorem ipsum — название классического текста-«рыбы». «Рыба» — слово из жаргона дизайнеров, обозначает условный, зачастую бессмысленный текст, вставляемый в макет страницы. Lorem ipsum представляет собой искажённый отрывок из философского трактата Цицерона «О пределах добра и зла», написанного в 45 году до нашей эры на латинском языке.", Arrays.asList(
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
+                new File("C:\\Users\\root\\Downloads\\2023-03-30-23-45-15_1.mp4")
+        )));
     }
 
     @FXML
@@ -112,11 +127,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        messagesList.setCellFactory(new Callback<ListView<Message>, ListCell<Message>>() {
-            @Override
-            public ListCell<Message> call(ListView<Message> messageListView) {
-                return null;
-            }
-        });
+        messagesList.setCellFactory(messageListView -> new MessageListCell());
     }
 }
