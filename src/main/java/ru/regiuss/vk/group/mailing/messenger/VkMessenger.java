@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collections;
@@ -62,8 +61,7 @@ public class VkMessenger implements Messenger {
     public void send(int id, Message message) throws Exception {
         if (message.getFiles() != null && !message.getFiles().isEmpty()) {
             for (File file : message.getFiles()) {
-                String mimeType = Files.probeContentType(file.toPath());
-                log.info(mimeType);
+                String attachment = upload(file);
             }
             /*String uploadUrl;
             try (InputStream is = executeByToken("/method/photos.getMessagesUploadServer", "POST")) {
@@ -77,6 +75,36 @@ public class VkMessenger implements Messenger {
                 "peer_id", id,
                 "message", message.getText()
         ).close();*/
+    }
+
+    private String upload(File file) throws Exception {
+        String mimeType = Files.probeContentType(file.toPath());
+        log.info(mimeType);
+        if (mimeType == null)
+            return uploadFile(file);
+        else if(mimeType.startsWith("image"))
+            return uploadImage(file);
+        else if(mimeType.startsWith("video"))
+            return uploadVideo(file);
+        else
+            return uploadFile(file);
+    }
+
+    private String uploadVideo(File file) throws Exception {
+        String uploadUrl;
+        try (InputStream is = executeByToken("/method/video.save", "POST")) {
+            uploadUrl = OM.readValue(is, new TypeReference<Response<JsonNode>>() {})
+                    .getResponse().get("upload_url").asText();
+        }
+        return null;
+    }
+
+    private String uploadImage(File file) throws Exception {
+        return null;
+    }
+
+    private String uploadFile(File file) throws Exception {
+        return null;
     }
 
     @Override
