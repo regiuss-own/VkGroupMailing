@@ -4,11 +4,11 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
-import javafx.util.Callback;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.MessageListCell;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
@@ -16,14 +16,16 @@ import ru.regiuss.vk.group.mailing.messenger.Messenger;
 import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
 import ru.regiuss.vk.group.mailing.model.Message;
 import ru.regiuss.vk.group.mailing.model.User;
+import ru.regiuss.vk.group.mailing.popup.AuthPopup;
+import ru.regiuss.vk.group.mailing.popup.MessagePopup;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.ResourceBundle;
 
 @Log4j2
+@SuppressWarnings("unused")
 public class MainController implements Initializable {
 
     private final VkGroupApp app;
@@ -81,6 +83,10 @@ public class MainController implements Initializable {
                 new File("C:\\Users\\root\\Downloads\\fav_logo_2x.png"),
                 new File("C:\\Users\\root\\Downloads\\2023-03-30-23-45-15_1.mp4")
         )));
+        MessagePopup popup = new MessagePopup();
+        popup.setOnClose(() -> rootPane.getChildren().remove(popup));
+        popup.setOnMessage(message -> {});
+        rootPane.getChildren().add(popup);
     }
 
     @FXML

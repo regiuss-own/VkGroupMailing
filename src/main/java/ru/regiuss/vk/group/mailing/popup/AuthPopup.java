@@ -1,4 +1,4 @@
-package ru.regiuss.vk.group.mailing.controller;
+package ru.regiuss.vk.group.mailing.popup;
 
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
@@ -24,7 +24,7 @@ public class AuthPopup extends AnchorPane implements Initializable {
     private Runnable onClose;
 
     public AuthPopup() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/auth.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/authPopup.fxml"));
         loader.setController(this);
         loader.setRoot(this);
         try {
