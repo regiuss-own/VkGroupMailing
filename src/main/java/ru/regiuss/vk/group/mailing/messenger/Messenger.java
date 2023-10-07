@@ -9,7 +9,7 @@ import java.util.List;
 public interface Messenger {
     List<Group> search(int page, String search) throws Exception;
 
-    void send(int id, Message message);
+    void send(int id, Message message) throws Exception;
 
     User getUser();
 }

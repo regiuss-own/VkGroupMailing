@@ -10,7 +10,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
+import ru.regiuss.vk.group.mailing.messenger.Messenger;
 import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
+import ru.regiuss.vk.group.mailing.model.Message;
 import ru.regiuss.vk.group.mailing.model.User;
 
 @Log4j2
@@ -91,6 +93,8 @@ public class MainController {
 
     @FXML
     void onStart(ActionEvent event) throws Exception {
-        log.info(new VkMessenger(tokenField.getText()).search(1, "game"));
+        Messenger messenger = new VkMessenger(tokenField.getText());
+        log.info(messenger.search(1, "game"));
+        messenger.send(214686349, new Message("asdsa", null));
     }
 }

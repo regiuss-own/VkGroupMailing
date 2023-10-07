@@ -53,8 +53,13 @@ public class VkMessenger implements Messenger {
     }
 
     @Override
-    public void send(int id, Message message) {
-
+    public void send(int id, Message message) throws Exception {
+        executeByToken(
+                "/method/messages.send", "POST",
+                "random_id", 0,
+                "peer_id", id,
+                "message", message.getText()
+        ).close();
     }
 
     @Override
