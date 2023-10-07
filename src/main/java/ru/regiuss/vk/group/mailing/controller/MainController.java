@@ -1,5 +1,6 @@
 package ru.regiuss.vk.group.mailing.controller;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -8,6 +9,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
+import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
+import ru.regiuss.vk.group.mailing.model.User;
 
 public class MainController {
 
@@ -62,7 +65,16 @@ public class MainController {
 
     @FXML
     void onCheckToken(ActionEvent event) {
-
+        final String token = tokenField.getText();
+        app.getExecutorService().execute(() -> {
+            final User user = VkMessenger.getUser(token);
+            Platform.runLater(() -> {
+                if (user == null)
+                    tokenStatus.setText("Ошибка");
+                else
+                    tokenStatus.setText("Рабочий");
+            });
+        });
     }
 
     @FXML
