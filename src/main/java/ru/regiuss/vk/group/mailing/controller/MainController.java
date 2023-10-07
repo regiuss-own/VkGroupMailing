@@ -8,10 +8,12 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
 import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
 import ru.regiuss.vk.group.mailing.model.User;
 
+@Log4j2
 public class MainController {
 
     private final VkGroupApp app;
@@ -88,7 +90,7 @@ public class MainController {
     }
 
     @FXML
-    void onStart(ActionEvent event) {
-
+    void onStart(ActionEvent event) throws Exception {
+        log.info(new VkMessenger(tokenField.getText()).search(1, "game"));
     }
 }
