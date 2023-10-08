@@ -78,7 +78,7 @@ public class MainController implements Initializable {
 
     @FXML
     void onAddMessage(ActionEvent event) {
-        MessagePopup popup = new MessagePopup();
+        MessagePopup popup = new MessagePopup(app);
         popup.setOnClose(() -> rootPane.getChildren().remove(popup));
         popup.setOnMessage(message -> {
             if (message != null)
@@ -125,7 +125,7 @@ public class MainController implements Initializable {
         int selectedIndex = messagesList.getSelectionModel().getSelectedIndex();
         if (selectedIndex == -1)
             return;
-        MessagePopup popup = new MessagePopup();
+        MessagePopup popup = new MessagePopup(app);
         popup.setOnClose(() -> rootPane.getChildren().remove(popup));
         popup.setMessage(messagesList.getItems().get(selectedIndex));
         popup.setOnMessage(message -> messagesList.refresh());
@@ -245,8 +245,8 @@ public class MainController implements Initializable {
             settingsPane.setDisable(true);
             task = new MailingTask(messenger, data);
             EventHandler<WorkerStateEvent> handler = workerStateEvent -> {
-                clear(startButton);
                 Throwable t = task.getException();
+                clear(startButton);
                 WarnPopup popup = t == null
                         ? new WarnPopup("Информация", "Рассылка завершена")
                         : new WarnPopup("Ошибка", t.getMessage());

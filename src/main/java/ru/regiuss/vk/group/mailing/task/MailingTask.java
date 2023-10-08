@@ -67,12 +67,13 @@ public class MailingTask extends Task<Void> {
                     for (int i = 0; i < 3; i++) {
                         try {
                             //messenger.send(group.getId(), message);
-                            updateMessage(timeStart, ++sendCount);
+                            sendCount++;
                             break;
                         } catch (Exception e) {
                             log.warn("send message error", e);
                         }
                     }
+                    updateMessage(timeStart, sendCount);
                     if (data.getMessageDelay() > 0)
                         Thread.sleep(data.getMessageDelay());
                 }

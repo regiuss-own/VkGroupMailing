@@ -28,7 +28,10 @@ public class MessageListCell extends ListCell<Message> {
             if (item.getAttachments() != null) {
                 for (Attachment attachment : item.getAttachments()) {
                     Label label = new Label(attachment.getFile().getName());
-                    label.setStyle("-fx-background-color: #346df1; -fx-text-fill: #fff; -fx-background-radius: 5px; -fx-padding: 5px");
+                    if (attachment.isDocument())
+                        label.setStyle("-fx-border-color: green; -fx-border-radius: 5px; -fx-padding: 5px");
+                    else
+                        label.setStyle("-fx-border-color: #346df1; -fx-border-radius: 5px; -fx-padding: 5px");
                     flowPane.getChildren().add(label);
                 }
             }
