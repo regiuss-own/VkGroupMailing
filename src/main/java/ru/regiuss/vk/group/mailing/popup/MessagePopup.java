@@ -24,6 +24,7 @@ public class MessagePopup extends StackPane implements Initializable {
     private Runnable onClose;
     @Setter
     private Consumer<Message> onMessage;
+    private Message message;
 
     public MessagePopup() {
         if (loader == null)
@@ -35,6 +36,11 @@ public class MessagePopup extends StackPane implements Initializable {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
+        textArea.setText(message.getText());
     }
 
     @FXML
@@ -54,7 +60,14 @@ public class MessagePopup extends StackPane implements Initializable {
 
     @FXML
     void onSave(ActionEvent event) {
-        onMessage.accept(new Message());
+        if (textArea.getText() == null || textArea.getText().trim().isEmpty()) {
+            onMessage.accept(null);
+        } else {
+            if (message == null)
+                message = new Message();
+            message.setText(textArea.getText());
+            onMessage.accept(message);
+        }
         onClose.run();
     }
 

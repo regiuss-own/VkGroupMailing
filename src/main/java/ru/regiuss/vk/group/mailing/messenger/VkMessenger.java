@@ -59,9 +59,9 @@ public class VkMessenger implements Messenger {
 
     @Override
     public void send(int id, Message message) throws Exception {
-        if (message.getFiles() != null && !message.getFiles().isEmpty()) {
-            for (File file : message.getFiles()) {
-                String attachment = upload(file);
+        if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
+            for (Attachment attachment : message.getAttachments()) {
+                String uploaded = upload(attachment);
             }
             /*String uploadUrl;
             try (InputStream is = executeByToken("/method/photos.getMessagesUploadServer", "POST")) {
@@ -77,17 +77,17 @@ public class VkMessenger implements Messenger {
         ).close();*/
     }
 
-    private String upload(File file) throws Exception {
-        String mimeType = Files.probeContentType(file.toPath());
+    private String upload(Attachment attachment) throws Exception {
+        String mimeType = Files.probeContentType(attachment.getFile().toPath());
         log.info(mimeType);
-        if (mimeType == null)
-            return uploadFile(file);
+        if (attachment.isDocument() || mimeType == null)
+            return uploadFile(attachment.getFile());
         else if(mimeType.startsWith("image"))
-            return uploadImage(file);
+            return uploadImage(attachment.getFile());
         else if(mimeType.startsWith("video"))
-            return uploadVideo(file);
+            return uploadVideo(attachment.getFile());
         else
-            return uploadFile(file);
+            return uploadFile(attachment.getFile());
     }
 
     private String uploadVideo(File file) throws Exception {

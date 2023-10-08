@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.File;
 import java.util.List;
 
 @Data
@@ -12,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class Message {
     private String text;
-    private List<File> files;
+    private List<Attachment> attachments;
 }

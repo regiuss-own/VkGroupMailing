@@ -4,10 +4,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import ru.regiuss.vk.group.mailing.model.Attachment;
 import ru.regiuss.vk.group.mailing.model.Message;
-
-import java.io.File;
 
 public class MessageListCell extends ListCell<Message> {
     @Override
@@ -19,15 +19,18 @@ public class MessageListCell extends ListCell<Message> {
             VBox vBox = new VBox();
             vBox.setSpacing(5);
             Text text = new Text(item.getText());
+            text.setFont(Font.font(16));
             text.setWrappingWidth(300);
             FlowPane flowPane = new FlowPane();
             flowPane.setMaxWidth(350);
             flowPane.setHgap(5);
             flowPane.setVgap(2);
-            for (File file : item.getFiles()) {
-                Label label = new Label(file.getName());
-                label.setStyle("-fx-background-color: #346df1; -fx-text-fill: #fff; -fx-background-radius: 5px; -fx-padding: 5px");
-                flowPane.getChildren().add(label);
+            if (item.getAttachments() != null) {
+                for (Attachment attachment : item.getAttachments()) {
+                    Label label = new Label(attachment.getFile().getName());
+                    label.setStyle("-fx-background-color: #346df1; -fx-text-fill: #fff; -fx-background-radius: 5px; -fx-padding: 5px");
+                    flowPane.getChildren().add(label);
+                }
             }
             vBox.getChildren().addAll(text, flowPane);
             setGraphic(vBox);

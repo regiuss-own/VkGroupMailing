@@ -191,13 +191,19 @@ TextFlow {
 
 .list-cell {
     -fx-text-fill: #000;
-    -fx-border-radius: 8px;
-    -fx-border-color: transparent;
+    -fx-padding-button: 5px;
 }
 
-.list-cell:filled:selected:focused, .list-cell:filled:selected {
+.list-cell > VBox {
+    -fx-background-color: #fff;
+    -fx-background-radius: 8px;
+    -fx-padding: 5px;
+    -fx-border-radius: 8px;
+    -fx-border-color: transparent
+}
+
+.list-cell:filled:selected:focused > VBox, .list-cell:filled:selected > VBox {
     -fx-border-color: blue;
-    -fx-text-fill: white;
 }
 
 .list-cell:filled:hover {
