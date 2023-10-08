@@ -4,6 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import ru.regiuss.vk.group.mailing.model.*;
 
 import java.io.File;
@@ -13,10 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -59,52 +60,145 @@ public class VkMessenger implements Messenger {
 
     @Override
     public void send(int id, Message message) throws Exception {
+        LinkedList<String> attachments = new LinkedList<>();
         if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
             for (Attachment attachment : message.getAttachments()) {
-                String uploaded = upload(attachment);
+                String uploaded = files.containsKey(attachment.getFile().getAbsolutePath()) ? files.get(attachment.getFile().getAbsolutePath()) : upload(attachment);
+                attachments.add(uploaded);
             }
-            /*String uploadUrl;
-            try (InputStream is = executeByToken("/method/photos.getMessagesUploadServer", "POST")) {
-                uploadUrl = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse().get("upload_url").asText();
-            }*/
-
         }
-        /*executeByToken(
-                "/method/messages.send", "POST",
-                "random_id", 0,
-                "peer_id", id,
-                "message", message.getText()
-        ).close();*/
+        if (attachments.isEmpty()) {
+            executeByToken(
+                    "/method/messages.send", "POST",
+                    "random_id", 0,
+                    "peer_id", id,
+                    "message", message.getText()
+            ).close();
+        } else {
+            executeByToken(
+                    "/method/messages.send", "POST",
+                    "random_id", 0,
+                    "peer_id", id,
+                    "message", message.getText(),
+                    "attachment", String.join(",", attachments)
+            ).close();
+        }
     }
 
     private String upload(Attachment attachment) throws Exception {
         String mimeType = Files.probeContentType(attachment.getFile().toPath());
         log.info(mimeType);
+        String uploadData;
         if (attachment.isDocument() || mimeType == null)
-            return uploadFile(attachment.getFile());
+            uploadData = uploadFile(attachment.getFile());
         else if(mimeType.startsWith("image"))
-            return uploadImage(attachment.getFile());
+            uploadData = uploadImage(attachment.getFile());
         else if(mimeType.startsWith("video"))
-            return uploadVideo(attachment.getFile());
+            uploadData = uploadVideo(attachment.getFile());
         else
-            return uploadFile(attachment.getFile());
+            uploadData = uploadFile(attachment.getFile());
+        files.put(attachment.getFile().getAbsolutePath(), uploadData);
+        return uploadData;
     }
 
     private String uploadVideo(File file) throws Exception {
-        String uploadUrl;
+        JsonNode saveNode;
         try (InputStream is = executeByToken("/method/video.save", "POST")) {
-            uploadUrl = OM.readValue(is, new TypeReference<Response<JsonNode>>() {})
-                    .getResponse().get("upload_url").asText();
+            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse();
         }
-        return null;
+        HttpURLConnection con = (HttpURLConnection) new URL(saveNode.get("upload_url").asText()).openConnection();
+        con.setRequestMethod("POST");
+        FileBody fileBody = new FileBody(file);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.STRICT);
+        builder.addPart("video_file", fileBody);
+        HttpEntity multipartEntity = builder.build();
+        con.setRequestProperty("Content-Type", multipartEntity.getContentType().getValue());
+        con.setDoOutput(true);
+        try (OutputStream os = con.getOutputStream()) {
+            multipartEntity.writeTo(os);
+        }
+        try (InputStream is = con.getInputStream()) {
+            JsonNode node = OM.readValue(is, JsonNode.class);
+            return String.format(
+                    "%s%s_%s_%s",
+                    "video",
+                    node.get("owner_id").asText(),
+                    node.get("video_id").asText(),
+                    saveNode.get("access_key").asText()
+            );
+        }
     }
 
     private String uploadImage(File file) throws Exception {
-        return null;
+        JsonNode saveNode;
+        try (InputStream is = executeByToken("/method/photos.getMessagesUploadServer", "POST")) {
+            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse();
+        }
+        HttpURLConnection con = (HttpURLConnection) new URL(saveNode.get("upload_url").asText()).openConnection();
+        con.setRequestMethod("POST");
+        FileBody fileBody = new FileBody(file);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.STRICT);
+        builder.addPart("photo", fileBody);
+        HttpEntity multipartEntity = builder.build();
+        con.setRequestProperty("Content-Type", multipartEntity.getContentType().getValue());
+        con.setDoOutput(true);
+        try (OutputStream os = con.getOutputStream()) {
+            multipartEntity.writeTo(os);
+        }
+        JsonNode photoData;
+        try (InputStream is = con.getInputStream()) {
+            photoData = OM.readValue(is, JsonNode.class);
+        }
+        try (InputStream is = executeByToken(
+                "/method/photos.saveMessagesPhoto", "POST",
+                "photo", photoData.get("photo").asText(),
+                "server", photoData.get("server").asText(),
+                "hash", photoData.get("hash").asText()
+        )) {
+            JsonNode node = OM.readValue(is, JsonNode.class).get("response").get(0);
+            log.info(node);
+            return String.format(
+                    "%s%s_%s_%s",
+                    "photo",
+                    node.get("owner_id").asText(),
+                    node.get("id").asText(),
+                    node.get("access_key").asText()
+            );
+        }
     }
 
     private String uploadFile(File file) throws Exception {
-        return null;
+        JsonNode saveNode;
+        try (InputStream is = executeByToken("/method/docs.getMessagesUploadServer", "POST", "type", "doc")) {
+            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse();
+        }
+        HttpURLConnection con = (HttpURLConnection) new URL(saveNode.get("upload_url").asText()).openConnection();
+        con.setRequestMethod("POST");
+        FileBody fileBody = new FileBody(file);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.STRICT);
+        builder.addPart("file", fileBody);
+        HttpEntity multipartEntity = builder.build();
+        con.setRequestProperty("Content-Type", multipartEntity.getContentType().getValue());
+        con.setDoOutput(true);
+        try (OutputStream os = con.getOutputStream()) {
+            multipartEntity.writeTo(os);
+        }
+        String fileData;
+        try (InputStream is = con.getInputStream()) {
+            fileData = OM.readValue(is, JsonNode.class).get("file").asText();
+        }
+        try (InputStream is = executeByToken("/method/docs.save", "POST", "file", fileData)) {
+            JsonNode node = OM.readValue(is, JsonNode.class).get("response");
+            return String.format(
+                    "%s%s_%s",
+                    node.get("type").asText(),
+                    node.get(node.get("type").asText()).get("owner_id").asText(),
+                    node.get(node.get("type").asText()).get("id").asText()
+            );
+        }
     }
 
     @Override

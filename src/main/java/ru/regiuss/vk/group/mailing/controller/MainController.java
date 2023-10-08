@@ -213,7 +213,6 @@ public class MainController implements Initializable {
 
     @FXML
     void onStart(ActionEvent event) {
-
         Button startButton = (Button) event.getTarget();
 
         if (task == null) {

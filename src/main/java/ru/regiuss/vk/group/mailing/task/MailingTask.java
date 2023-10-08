@@ -66,7 +66,7 @@ public class MailingTask extends Task<Void> {
                 for (Message message : data.getMessages()) {
                     for (int i = 0; i < 3; i++) {
                         try {
-                            //messenger.send(group.getId(), message);
+                            messenger.send(-group.getId(), message);
                             sendCount++;
                             break;
                         } catch (Exception e) {
