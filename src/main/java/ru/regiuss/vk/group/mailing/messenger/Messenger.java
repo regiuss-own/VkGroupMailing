@@ -8,7 +8,7 @@ import ru.regiuss.vk.group.mailing.model.User;
 import java.util.List;
 
 public interface Messenger {
-    List<Group> search(int page, String search) throws Exception;
+    List<Group> search(int page, String search, boolean sort) throws Exception;
 
     List<Fave> getFaves(int page) throws Exception;
 

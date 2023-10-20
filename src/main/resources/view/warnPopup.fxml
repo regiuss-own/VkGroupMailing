@@ -10,7 +10,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 
-<fx:root type="StackPane" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="StackPane" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane onMouseClicked="#onClickBackground" style="-fx-background-color: #000000aa;" />
       <VBox maxWidth="500.0" prefWidth="500.0" maxHeight="0" spacing="10.0" style="-fx-background-color: #e4e7ea; -fx-background-radius: 5px;" StackPane.alignment="CENTER">

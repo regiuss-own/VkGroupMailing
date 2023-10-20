@@ -9,4 +9,5 @@ public class SearchMailingData extends MailingData {
     private String search;
     private int minSubscribers;
     private int maxSubscribers;
+    private boolean sort;
 }

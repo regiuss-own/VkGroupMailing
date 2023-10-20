@@ -35,11 +35,11 @@ public class VkMessenger implements Messenger {
     }
 
     @Override
-    public List<Group> search(int page, String search) throws Exception {
+    public List<Group> search(int page, String search, boolean sort) throws Exception {
         try (InputStream is = executeByToken(
                 "/method/groups.search", "POST",
                 "q", search,
-                "sort", 6,
+                "sort", sort ? 6 : 0,
                 "offset", 10 * (page-1),
                 "count", 10,
                 "fields", "members_count"

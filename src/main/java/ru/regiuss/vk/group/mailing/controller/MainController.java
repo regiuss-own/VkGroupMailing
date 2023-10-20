@@ -50,6 +50,9 @@ public class MainController implements Initializable {
     private ToggleGroup taskTypeGroup;
 
     @FXML
+    private CheckBox sortCheckBox;
+
+    @FXML
     private ComboBox<BookmarkType> bookmarkType;
 
     @FXML
@@ -184,6 +187,7 @@ public class MainController implements Initializable {
             os.writeUTF(maxSubCountField.getText());
             os.writeInt(taskTypeGroup.getToggles().get(0).isSelected() ? 0 : 1);
             os.writeInt(bookmarkType.getSelectionModel().getSelectedIndex());
+            os.writeBoolean(sortCheckBox.isSelected());
         } catch (Exception e) {
             log.warn("save data error", e);
         }
@@ -223,6 +227,7 @@ public class MainController implements Initializable {
             maxSubCountField.setText(is.readUTF());
             taskTypeGroup.getToggles().get(is.readInt()).setSelected(true);
             bookmarkType.getSelectionModel().select(is.readInt());
+            sortCheckBox.setSelected(is.readBoolean());
         } catch (Exception e) {
             log.warn("load data error", e);
         }
@@ -252,6 +257,7 @@ public class MainController implements Initializable {
                     data.setSearch(searchField.getText());
                     data.setMinSubscribers(Integer.parseInt(minSubCountField.getText()));
                     data.setMaxSubscribers(Integer.parseInt(maxSubCountField.getText()));
+                    data.setSort(sortCheckBox.isSelected());
                     fillMailingData(data);
                     task = new SearchMailingTask(messenger, data);
                 } else {

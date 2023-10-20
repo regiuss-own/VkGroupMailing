@@ -46,7 +46,7 @@ public class SearchMailingTask extends Task<Void> {
             for (int i = 0; i < 3; i++) {
                 try {
                     log.info("search page {}", page);
-                    groups = messenger.search(page, data.getSearch());
+                    groups = messenger.search(page, data.getSearch(), data.isSort());
                     page++;
                     break;
                 } catch (Exception e) {
@@ -64,8 +64,11 @@ public class SearchMailingTask extends Task<Void> {
                 if (
                         data.getMinSubscribers() > 0 && group.getSubscribers() < data.getMinSubscribers()
                 ) {
-                    enabled = false;
-                    break;
+                    if (data.isSort()) {
+                        enabled = false;
+                        break;
+                    } else
+                        continue;
                 }
                 for (Message message : data.getMessages()) {
                     for (int i = 0; i < 3; i++) {
