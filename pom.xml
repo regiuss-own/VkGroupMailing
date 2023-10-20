@@ -55,7 +55,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
-                    <finalName>FoundersParser</finalName>
+                    <finalName>app</finalName>
                     <archive>
                         <manifest>
                             <mainClass>ru.regiuss.vk.group.mailing.VkGroupMailing</mainClass>

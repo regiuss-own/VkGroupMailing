@@ -3,34 +3,34 @@ package ru.regiuss.vk.group.mailing.controller;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.MessageListCell;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
+import ru.regiuss.vk.group.mailing.enums.BookmarkType;
 import ru.regiuss.vk.group.mailing.messenger.Messenger;
 import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
-import ru.regiuss.vk.group.mailing.model.Attachment;
-import ru.regiuss.vk.group.mailing.model.MailingData;
-import ru.regiuss.vk.group.mailing.model.Message;
-import ru.regiuss.vk.group.mailing.model.User;
+import ru.regiuss.vk.group.mailing.model.*;
 import ru.regiuss.vk.group.mailing.popup.AuthPopup;
 import ru.regiuss.vk.group.mailing.popup.MessagePopup;
 import ru.regiuss.vk.group.mailing.popup.WarnPopup;
-import ru.regiuss.vk.group.mailing.task.MailingTask;
+import ru.regiuss.vk.group.mailing.task.BookmarkMailingTask;
+import ru.regiuss.vk.group.mailing.task.SearchMailingTask;
 
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -39,6 +39,18 @@ import java.util.ResourceBundle;
 public class MainController implements Initializable {
 
     private final VkGroupApp app;
+
+    @FXML
+    private VBox bookmarkTaskBox;
+
+    @FXML
+    private VBox groupTaskBox;
+
+    @FXML
+    private ToggleGroup taskTypeGroup;
+
+    @FXML
+    private ComboBox<BookmarkType> bookmarkType;
 
     @FXML
     private TextField dialogDelayField;
@@ -51,6 +63,9 @@ public class MainController implements Initializable {
 
     @FXML
     private TextField minSubCountField;
+
+    @FXML
+    private TextField maxSubCountField;
 
     @FXML
     private StackPane rootPane;
@@ -70,7 +85,7 @@ public class MainController implements Initializable {
     @FXML
     private Label tokenStatus;
 
-    private MailingTask task;
+    private Task<?> task;
 
     public MainController(VkGroupApp app) {
         this.app = app;
@@ -132,14 +147,10 @@ public class MainController implements Initializable {
         rootPane.getChildren().add(popup);
     }
 
-    private MailingData getMailingData() {
-        MailingData data = new MailingData();
-        data.setSearch(searchField.getText());
+    private void fillMailingData(MailingData data) {
         data.setMessages(new ArrayList<>(messagesList.getItems()));
         data.setGroupDelay(Integer.parseInt(dialogDelayField.getText()) * 1000);
         data.setMessageDelay(Integer.parseInt(messageDelayField.getText()) * 1000);
-        data.setMinSubscribers(Integer.parseInt(minSubCountField.getText()));
-        return data;
     }
 
     private void saveData() {
@@ -170,6 +181,9 @@ public class MainController implements Initializable {
                     }
                 }
             }
+            os.writeUTF(maxSubCountField.getText());
+            os.writeInt(taskTypeGroup.getToggles().get(0).isSelected() ? 0 : 1);
+            os.writeInt(bookmarkType.getSelectionModel().getSelectedIndex());
         } catch (Exception e) {
             log.warn("save data error", e);
         }
@@ -206,6 +220,9 @@ public class MainController implements Initializable {
                 }
             }
             messagesList.setItems(FXCollections.observableList(messages));
+            maxSubCountField.setText(is.readUTF());
+            taskTypeGroup.getToggles().get(is.readInt()).setSelected(true);
+            bookmarkType.getSelectionModel().select(is.readInt());
         } catch (Exception e) {
             log.warn("load data error", e);
         }
@@ -229,9 +246,20 @@ public class MainController implements Initializable {
                 return;
             }
             Messenger messenger = new VkMessenger(tokenField.getText());
-            MailingData data;
             try {
-                data = getMailingData();
+                if (taskTypeGroup.getToggles().get(0).isSelected()) {
+                    SearchMailingData data = new SearchMailingData();
+                    data.setSearch(searchField.getText());
+                    data.setMinSubscribers(Integer.parseInt(minSubCountField.getText()));
+                    data.setMaxSubscribers(Integer.parseInt(maxSubCountField.getText()));
+                    fillMailingData(data);
+                    task = new SearchMailingTask(messenger, data);
+                } else {
+                    BookmarkMailingData data = new BookmarkMailingData();
+                    data.setType(bookmarkType.getSelectionModel().getSelectedItem());
+                    fillMailingData(data);
+                    task = new BookmarkMailingTask(messenger, data);
+                }
             } catch (Exception e) {
                 log.warn("get mailing data error", e);
                 WarnPopup popup = new WarnPopup("Ошибка", "Проверьте правильность введенных данных");
@@ -242,7 +270,6 @@ public class MainController implements Initializable {
             saveData();
             startButton.setText("Стоп");
             settingsPane.setDisable(true);
-            task = new MailingTask(messenger, data);
             EventHandler<WorkerStateEvent> handler = workerStateEvent -> {
                 Throwable t = task.getException();
                 clear(startButton);
@@ -274,9 +301,33 @@ public class MainController implements Initializable {
         return field.getText() == null || field.getText().trim().isEmpty();
     }
 
+    private void setVisible(Parent parent, boolean visible) {
+        parent.setManaged(visible);
+        parent.setVisible(visible);
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         messagesList.setCellFactory(messageListView -> new MessageListCell());
+        bookmarkType.setItems(FXCollections.observableList(Arrays.asList(BookmarkType.values())));
+        taskTypeGroup.selectedToggleProperty().addListener((observableValue, toggle, t1) -> {
+            if (t1 == null) {
+                toggle.setSelected(true);
+                return;
+            }
+            if (taskTypeGroup.getToggles().get(0).isSelected()) {
+                setVisible(groupTaskBox, true);
+                setVisible(bookmarkTaskBox, false);
+            } else {
+                setVisible(bookmarkTaskBox, true);
+                setVisible(groupTaskBox, false);
+            }
+        });
         loadData();
+        if (taskTypeGroup.getSelectedToggle() == null)
+            taskTypeGroup.getToggles().get(0).setSelected(true);
+        if (bookmarkType.getSelectionModel().isEmpty())
+            bookmarkType.getSelectionModel().select(0);
+        log.info(bookmarkType.getSelectionModel().isEmpty());
     }
 }

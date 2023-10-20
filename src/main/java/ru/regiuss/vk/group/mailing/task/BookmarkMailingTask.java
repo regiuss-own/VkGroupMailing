@@ -2,11 +2,11 @@ package ru.regiuss.vk.group.mailing.task;
 
 import javafx.concurrent.Task;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import ru.regiuss.vk.group.mailing.enums.BookmarkType;
 import ru.regiuss.vk.group.mailing.messenger.Messenger;
-import ru.regiuss.vk.group.mailing.model.Group;
-import ru.regiuss.vk.group.mailing.model.MailingData;
+import ru.regiuss.vk.group.mailing.model.BookmarkMailingData;
+import ru.regiuss.vk.group.mailing.model.Fave;
 import ru.regiuss.vk.group.mailing.model.Message;
 import ru.regiuss.vk.group.mailing.model.User;
 
@@ -14,12 +14,10 @@ import java.util.List;
 
 @Log4j2
 @RequiredArgsConstructor
-public class MailingTask extends Task<Void> {
+public class BookmarkMailingTask extends Task<Void> {
 
     private final Messenger messenger;
-    private final MailingData data;
-    @Setter
-    private boolean enabled = true;
+    private final BookmarkMailingData data;
 
     @Override
     protected Void call() throws Exception {
@@ -41,32 +39,34 @@ public class MailingTask extends Task<Void> {
         if (user == null)
             throw new RuntimeException("Токен недействителен");
         int page = 1;
-        List<Group> groups = null;
-        while (enabled && !Thread.currentThread().isInterrupted()) {
+        List<Fave> faves = null;
+        while (!Thread.currentThread().isInterrupted()) {
             for (int i = 0; i < 3; i++) {
                 try {
                     log.info("search page {}", page);
-                    groups = messenger.search(page, data.getSearch());
+                    faves = messenger.getFaves(page);
                     page++;
                     break;
                 } catch (Exception e) {
                     log.warn("search error", e);
                 }
             }
-            log.info("found groups {}", groups);
-            if (groups == null)
+            log.info("found faves {}", faves);
+            if (faves == null)
                 throw new RuntimeException("Не удалось получить список групп");
-            if (groups.isEmpty())
+            if (faves.isEmpty())
                 break;
-            for (Group group : groups) {
-                if (data.getMinSubscribers() > 0 && group.getSubscribers() < data.getMinSubscribers()) {
-                    enabled = false;
-                    break;
+            for (Fave fave : faves) {
+                if (!data.getType().equals(BookmarkType.ALL)) {
+                    if (data.getType().equals(BookmarkType.USERS) && !fave.getType().equals("user"))
+                        continue;
+                    if (data.getType().equals(BookmarkType.GROUPS) && fave.getType().equals("user"))
+                        continue;
                 }
                 for (Message message : data.getMessages()) {
                     for (int i = 0; i < 3; i++) {
                         try {
-                            messenger.send(-group.getId(), message);
+                            messenger.send(fave.getType().equals("user") ? fave.getId() : -fave.getId(), message);
                             sendCount++;
                             break;
                         } catch (Exception e) {

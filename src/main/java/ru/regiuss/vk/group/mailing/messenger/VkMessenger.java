@@ -36,25 +36,38 @@ public class VkMessenger implements Messenger {
 
     @Override
     public List<Group> search(int page, String search) throws Exception {
-        String ids;
         try (InputStream is = executeByToken(
                 "/method/groups.search", "POST",
                 "q", search,
                 "sort", 6,
                 "offset", 10 * (page-1),
-                "count", 10
-        )) {
-            ids = OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>(){}).getResponse()
-                    .getItems().stream().map(node -> node.get("id").asText()).collect(Collectors.joining(","));
-        }
-        if (ids.isEmpty())
-            return Collections.emptyList();
-        try (InputStream is = executeByToken(
-                "/method/groups.getById", "POST",
-                "group_ids", ids,
+                "count", 10,
                 "fields", "members_count"
         )) {
-            return OM.readValue(is, new TypeReference<Response<Map<String, List<Group>>>>(){}).getResponse().get("groups");
+            return OM.readValue(is, new TypeReference<Response<ItemsResult<Group>>>(){}).getResponse().getItems();
+        }
+    }
+
+    @Override
+    public List<Fave> getFaves(int page) throws Exception {
+        try (InputStream is = executeByToken(
+                "/method/fave.getPages", "POST",
+                "offset", 10 * (page-1),
+                "count", 10
+        )) {
+            return OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>(){}).getResponse().getItems()
+                    .stream().map(node -> {
+                        String type = node.get("type").asText();
+                        JsonNode n = node.get(type);
+                        Fave fave = new Fave();
+                        fave.setType(type);
+                        fave.setId(n.get("id").asInt());
+                        if (type.equals("user"))
+                            fave.setName(n.get("first_name").asText() + " " + n.get("last_name").asText());
+                        else
+                            fave.setName(n.get("name").asText());
+                        return fave;
+                    }).collect(Collectors.toList());
         }
     }
 
