@@ -36,7 +36,7 @@ TextFlow {
     -fx-background-color: red
 }
 
-.button:hover, .toggle-button:hover, .tab:hover {
+.button:hover, .toggle-button:hover, .tab:hover, .radio-button:hover, .menu-button:hover {
     -fx-cursor: hand;
 }
 
@@ -63,6 +63,10 @@ TextFlow {
 
 .toggle-button:selected {
     -fx-background-color: #346df1;
+}
+
+.menu-button:selected {
+    -fx-background-color: transparent;
 }
 
 .toggle-button:selected * {
@@ -204,8 +208,4 @@ TextFlow {
 
 .list-cell:filled:selected:focused > VBox, .list-cell:filled:selected > VBox {
     -fx-border-color: blue;
-}
-
-.list-cell:filled:hover {
-    /*-fx-background-color: #0093ff;*/
 }

@@ -8,8 +8,11 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.Getter;
 import ru.regiuss.vk.group.mailing.controller.MainController;
+import ru.regiuss.vk.group.mailing.node.RootPane;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
@@ -18,7 +21,9 @@ import java.util.prefs.Preferences;
 public class VkGroupApp extends Application {
 
     private Stage stage;
+    private RootPane root;
     private final ExecutorService executorService;
+    private final Map<String, Parent> screens = new HashMap<>(8);
 
     public VkGroupApp() {
         executorService = Executors.newSingleThreadExecutor(r -> {
@@ -52,11 +57,37 @@ public class VkGroupApp extends Application {
         }
 
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main.fxml"));
+        /*FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main.fxml"));
         loader.setController(new MainController(this));
         Parent parent = loader.load();
-        stage.setScene(new Scene(parent));
+        stage.setScene(new Scene(parent));*/
+        root = new RootPane(this);
+        stage.setScene(new Scene(root));
         stage.show();
+    }
+
+    public void openGroupScreen() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main.fxml"));
+        loader.setController(new MainController(this));
+        try {
+            Parent parent = loader.load();
+            openScreen(parent);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void openScreen(Parent screen) {
+        root.getScreen().getChildren().clear();
+        root.getScreen().getChildren().add(screen);
+    }
+
+    public void showModal(Parent modal) {
+        root.getChildren().add(modal);
+    }
+
+    public void hideModal(Parent modal) {
+        root.getChildren().remove(modal);
     }
 
     @Override

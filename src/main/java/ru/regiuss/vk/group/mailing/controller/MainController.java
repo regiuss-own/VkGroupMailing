@@ -12,7 +12,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.MessageListCell;
@@ -71,9 +70,6 @@ public class MainController implements Initializable {
     private TextField maxSubCountField;
 
     @FXML
-    private StackPane rootPane;
-
-    @FXML
     private TextField searchField;
 
     @FXML
@@ -97,20 +93,20 @@ public class MainController implements Initializable {
     @FXML
     void onAddMessage(ActionEvent event) {
         MessagePopup popup = new MessagePopup(app);
-        popup.setOnClose(() -> rootPane.getChildren().remove(popup));
+        popup.setOnClose(() -> app.hideModal(popup));
         popup.setOnMessage(message -> {
             if (message != null)
                 messagesList.getItems().add(message);
         });
-        rootPane.getChildren().add(popup);
+        app.showModal(popup);
     }
 
     @FXML
     void onAuth(ActionEvent event) {
         AuthPopup popup = new AuthPopup();
-        popup.setOnClose(() -> rootPane.getChildren().remove(popup));
+        popup.setOnClose(() -> app.hideModal(popup));
         popup.setOnToken(token -> tokenField.setText(token));
-        rootPane.getChildren().add(popup);
+        app.showModal(popup);
     }
 
     @FXML
@@ -144,10 +140,10 @@ public class MainController implements Initializable {
         if (selectedIndex == -1)
             return;
         MessagePopup popup = new MessagePopup(app);
-        popup.setOnClose(() -> rootPane.getChildren().remove(popup));
+        popup.setOnClose(() -> app.hideModal(popup));
         popup.setMessage(messagesList.getItems().get(selectedIndex));
         popup.setOnMessage(message -> messagesList.refresh());
-        rootPane.getChildren().add(popup);
+        app.showModal(popup);
     }
 
     private void fillMailingData(MailingData data) {
@@ -240,14 +236,14 @@ public class MainController implements Initializable {
         if (task == null) {
             if (fieldIsInvalid(tokenField)) {
                 WarnPopup popup = new WarnPopup("Ошибка", "Заполните поле Токен");
-                popup.setOnClose(() -> rootPane.getChildren().remove(popup));
-                rootPane.getChildren().add(popup);
+                popup.setOnClose(() -> app.hideModal(popup));
+                app.showModal(popup);
                 return;
             }
             if (messagesList.getItems().isEmpty()) {
                 WarnPopup popup = new WarnPopup("Ошибка", "Укажите хотябы одно сообщение");
-                popup.setOnClose(() -> rootPane.getChildren().remove(popup));
-                rootPane.getChildren().add(popup);
+                popup.setOnClose(() -> app.hideModal(popup));
+                app.showModal(popup);
                 return;
             }
             Messenger messenger = new VkMessenger(tokenField.getText());
@@ -269,8 +265,8 @@ public class MainController implements Initializable {
             } catch (Exception e) {
                 log.warn("get mailing data error", e);
                 WarnPopup popup = new WarnPopup("Ошибка", "Проверьте правильность введенных данных");
-                popup.setOnClose(() -> rootPane.getChildren().remove(popup));
-                rootPane.getChildren().add(popup);
+                popup.setOnClose(() -> app.hideModal(popup));
+                app.showModal(popup);
                 return;
             }
             saveData();
@@ -282,8 +278,8 @@ public class MainController implements Initializable {
                 WarnPopup popup = t == null
                         ? new WarnPopup("Информация", "Рассылка завершена")
                         : new WarnPopup("Ошибка", t.getMessage());
-                popup.setOnClose(() -> rootPane.getChildren().remove(popup));
-                rootPane.getChildren().add(popup);
+                popup.setOnClose(() -> app.hideModal(popup));
+                app.showModal(popup);
             };
             task.setOnSucceeded(handler);
             task.setOnFailed(handler);

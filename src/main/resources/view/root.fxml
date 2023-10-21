@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root type="StackPane" prefHeight="600.0" prefWidth="800.0" stylesheets="@../style/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <BorderPane>
+         <left>
+            <VBox fx:id="sideBarBox" prefWidth="50.0" alignment="TOP_CENTER" spacing="10" BorderPane.alignment="CENTER" />
+         </left>
+         <center>
+            <StackPane id="root" fx:id="screen" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
+   </children>
+</fx:root>
