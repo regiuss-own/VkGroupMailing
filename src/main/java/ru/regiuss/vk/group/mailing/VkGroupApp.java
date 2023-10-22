@@ -1,32 +1,34 @@
 package ru.regiuss.vk.group.mailing;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
 import lombok.Getter;
-import ru.regiuss.vk.group.mailing.controller.MainController;
 import ru.regiuss.vk.group.mailing.node.RootPane;
+import ru.regiuss.vk.group.mailing.screen.GroupRunnableScreen;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.prefs.Preferences;
 
 @Getter
-public class VkGroupApp extends Application {
+public class VkGroupApp extends RGFXAPP {
 
-    private Stage stage;
     private RootPane root;
-    private final ExecutorService executorService;
     private final Map<String, Parent> screens = new HashMap<>(8);
 
-    public VkGroupApp() {
-        executorService = Executors.newSingleThreadExecutor(r -> {
+    @Override
+    public void start() {
+        init(800, 600, "VkMailing", getClass().getResource("/img/icon.png"));
+        root = new RootPane(this);
+        stage.setScene(new Scene(root));
+        root.getMenuToggleGroup().getToggles().get(0).setSelected(true);
+        stage.show();
+    }
+
+    @Override
+    public ExecutorService getExecutorService() {
+        return Executors.newSingleThreadExecutor(r -> {
             Thread t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
             t.setName("App-Thread-Pool-");
@@ -34,46 +36,14 @@ public class VkGroupApp extends Application {
         });
     }
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        this.stage = stage;
-        stage.setTitle("VkGroupMailing");
-        stage.setMinWidth(800);
-        stage.setMinHeight(600);
-        try (InputStream iconStream = getClass().getResourceAsStream("/img/icon.png")) {
-            if (iconStream != null)
-                stage.getIcons().add(new Image(iconStream));
-        }
-
-        Preferences userPrefs = Preferences.userNodeForPackage(getClass());
-        stage.setWidth(userPrefs.getDouble("app.position.w", 800));
-        stage.setHeight(userPrefs.getDouble("app.position.h", 600));
-        double x = userPrefs.getDouble("app.position.x", 0);
-        double y = userPrefs.getDouble("app.position.y", 0);
-
-        if(x + y > 0) {
-            stage.setX(x);
-            stage.setY(y);
-        }
-
-
-        /*FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main.fxml"));
-        loader.setController(new MainController(this));
-        Parent parent = loader.load();
-        stage.setScene(new Scene(parent));*/
-        root = new RootPane(this);
-        stage.setScene(new Scene(root));
-        stage.show();
-    }
-
     public void openGroupScreen() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main.fxml"));
-        loader.setController(new MainController(this));
-        try {
-            Parent parent = loader.load();
+        Parent parent = screens.get("group");
+        if (parent == null) {
+            parent = new GroupRunnableScreen();
+            screens.put("group", parent);
             openScreen(parent);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } else {
+            openScreen(parent);
         }
     }
 
@@ -88,16 +58,5 @@ public class VkGroupApp extends Application {
 
     public void hideModal(Parent modal) {
         root.getChildren().remove(modal);
-    }
-
-    @Override
-    public void stop() throws Exception {
-        super.stop();
-        Preferences userPrefs = Preferences.userNodeForPackage(getClass());
-        userPrefs.putDouble("app.position.x", stage.getX());
-        userPrefs.putDouble("app.position.y", stage.getY());
-        userPrefs.putDouble("app.position.w", stage.getWidth());
-        userPrefs.putDouble("app.position.h", stage.getHeight());
-        executorService.shutdownNow();
     }
 }

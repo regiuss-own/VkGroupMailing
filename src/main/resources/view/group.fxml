@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import ru.regiuss.vk.group.mailing.node.RunnablePane?>
+<fx:root type="ru.regiuss.vk.group.mailing.node.RunnablePane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="ru.regiuss.vk.group.mailing.screen.GroupRunnableScreen">
+    <header>
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Button styleClass="white" text="Аккаунт: Илья Сбодунов">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Button>
+            <Button styleClass="white" text="Набор сообщений: Приложение с картинкой">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Button>
+        </HBox>
+    </header>
+    <content>
+        <ScrollPane fitToWidth="true">
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" HBox.hgrow="ALWAYS">
+                <VBox>
+                    <Label text="Задержка между диалогами">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <HBox alignment="CENTER_LEFT" spacing="5.0">
+                        <TextField fx:id="dialogDelayField" text="0">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </TextField>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="сек.">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Text>
+                    </HBox>
+                </VBox>
+                <VBox>
+                    <Label text="Задержка между сообщениями">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <HBox alignment="CENTER_LEFT" spacing="5.0">
+                        <TextField fx:id="messageDelayField" text="0">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </TextField>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="сек.">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Text>
+                    </HBox>
+                </VBox>
+                <VBox>
+                    <Label text="Минимальное количество подписчиков">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="minSubCountField" text="0">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
+                <VBox>
+                    <children>
+                        <Label text="Максимальное количество подписчиков">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Label>
+                        <TextField fx:id="maxSubCountField" text="0">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </TextField>
+                    </children>
+                </VBox>
+                <VBox>
+                    <Label text="Строка поиска">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="searchField">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
+                <CheckBox fx:id="sortCheckBox" mnemonicParsing="false" text="Сортировать по количеству подписчиков">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </CheckBox>
+            </VBox>
+        </ScrollPane>
+    </content>
+</fx:root>

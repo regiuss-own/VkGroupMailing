@@ -209,3 +209,22 @@ TextFlow {
 .list-cell:filled:selected:focused > VBox, .list-cell:filled:selected > VBox {
     -fx-border-color: blue;
 }
+
+
+.clear {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+}
+
+.white {
+    -fx-background-color: #f2f4f5;
+    -fx-color: #000;
+    -fx-text-fill: #000;
+    -fx-fill: #000;
+}
+
+.white * {
+    -fx-color: #000;
+    -fx-text-fill: #000;
+    -fx-fill: #000;
+}

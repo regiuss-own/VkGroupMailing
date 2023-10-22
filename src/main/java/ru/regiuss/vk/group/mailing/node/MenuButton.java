@@ -1,9 +1,8 @@
 package ru.regiuss.vk.group.mailing.node;
 
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -11,7 +10,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.paint.Paint;
 
-public class MenuButton extends RadioButton {
+public class MenuButton extends ToggleButton {
 
     private final Image image;
     private final Image imageSelected;
@@ -21,17 +20,14 @@ public class MenuButton extends RadioButton {
         this.image = image;
         this.imageSelected = imageSelected;
         setToggleGroup(toggleGroup);
-        getStyleClass().remove("radio-button");
+        setMinWidth(60);
+        setMaxWidth(60);
         setPadding(new Insets(5));
         getStyleClass().add("menu-button");
         view = new ImageView();
         view.setImage(image);
-        setPrefSize(50, 50);
-        view.setFitWidth(45);
         setAlignment(Pos.CENTER);
         setGraphicTextGap(0);
-        setBackground(new Background(new BackgroundFill(Paint.valueOf("red"), null, null)));
-        view.setFitHeight(45);
         setGraphic(view);
         selectedProperty().addListener((observableValue, aBoolean, t1) -> {
             if (t1) {
@@ -41,5 +37,12 @@ public class MenuButton extends RadioButton {
                 view.setImage(image);
             }
         });
+    }
+
+    @Override
+    public void fire() {
+        if (this.getToggleGroup() == null || !this.isSelected()) {
+            super.fire();
+        }
     }
 }
