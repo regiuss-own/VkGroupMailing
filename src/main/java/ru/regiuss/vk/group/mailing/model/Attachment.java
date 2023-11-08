@@ -1,15 +1,27 @@
 package ru.regiuss.vk.group.mailing.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.io.File;
+import javax.persistence.*;
 
-@Data
+@Entity
+@Table(name = "attachments")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Attachment {
-    private File file;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "attachment_id", nullable = false)
+    private Integer id;
+
+    @Column(name = "file_patch", length = 255, nullable = false)
+    private String filePatch;
+
+    @Column(name = "is_document", nullable = false)
     private boolean document;
 }

@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.enums.BookmarkType;
 import ru.regiuss.vk.group.mailing.messenger.Messenger;
-import ru.regiuss.vk.group.mailing.model.BookmarkMailingData;
-import ru.regiuss.vk.group.mailing.model.Fave;
-import ru.regiuss.vk.group.mailing.model.Message;
-import ru.regiuss.vk.group.mailing.model.User;
+import ru.regiuss.vk.group.mailing.model.*;
 
 import java.util.List;
 
@@ -26,10 +23,10 @@ public class BookmarkMailingTask extends Task<Void> {
 
         updateMessage(timeStart, sendCount);
 
-        User user = null;
+        Account user = null;
         for (int i = 0; i < 3; i++) {
             try {
-                user = messenger.getUser();
+                user = messenger.getAccount();
                 break;
             } catch (Exception e) {
                 log.warn("get user error", e);
@@ -39,7 +36,7 @@ public class BookmarkMailingTask extends Task<Void> {
         if (user == null)
             throw new RuntimeException("Токен недействителен");
         int page = 1;
-        List<Fave> faves = null;
+        List<Page> faves = null;
         while (!Thread.currentThread().isInterrupted()) {
             for (int i = 0; i < 3; i++) {
                 try {
@@ -56,17 +53,17 @@ public class BookmarkMailingTask extends Task<Void> {
                 throw new RuntimeException("Не удалось получить список групп");
             if (faves.isEmpty())
                 break;
-            for (Fave fave : faves) {
+            for (Page fave : faves) {
                 if (!data.getType().equals(BookmarkType.ALL)) {
-                    if (data.getType().equals(BookmarkType.USERS) && !fave.getType().equals("user"))
+                    if (data.getType().equals(BookmarkType.USERS) && !fave.getType().equals(PageType.USER))
                         continue;
-                    if (data.getType().equals(BookmarkType.GROUPS) && fave.getType().equals("user"))
+                    if (data.getType().equals(BookmarkType.GROUPS) && fave.getType().equals(PageType.USER))
                         continue;
                 }
                 for (Message message : data.getMessages()) {
                     for (int i = 0; i < 3; i++) {
                         try {
-                            messenger.send(fave.getType().equals("user") ? fave.getId() : -fave.getId(), message);
+                            messenger.send(fave.getType().equals(PageType.USER) ? fave.getId() : -fave.getId(), message);
                             sendCount++;
                             break;
                         } catch (Exception e) {
@@ -77,8 +74,8 @@ public class BookmarkMailingTask extends Task<Void> {
                     if (data.getMessageDelay() > 0)
                         Thread.sleep(data.getMessageDelay());
                 }
-                if (data.getGroupDelay() > 0)
-                    Thread.sleep(data.getGroupDelay());
+                if (data.getDialogDelay() > 0)
+                    Thread.sleep(data.getDialogDelay());
             }
         }
         return null;

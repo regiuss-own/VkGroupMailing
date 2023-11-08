@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import ru.regiuss.vk.group.mailing.node.SelectAccountButton?>
+<?import space.regiuss.rgfx.node.Icon?>
+<?import space.regiuss.rgfx.node.RunnablePane?>
+<fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="ru.regiuss.vk.group.mailing.screen.MailingRunnableScreen">
+    <header>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <SelectAccountButton fx:id="selectAccountButton" fx:factory="getInstance"/>
+            <Button fx:id="selectMessageButton" onAction="#onSelectMessageClick" styleClass="white" text="Сообщение: Не выбрано">
+                <graphic>
+                    <Icon value="COMMENT" type="REGULAR" size="16" fill="#000"/>
+                </graphic>
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Button>
+        </HBox>
+    </header>
+    <content>
+        <HBox alignment="TOP_CENTER" spacing="50.0">
+            <VBox HBox.hgrow="ALWAYS" maxWidth="550" spacing="10.0">
+                <Text text="Параметры">
+                    <font>
+                        <Font size="30"/>
+                    </font>
+                </Text>
+                <VBox>
+                    <Label text="Задержка между диалогами">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <HBox alignment="CENTER_LEFT" spacing="5.0">
+                        <TextField HBox.hgrow="ALWAYS" fx:id="dialogDelayField" text="0">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </TextField>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="сек.">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Text>
+                    </HBox>
+                </VBox>
+                <VBox>
+                    <Label text="Задержка между сообщениями">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <HBox alignment="CENTER_LEFT" spacing="5.0">
+                        <TextField HBox.hgrow="ALWAYS" fx:id="messageDelayField" text="0">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </TextField>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="сек.">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Text>
+                    </HBox>
+                </VBox>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" maxWidth="700" spacing="10">
+                <HBox alignment="CENTER_LEFT">
+                    <Text text="Текущий набор ">
+                        <font>
+                            <Font size="30"/>
+                        </font>
+                    </Text>
+                    <Text fx:id="countText" text="(0)">
+                        <font>
+                            <Font size="30"/>
+                        </font>
+                    </Text>
+                    <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
+                        <Button minWidth="220" graphicTextGap="10" text="Указать набор" onAction="#onUploadKitClick">
+                            <graphic>
+                                <Icon value="FILE_IMPORT" type="SOLID" size="16" fill="#fff"/>
+                            </graphic>
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Button>
+                    </HBox>
+                </HBox>
+                <ListView VBox.vgrow="ALWAYS" fx:id="kitListView">
+                    <placeholder>
+                        <Text text="Набор пуст">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Text>
+                    </placeholder>
+                </ListView>
+            </VBox>
+        </HBox>
+    </content>
+</fx:root>

@@ -2,12 +2,11 @@ package ru.regiuss.vk.group.mailing.screen;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -15,32 +14,25 @@ import ru.regiuss.vk.group.mailing.VkGroupApp;
 import ru.regiuss.vk.group.mailing.messenger.Messenger;
 import ru.regiuss.vk.group.mailing.messenger.VkMessenger;
 import ru.regiuss.vk.group.mailing.model.Account;
-import ru.regiuss.vk.group.mailing.model.SearchGroupData;
+import ru.regiuss.vk.group.mailing.model.ProfileTaskData;
 import ru.regiuss.vk.group.mailing.node.CurrentKitView;
 import ru.regiuss.vk.group.mailing.node.SelectAccountButton;
-import ru.regiuss.vk.group.mailing.task.GroupTask;
-import space.regiuss.rgfx.RGFXAPP;
+import ru.regiuss.vk.group.mailing.task.ProfileTask;
 import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
+import space.regiuss.rgfx.spring.RGFXAPP;
 
 import java.io.*;
 
-@Slf4j
+@Log4j2
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
-public class GroupRunnableScreen extends RunnablePane {
+public class ProfileRunnableScreen extends RunnablePane {
 
     private final VkGroupApp app;
-    private GroupTask task;
-
-    @FXML
-    @Getter
-    private CurrentKitView currentKitView;
-
-    @FXML
-    private SelectAccountButton selectAccountButton;
+    private ProfileTask task;
 
     @FXML
     private TextField minSubCountField;
@@ -49,13 +41,17 @@ public class GroupRunnableScreen extends RunnablePane {
     private TextField maxSubCountField;
 
     @FXML
-    private TextField searchField;
+    @Getter
+    private CurrentKitView currentKitView;
 
     @FXML
-    private CheckBox sortCheckBox;
+    private TextField groupField;
+
+    @FXML
+    private SelectAccountButton selectAccountButton;
 
     {
-        RGFXAPP.load(this, getClass().getResource("/view/screen/group.fxml"));
+        RGFXAPP.load(this, getClass().getResource("/view/screen/profiles.fxml"));
         load();
     }
 
@@ -66,11 +62,6 @@ public class GroupRunnableScreen extends RunnablePane {
             app.showAlert(new SimpleAlert("Выберите аккаунт", AlertVariant.DANGER), Duration.seconds(5));
             return;
         }
-        if (searchField.getText() == null || searchField.getText().trim().isEmpty()) {
-            app.showAlert(new SimpleAlert("Поле Поиск не может быть пустым", AlertVariant.DANGER), Duration.seconds(5));
-            return;
-        }
-
         int maxSubCount = 0;
         try {
             maxSubCount = Integer.parseInt(maxSubCountField.getText());
@@ -102,33 +93,23 @@ public class GroupRunnableScreen extends RunnablePane {
         startButton.setDisable(true);
         stopButton.setDisable(false);
         save();
-        SearchGroupData data = new SearchGroupData();
-        data.setSearch(searchField.getText());
-        data.setSort(sortCheckBox.isSelected());
-        data.setMaxSubscribers(maxSubCount);
-        data.setMinSubscribers(minSubCount);
+        ProfileTaskData taskData = new ProfileTaskData();
+        taskData.setGroup(groupField.getText());
+        taskData.setMinSubscribersCount(minSubCount);
+        taskData.setMaxSubscribersCount(maxSubCount);
         Messenger messenger = new VkMessenger(account.getToken());
-        task = new GroupTask(messenger, data);
+        task = new ProfileTask(messenger, taskData);
         currentKitView.applyPageListListener(task.getPageListProperty());
         applyTask(
                 task,
-                "По группам",
+                "По профилям",
                 app
         );
         app.getExecutorService().execute(task);
     }
 
-    @Override
-    public void onStop(ActionEvent event) {
-        clear();
-        if (task != null) {
-            task.cancel(true);
-            task = null;
-        }
-    }
-
     private void save() {
-        try (DataOutputStream os = new DataOutputStream(new FileOutputStream("data/group"))) {
+        try (DataOutputStream os = new DataOutputStream(new FileOutputStream("data/profile"))) {
             Account account = selectAccountButton.getCurrentAccount().get();
             if (account == null)
                 os.writeInt(-1);
@@ -136,16 +117,15 @@ public class GroupRunnableScreen extends RunnablePane {
                 os.writeInt(account.getId());
             os.writeUTF(minSubCountField.getText());
             os.writeUTF(maxSubCountField.getText());
-            os.writeUTF(searchField.getText());
-            os.writeBoolean(sortCheckBox.isSelected());
+            os.writeUTF(groupField.getText());
         } catch (Exception e) {
-            log.warn("save group settings error", e);
+            log.warn("save profile settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
         }
     }
 
     private void load() {
-        File loadFile = new File("data/group");
+        File loadFile = new File("data/profile");
         if (!loadFile.exists())
             return;
         try (DataInputStream is = new DataInputStream(new FileInputStream(loadFile))) {
@@ -154,11 +134,19 @@ public class GroupRunnableScreen extends RunnablePane {
                 selectAccountButton.selectAccountById(accountId);
             minSubCountField.setText(is.readUTF());
             maxSubCountField.setText(is.readUTF());
-            searchField.setText(is.readUTF());
-            sortCheckBox.setSelected(is.readBoolean());
+            groupField.setText(is.readUTF());
         } catch (Exception e) {
-            log.warn("load group settings error", e);
+            log.warn("load profile settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.DANGER), Duration.seconds(5));
+        }
+    }
+
+    @Override
+    public void onStop(ActionEvent event) {
+        clear();
+        if (task != null) {
+            task.cancel(true);
+            task = null;
         }
     }
 }

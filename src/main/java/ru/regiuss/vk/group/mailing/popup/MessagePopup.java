@@ -10,12 +10,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import ru.regiuss.vk.group.mailing.VkGroupApp;
 import ru.regiuss.vk.group.mailing.model.Attachment;
 import ru.regiuss.vk.group.mailing.model.Message;
+import space.regiuss.rgfx.RGFXAPP;
+import space.regiuss.rgfx.popup.BackgroundPopup;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -23,7 +25,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class MessagePopup extends StackPane {
+@RequiredArgsConstructor
+public class MessagePopup extends BackgroundPopup {
 
     private static FXMLLoader loader;
 
@@ -32,24 +35,13 @@ public class MessagePopup extends StackPane {
     @FXML
     private FlowPane attachmentsFlow;
     @Setter
-    private Runnable onClose;
-    @Setter
     private Consumer<Message> onMessage;
     private Message message;
     private LinkedList<Attachment> attachments;
     private final VkGroupApp app;
 
-    public MessagePopup(VkGroupApp app) {
-        this.app = app;
-        if (loader == null)
-            loader = new FXMLLoader(getClass().getResource("/view/messagePopup.fxml"));
-        loader.setController(this);
-        loader.setRoot(this);
-        try {
-            loader.load();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    {
+        RGFXAPP.load(this, getClass().getResource("/view/popup/messagePopup.fxml"));
     }
 
     public void setMessage(Message message) {
@@ -76,7 +68,7 @@ public class MessagePopup extends StackPane {
         for (File f : files) {
             Attachment attachment = new Attachment();
             attachments.add(attachment);
-            attachment.setFile(f);
+            attachment.setFilePatch(f.getAbsolutePath());
             attachment.setDocument(false);
             HBox hBox = createFileView(attachment);
             attachmentsFlow.getChildren().add(hBox);
@@ -85,7 +77,7 @@ public class MessagePopup extends StackPane {
     }
 
     private HBox createFileView(Attachment attachment) {
-        Label label = new Label(attachment.getFile().getName());
+        Label label = new Label(new File(attachment.getFilePatch()).getName());
         Button removeButton = new Button("X");
         HBox hBox = new HBox(label, removeButton);
         hBox.setSpacing(5);

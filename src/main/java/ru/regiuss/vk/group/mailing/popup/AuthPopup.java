@@ -3,13 +3,15 @@ package ru.regiuss.vk.group.mailing.popup;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import lombok.Setter;
+import space.regiuss.rgfx.spring.RGFXAPP;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -18,20 +20,17 @@ import java.util.function.Consumer;
 public class AuthPopup extends AnchorPane implements Initializable {
     @FXML
     private WebView webView;
+
     @Setter
     private Consumer<String> onToken;
+
     @Setter
     private Runnable onClose;
 
     public AuthPopup() {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/authPopup.fxml"));
-        loader.setController(this);
-        loader.setRoot(this);
-        try {
-            loader.load();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        CookieManager manager = new CookieManager();
+        CookieHandler.setDefault(manager);
+        RGFXAPP.load(this, getClass().getResource("/view/popup/authPopup.fxml"));
     }
 
     @FXML
@@ -46,10 +45,10 @@ public class AuthPopup extends AnchorPane implements Initializable {
         engine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
             if (Worker.State.SUCCEEDED.equals(newValue)) {
                 String location = engine.getLocation();
-                int startIndex = location.indexOf("access_token=");
+                int startIndex = location.indexOf("access_token%253D");
                 if (startIndex != -1) {
-                    startIndex+=13;
-                    int lastIndex = location.indexOf('&', startIndex);
+                    startIndex+=17;
+                    int lastIndex = location.indexOf("%2526", startIndex);
                     String token = lastIndex == -1 ? location.substring(startIndex) : location.substring(startIndex, lastIndex);
                     onToken.accept(token);
                     onClose.run();

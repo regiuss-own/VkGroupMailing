@@ -10,9 +10,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import ru.regiuss.vk.group.mailing.model.*;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -35,39 +33,109 @@ public class VkMessenger implements Messenger {
     }
 
     @Override
-    public List<Group> search(int page, String search, boolean sort) throws Exception {
+    public List<Page> search(int page, String search, boolean sort) throws Exception {
         try (InputStream is = executeByToken(
-                "/method/groups.search", "POST",
+                "/method/groups.search",
                 "q", search,
                 "sort", sort ? 6 : 0,
-                "offset", 10 * (page-1),
+                "offset", 10 * (page - 1),
                 "count", 10,
                 "fields", "members_count"
         )) {
-            return OM.readValue(is, new TypeReference<Response<ItemsResult<Group>>>(){}).getResponse().getItems();
+            return OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>() {
+                    }).getResponse().getItems()
+                    .stream().map(this::groupNodeToPage).collect(Collectors.toList());
+        }
+    }
+
+    private Page groupNodeToPage(JsonNode node) {
+        Page p = new Page();
+        p.setType(PageType.GROUP);
+        p.setId(node.get("id").asInt());
+        p.setSubscribers(node.get("members_count").asInt());
+        p.setIcon(node.get("photo_100").asText());
+        p.setName(node.get("name").asText());
+        p.setNew(true);
+        return p;
+    }
+
+    @Override
+    public List<Page> getFaves(int page) throws Exception {
+        try (InputStream is = executeByToken(
+                "/method/fave.getPages",
+                "offset", 10 * (page - 1),
+                "fields", "members_count, photo_100",
+                "count", 10
+        )) {
+            return OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>() {
+                    }).getResponse().getItems()
+                    .stream().map(node -> {
+                        String type = node.get("type").asText();
+                        JsonNode n = node.get(type);
+                        Page pageData = new Page();
+                        pageData.setType(PageType.valueOf(type.toUpperCase(Locale.ROOT)));
+                        pageData.setId(n.get("id").asInt());
+                        pageData.setIcon(n.get("photo_100").asText());
+                        if (type.equals("user"))
+                            pageData.setName(n.get("first_name").asText() + " " + n.get("last_name").asText());
+                        else {
+                            pageData.setName(n.get("name").asText());
+                            pageData.setSubscribers(n.get("members_count").asInt());
+                        }
+                        return pageData;
+                    }).collect(Collectors.toList());
         }
     }
 
     @Override
-    public List<Fave> getFaves(int page) throws Exception {
+    public ItemsResult<Integer> getGroupMembers(String group, int page) throws Exception {
         try (InputStream is = executeByToken(
-                "/method/fave.getPages", "POST",
-                "offset", 10 * (page-1),
-                "count", 10
+                "/method/groups.getMembers",
+                "offset", 100 * (page - 1),
+                "group_id", group,
+                "count", 100
         )) {
-            return OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>(){}).getResponse().getItems()
+            return OM.readValue(is, new TypeReference<Response<ItemsResult<Integer>>>() {
+            }).getResponse();
+        }
+    }
+
+    @Override
+    public List<UserInfoData> getUserInfoByIds(List<Integer> userIds) throws Exception {
+        try (InputStream is = executeByToken(
+                "/method/users.get",
+                "user_ids", userIds.stream().map(id -> Integer.toString(id)).collect(Collectors.joining(",")),
+                "fields", "activities,about,books,career,connections,contacts,domain,education,exports,site,status,interests,military,movies,music,occupation,quotes,tv"
+        ); InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            return OM.readValue(reader, new TypeReference<Response<List<JsonNode>>>() {
+                    }).getResponse()
                     .stream().map(node -> {
-                        String type = node.get("type").asText();
-                        JsonNode n = node.get(type);
-                        Fave fave = new Fave();
-                        fave.setType(type);
-                        fave.setId(n.get("id").asInt());
-                        if (type.equals("user"))
-                            fave.setName(n.get("first_name").asText() + " " + n.get("last_name").asText());
-                        else
-                            fave.setName(n.get("name").asText());
-                        return fave;
+                        UserInfoData data = new UserInfoData();
+                        data.setUserId(node.get("id").asInt());
+                        data.setCareer(node.get("career"));
+                        data.setOccupation(node.get("occupation"));
+                        data.setJson(node.toString());
+                        return data;
                     }).collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public List<Page> getGroupsById(Collection<String> groups) throws Exception {
+        try (InputStream is = executeByToken(
+                "/method/groups.getById",
+                "group_ids", String.join(",", groups),
+                "fields", "members_count"
+        )) {
+            JsonNode groupsNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {
+                    })
+                    .getResponse().get("groups");
+            List<Page> pages = new LinkedList<>();
+            for (JsonNode groupNode : groupsNode) {
+                if (groupNode.hasNonNull("members_count"))
+                    pages.add(groupNodeToPage(groupNode));
+            }
+            return pages;
         }
     }
 
@@ -76,48 +144,63 @@ public class VkMessenger implements Messenger {
         LinkedList<String> attachments = new LinkedList<>();
         if (message.getAttachments() != null && !message.getAttachments().isEmpty()) {
             for (Attachment attachment : message.getAttachments()) {
-                String uploaded = files.containsKey(attachment.getFile().getAbsolutePath()) ? files.get(attachment.getFile().getAbsolutePath()) : upload(attachment);
+                String uploaded = files.containsKey(attachment.getFilePatch()) ? files.get(attachment.getFilePatch()) : upload(attachment);
                 attachments.add(uploaded);
             }
         }
+        try (InputStream is = getSendResult(id, message, attachments); BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            String content = sb.toString();
+            if (content.contains("\"error\":"))
+                throw new RuntimeException(content);
+        }
+    }
+
+    private InputStream getSendResult(int id, Message message, LinkedList<String> attachments) throws Exception {
         if (attachments.isEmpty()) {
-            executeByToken(
-                    "/method/messages.send", "POST",
+            return executeByToken(
+                    "/method/messages.send",
                     "random_id", 0,
                     "peer_id", id,
                     "message", message.getText()
-            ).close();
+            );
         } else {
-            executeByToken(
-                    "/method/messages.send", "POST",
+            return executeByToken(
+                    "/method/messages.send",
                     "random_id", 0,
                     "peer_id", id,
                     "message", message.getText(),
                     "attachment", String.join(",", attachments)
-            ).close();
+            );
         }
     }
 
     private String upload(Attachment attachment) throws Exception {
-        String mimeType = Files.probeContentType(attachment.getFile().toPath());
+        File file = new File(attachment.getFilePatch());
+        String mimeType = Files.probeContentType(file.toPath());
         log.info(mimeType);
         String uploadData;
         if (attachment.isDocument() || mimeType == null)
-            uploadData = uploadFile(attachment.getFile());
-        else if(mimeType.startsWith("image"))
-            uploadData = uploadImage(attachment.getFile());
-        else if(mimeType.startsWith("video"))
-            uploadData = uploadVideo(attachment.getFile());
+            uploadData = uploadFile(file);
+        else if (mimeType.startsWith("image"))
+            uploadData = uploadImage(file);
+        else if (mimeType.startsWith("video"))
+            uploadData = uploadVideo(file);
         else
-            uploadData = uploadFile(attachment.getFile());
-        files.put(attachment.getFile().getAbsolutePath(), uploadData);
+            uploadData = uploadFile(file);
+        files.put(file.getAbsolutePath(), uploadData);
         return uploadData;
     }
 
     private String uploadVideo(File file) throws Exception {
         JsonNode saveNode;
-        try (InputStream is = executeByToken("/method/video.save", "POST")) {
-            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse();
+        try (InputStream is = executeByToken("/method/video.save")) {
+            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {
+            }).getResponse();
         }
         HttpURLConnection con = (HttpURLConnection) new URL(saveNode.get("upload_url").asText()).openConnection();
         con.setRequestMethod("POST");
@@ -145,8 +228,9 @@ public class VkMessenger implements Messenger {
 
     private String uploadImage(File file) throws Exception {
         JsonNode saveNode;
-        try (InputStream is = executeByToken("/method/photos.getMessagesUploadServer", "POST")) {
-            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse();
+        try (InputStream is = executeByToken("/method/photos.getMessagesUploadServer")) {
+            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {
+            }).getResponse();
         }
         HttpURLConnection con = (HttpURLConnection) new URL(saveNode.get("upload_url").asText()).openConnection();
         con.setRequestMethod("POST");
@@ -165,7 +249,7 @@ public class VkMessenger implements Messenger {
             photoData = OM.readValue(is, JsonNode.class);
         }
         try (InputStream is = executeByToken(
-                "/method/photos.saveMessagesPhoto", "POST",
+                "/method/photos.saveMessagesPhoto",
                 "photo", photoData.get("photo").asText(),
                 "server", photoData.get("server").asText(),
                 "hash", photoData.get("hash").asText()
@@ -184,8 +268,9 @@ public class VkMessenger implements Messenger {
 
     private String uploadFile(File file) throws Exception {
         JsonNode saveNode;
-        try (InputStream is = executeByToken("/method/docs.getMessagesUploadServer", "POST", "type", "doc")) {
-            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {}).getResponse();
+        try (InputStream is = executeByToken("/method/docs.getMessagesUploadServer", "type", "doc")) {
+            saveNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {
+            }).getResponse();
         }
         HttpURLConnection con = (HttpURLConnection) new URL(saveNode.get("upload_url").asText()).openConnection();
         con.setRequestMethod("POST");
@@ -203,7 +288,7 @@ public class VkMessenger implements Messenger {
         try (InputStream is = con.getInputStream()) {
             fileData = OM.readValue(is, JsonNode.class).get("file").asText();
         }
-        try (InputStream is = executeByToken("/method/docs.save", "POST", "file", fileData)) {
+        try (InputStream is = executeByToken("/method/docs.save", "file", fileData)) {
             JsonNode node = OM.readValue(is, JsonNode.class).get("response");
             return String.format(
                     "%s%s_%s",
@@ -215,33 +300,41 @@ public class VkMessenger implements Messenger {
     }
 
     @Override
-    public User getUser() {
+    public Account getAccount() {
         return getUser(token);
     }
 
-    public static User getUser(String token) {
-        try (InputStream is = execute("/method/account.getProfileInfo", "POST", token)) {
-            return OM.readValue(is, new TypeReference<Response<User>>() {}).getResponse();
+    public static Account getUser(String token) {
+        try (InputStream is = execute("/method/account.getProfileInfo", token)) {
+            JsonNode node = OM.readValue(is, new TypeReference<Response<JsonNode>>() {
+            }).getResponse();
+            Account account = new Account();
+            account.setId(node.get("id").asInt());
+            account.setName(node.get("first_name").asText() + ' ' + node.get("last_name").asText());
+            account.setToken(token);
+            account.setIcon(node.get("photo_200").asText());
+            return account;
         } catch (Exception e) {
             log.warn("getUser exception", e);
         }
         return null;
     }
 
-    private InputStream executeByToken(String path, String method, Object... params) throws Exception {
-        return execute(path, method, token, params);
+    private InputStream executeByToken(String path, Object... params) throws Exception {
+        return execute(path, token, params);
     }
 
-    private static InputStream execute(String path, String method, String token, Object... params) throws Exception {
+    private static InputStream execute(String path, String token, Object... params) throws Exception {
         HttpURLConnection con = (HttpURLConnection) new URL(BASE_PATH + path).openConnection();
-        con.setRequestMethod(method);
+        con.setRequestMethod("POST");
+        con.addRequestProperty("accept", "application/json;charset=UTF-8");
         con.setDoOutput(true);
         try (OutputStream os = con.getOutputStream()) {
             os.write(("access_token=" + token + '&').getBytes(StandardCharsets.UTF_8));
             os.write(("v=" + VkMessenger.VERSION + '&').getBytes(StandardCharsets.UTF_8));
             if (params.length > 0) {
-                for (int i = 0; i < params.length; i+=2) {
-                    os.write((params[i].toString() + '=' + params[i+1].toString() + '&').getBytes(StandardCharsets.UTF_8));
+                for (int i = 0; i < params.length; i += 2) {
+                    os.write((params[i].toString() + '=' + params[i + 1].toString() + '&').getBytes(StandardCharsets.UTF_8));
                 }
             }
         }

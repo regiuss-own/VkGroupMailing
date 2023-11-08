@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import space.regiuss.rgfx.node.*?>
+<?import javafx.geometry.Insets?>
+<fx:root type="VBox" spacing="10"
+         fx:controller="ru.regiuss.vk.group.mailing.node.CurrentKitView"
+         xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <HBox alignment="CENTER_LEFT">
+        <Text text="Текущий набор ">
+            <font>
+                <Font size="30"/>
+            </font>
+        </Text>
+        <Text fx:id="countText" text="(0)">
+            <font>
+                <Font size="30"/>
+            </font>
+        </Text>
+        <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="5">
+            <Button onAction="#clearPagesList" prefWidth="150" text="Очистить">
+                <font>
+                    <Font size="16"/>
+                </font>
+                <graphic>
+                    <Icon value="TRASH_CAN" type="SOLID" size="16" fill="#fff"/>
+                </graphic>
+            </Button>
+            <Button onAction="#onMailingClick" prefWidth="150" text="Рассылка">
+                <font>
+                    <Font size="16"/>
+                </font>
+                <graphic>
+                    <Icon value="PAPER_PLANE" type="SOLID" size="16" fill="#fff"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </HBox>
+    <SimpleAlert graphicTextGap="10" wrapText="true" text="Для открытия страницы нажмите на название или картинку" maxWidth="Infinity" variant="PRIMARY">
+        <graphic>
+            <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+        </graphic>
+    </SimpleAlert>
+    <VBox visible="false" managed="false">
+        <Label text="Название">
+            <font>
+                <Font size="16"/>
+            </font>
+        </Label>
+        <HBox spacing="5">
+            <TextField HBox.hgrow="ALWAYS">
+                <font>
+                    <Font size="16"/>
+                </font>
+            </TextField>
+            <Button prefWidth="150" text="Сохранить">
+                <font>
+                    <Font size="16"/>
+                </font>
+                <graphic>
+                    <Icon value="FLOPPY_DISK" type="SOLID" size="16" fill="#fff"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </VBox>
+    <ListView VBox.vgrow="ALWAYS" fx:id="listView">
+        <placeholder>
+            <VBox alignment="TOP_CENTER">
+                <VBox style="-fx-background-color: #fff; -fx-background-radius: 10px;"
+                      maxHeight="0"
+                      spacing="10">
+                    <padding>
+                        <Insets top="10" left="10" bottom="10" right="10"/>
+                    </padding>
+                    <Text text="Инструкция">
+                        <font>
+                            <Font size="25"/>
+                        </font>
+                    </Text>
+                    <TextFlow lineSpacing="5">
+                        <Text text="Набор содержит в себе резульат сбора данных, можно запускать задачи последовательно для пополнения набора.&#10;Для очистки используйте кнопку " fill="black">
+                            <font>
+                                <Font size="16"/>
+                            </font>
+                        </Text>
+                        <Button prefWidth="150" text="Очистить">
+                            <font>
+                                <Font size="14"/>
+                            </font>
+                            <graphic>
+                                <Icon value="TRASH_CAN" type="SOLID" size="14" fill="#fff"/>
+                            </graphic>
+                        </Button>
+                        <Text text="&#10;Для рассылки по набору используйте кнопку " fill="black">
+                            <font>
+                                <Font size="16"/>
+                            </font>
+                        </Text>
+                        <Button prefWidth="150" text="Рассылка">
+                            <font>
+                                <Font size="14"/>
+                            </font>
+                            <graphic>
+                                <Icon value="PAPER_PLANE" type="SOLID" size="14" fill="#fff"/>
+                            </graphic>
+                        </Button>
+                    </TextFlow>
+                </VBox>
+            </VBox>
+        </placeholder>
+    </ListView>
+</fx:root>

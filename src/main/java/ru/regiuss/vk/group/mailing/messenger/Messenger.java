@@ -1,18 +1,22 @@
 package ru.regiuss.vk.group.mailing.messenger;
 
-import ru.regiuss.vk.group.mailing.model.Fave;
-import ru.regiuss.vk.group.mailing.model.Group;
-import ru.regiuss.vk.group.mailing.model.Message;
-import ru.regiuss.vk.group.mailing.model.User;
+import ru.regiuss.vk.group.mailing.model.*;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface Messenger {
-    List<Group> search(int page, String search, boolean sort) throws Exception;
+    List<Page> search(int page, String search, boolean sort) throws Exception;
 
-    List<Fave> getFaves(int page) throws Exception;
+    List<Page> getFaves(int page) throws Exception;
+
+    ItemsResult<Integer> getGroupMembers(String group, int page) throws Exception;
+
+    List<UserInfoData> getUserInfoByIds(List<Integer> userIds) throws Exception;
+
+    List<Page> getGroupsById(Collection<String> groups) throws Exception;
 
     void send(int id, Message message) throws Exception;
 
-    User getUser();
+    Account getAccount();
 }

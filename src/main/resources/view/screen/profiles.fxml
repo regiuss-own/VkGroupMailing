@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import ru.regiuss.vk.group.mailing.node.CurrentKitView?>
+<?import ru.regiuss.vk.group.mailing.node.SelectAccountButton?>
+<?import space.regiuss.rgfx.node.RunnablePane?>
+<fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="ru.regiuss.vk.group.mailing.screen.ProfileRunnableScreen">
+    <header>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <SelectAccountButton fx:id="selectAccountButton" fx:factory="getInstance"/>
+        </HBox>
+    </header>
+    <content>
+        <HBox alignment="TOP_CENTER" spacing="50.0">
+            <VBox HBox.hgrow="ALWAYS" maxWidth="550" spacing="10.0">
+                <Text text="Параметры">
+                    <font>
+                        <Font size="30"/>
+                    </font>
+                </Text>
+                <VBox>
+                    <Label text="Ссылка/id сообщества">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="groupField">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
+                <VBox>
+                    <Label text="Минимальное количество подписчиков">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="minSubCountField" text="0">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
+                <VBox>
+                    <Label text="Максимальное количество подписчиков">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="maxSubCountField" text="0">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
+            </VBox>
+            <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
+        </HBox>
+    </content>
+</fx:root>

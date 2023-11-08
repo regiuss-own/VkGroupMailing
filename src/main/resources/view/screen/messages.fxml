@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import space.regiuss.rgfx.node.SimpleAlert?>
+<?import javafx.geometry.Insets?>
+<?import space.regiuss.rgfx.node.Icon?>
+<fx:root type="HBox" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="ru.regiuss.vk.group.mailing.screen.MessagesScreen"
+         spacing="10"
+         prefHeight="400.0" prefWidth="600.0">
+    <padding>
+        <Insets left="10" top="10" right="10" bottom="10"/>
+    </padding>
+    <VBox maxWidth="400" HBox.hgrow="ALWAYS" spacing="10">
+        <Text text="Сообщения">
+            <font>
+                <Font size="22"/>
+            </font>
+        </Text>
+        <SimpleAlert graphicTextGap="10" wrapText="true" text="Для просмотра и редактирования нажмите на нужный набор" maxWidth="Infinity" variant="PRIMARY">
+            <graphic>
+                <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+            </graphic>
+        </SimpleAlert>
+        <SimpleAlert graphicTextGap="10" wrapText="true" text="Для сброса выделения нажмите ESC" maxWidth="Infinity" variant="PRIMARY">
+            <graphic>
+                <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+            </graphic>
+        </SimpleAlert>
+        <Button onAction="#onAddMessageKitClick" maxWidth="Infinity" text="Добавить набор сообщений">
+            <font>
+                <Font size="16"/>
+            </font>
+            <graphic>
+                <Icon value="ADD" type="SOLID" size="16" fill="#fff"/>
+            </graphic>
+        </Button>
+        <ListView VBox.vgrow="ALWAYS" fx:id="kitList" >
+            <placeholder>
+                <Text text="Список пуст">
+                    <font>
+                        <Font size="16"/>
+                    </font>
+                </Text>
+            </placeholder>
+        </ListView>
+    </VBox>
+    <VBox fx:id="messageKitBox" visible="false" spacing="10" HBox.hgrow="ALWAYS" maxWidth="1000">
+        <VBox>
+            <Label text="Название:">
+                <font>
+                    <Font size="16"/>
+                </font>
+            </Label>
+            <HBox spacing="5">
+                <TextField fx:id="nameField" HBox.hgrow="ALWAYS">
+                    <font>
+                        <Font size="16"/>
+                    </font>
+                </TextField>
+                <Button onAction="#onMessageKitSaveNameClick" text="Сохранить название">
+                    <font>
+                        <Font size="16"/>
+                    </font>
+                    <graphic>
+                        <Icon value="FLOPPY_DISK" type="SOLID" size="16" fill="#fff"/>
+                    </graphic>
+                </Button>
+            </HBox>
+        </VBox>
+        <SimpleAlert graphicTextGap="10" wrapText="true" text="Для просмотра и редактирования дважды нажмите на нужное сообщение" maxWidth="Infinity" variant="PRIMARY">
+            <graphic>
+                <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+            </graphic>
+        </SimpleAlert>
+        <HBox spacing="5">
+            <Button HBox.hgrow="ALWAYS" styleClass="danger" onAction="#onRemoveMessageClick" maxWidth="Infinity" text="Удалить выбранное">
+                <font>
+                    <Font size="16"/>
+                </font>
+                <graphic>
+                    <Icon value="TRASH_CAN" type="SOLID" size="16" fill="#fff"/>
+                </graphic>
+            </Button>
+            <Button HBox.hgrow="ALWAYS" onAction="#onAddMessageClick" maxWidth="Infinity" text="Добавить сообщение">
+                <font>
+                    <Font size="16"/>
+                </font>
+                <graphic>
+                    <Icon value="ADD" type="SOLID" size="16" fill="#fff"/>
+                </graphic>
+            </Button>
+        </HBox>
+        <ListView VBox.vgrow="ALWAYS" fx:id="messagesList" />
+    </VBox>
+</fx:root>

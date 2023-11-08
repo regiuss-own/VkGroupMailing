@@ -7,6 +7,7 @@ import java.util.List;
 @Data
 public class MailingData {
     private int messageDelay;
-    private int groupDelay;
+    private int dialogDelay;
     private List<Message> messages;
+    List<ProgressItemWrapper<Page>> items;
 }

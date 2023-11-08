@@ -9,6 +9,8 @@ import javafx.scene.text.Text;
 import ru.regiuss.vk.group.mailing.model.Attachment;
 import ru.regiuss.vk.group.mailing.model.Message;
 
+import java.io.File;
+
 public class MessageListCell extends ListCell<Message> {
     @Override
     protected void updateItem(Message item, boolean empty) {
@@ -27,7 +29,7 @@ public class MessageListCell extends ListCell<Message> {
             flowPane.setVgap(2);
             if (item.getAttachments() != null) {
                 for (Attachment attachment : item.getAttachments()) {
-                    Label label = new Label(attachment.getFile().getName());
+                    Label label = new Label(new File(attachment.getFilePatch()).getName());
                     if (attachment.isDocument())
                         label.setStyle("-fx-border-color: green; -fx-border-radius: 5px; -fx-padding: 5px");
                     else

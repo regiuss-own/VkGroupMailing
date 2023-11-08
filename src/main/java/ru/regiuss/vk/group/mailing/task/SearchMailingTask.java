@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import ru.regiuss.vk.group.mailing.messenger.Messenger;
-import ru.regiuss.vk.group.mailing.model.Group;
-import ru.regiuss.vk.group.mailing.model.Message;
-import ru.regiuss.vk.group.mailing.model.SearchMailingData;
-import ru.regiuss.vk.group.mailing.model.User;
+import ru.regiuss.vk.group.mailing.model.*;
 
 import java.util.List;
 
@@ -17,7 +14,7 @@ import java.util.List;
 public class SearchMailingTask extends Task<Void> {
 
     private final Messenger messenger;
-    private final SearchMailingData data;
+    private final SearchGroupData data;
     @Setter
     private boolean enabled = true;
 
@@ -28,10 +25,10 @@ public class SearchMailingTask extends Task<Void> {
 
         updateMessage(timeStart, sendCount);
 
-        User user = null;
+        Account user = null;
         for (int i = 0; i < 3; i++) {
             try {
-                user = messenger.getUser();
+                user = messenger.getAccount();
                 break;
             } catch (Exception e) {
                 log.warn("get user error", e);
@@ -41,7 +38,7 @@ public class SearchMailingTask extends Task<Void> {
         if (user == null)
             throw new RuntimeException("Токен недействителен");
         int page = 1;
-        List<Group> groups = null;
+        List<Page> groups = null;
         while (enabled && !Thread.currentThread().isInterrupted()) {
             for (int i = 0; i < 3; i++) {
                 try {
@@ -58,7 +55,7 @@ public class SearchMailingTask extends Task<Void> {
                 throw new RuntimeException("Не удалось получить список групп");
             if (groups.isEmpty())
                 break;
-            for (Group group : groups) {
+            for (Page group : groups) {
                 if (data.getMaxSubscribers() > 0 && data.getMaxSubscribers() < group.getSubscribers())
                     continue;
                 if (
@@ -84,8 +81,8 @@ public class SearchMailingTask extends Task<Void> {
                     if (data.getMessageDelay() > 0)
                         Thread.sleep(data.getMessageDelay());
                 }
-                if (data.getGroupDelay() > 0)
-                    Thread.sleep(data.getGroupDelay());
+                if (data.getDialogDelay() > 0)
+                    Thread.sleep(data.getDialogDelay());
             }
         }
         return null;

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import space.regiuss.rgfx.node.Icon?>
+<?import space.regiuss.rgfx.node.TileView?>
+<fx:root type="VBox" spacing="10.0" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="ru.regiuss.vk.group.mailing.screen.AccountListScreen">
+    <padding>
+        <Insets left="10" top="10" right="10" bottom="10"/>
+    </padding>
+    <HBox alignment="CENTER_LEFT" spacing="5.0">
+        <Label text="Токен">
+            <font>
+                <Font size="16.0"/>
+            </font>
+        </Label>
+        <TextField HBox.hgrow="ALWAYS" fx:id="tokenField">
+            <font>
+                <Font size="16.0"/>
+            </font>
+        </TextField>
+        <Button mnemonicParsing="false" text="Добавить" onAction="#onAddByTokenClick">
+            <font>
+                <Font size="16.0"/>
+            </font>
+            <graphic>
+                <Icon type="SOLID" value="ADD" size="20" fill="#fff"/>
+            </graphic>
+        </Button>
+        <Button mnemonicParsing="false" text="Добавить через VK" onAction="#onAuthByVkClick">
+            <font>
+                <Font size="16.0"/>
+            </font>
+            <graphic>
+                <Icon type="SOLID" value="ADD" size="20" fill="#fff"/>
+            </graphic>
+        </Button>
+    </HBox>
+    <TileView scrollable="true" fx:id="accountsPane">
+        <emptyGraphic>
+            <VBox style="-fx-background-color: #fff; -fx-background-radius: 10px;"
+                  maxWidth="350" maxHeight="150" alignment="CENTER"
+                  spacing="10">
+                <Text text="У Вас пока нет ниодного аккаунта ">
+                    <font>
+                        <Font size="20"/>
+                    </font>
+                </Text>
+                <Icon type="REGULAR" value="FACE_FROWN_OPEN" size="50" fill="orange"/>
+            </VBox>
+        </emptyGraphic>
+    </TileView>
+</fx:root>
