@@ -1,5 +1,6 @@
 package ru.regiuss.vk.group.mailing.popup;
 
+import com.sun.webkit.network.CookieManager;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -8,14 +9,15 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import space.regiuss.rgfx.spring.RGFXAPP;
 
 import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
+@Log4j2
 @SuppressWarnings("unused")
 public class AuthPopup extends AnchorPane implements Initializable {
     @FXML
@@ -28,8 +30,7 @@ public class AuthPopup extends AnchorPane implements Initializable {
     private Runnable onClose;
 
     public AuthPopup() {
-        CookieManager manager = new CookieManager();
-        CookieHandler.setDefault(manager);
+        CookieHandler.setDefault(new CookieManager());
         RGFXAPP.load(this, getClass().getResource("/view/popup/authPopup.fxml"));
     }
 
