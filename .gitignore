@@ -3,3 +3,7 @@ target
 settings
 latest.log
 tests
+data
+tmp
+rgfx
+rgfx-spring
