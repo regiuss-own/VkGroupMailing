@@ -8,7 +8,7 @@
 <?import space.regiuss.rgfx.node.Icon?>
 <?import space.regiuss.rgfx.node.TileView?>
 <fx:root type="VBox" spacing="10.0" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
-         fx:controller="ru.regiuss.vk.group.mailing.screen.AccountListScreen">
+         fx:controller="space.regiuss.vk.mailing.screen.AccountListScreen">
     <padding>
         <Insets left="10" top="10" right="10" bottom="10"/>
     </padding>

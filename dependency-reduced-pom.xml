@@ -13,7 +13,7 @@
           <finalName>app</finalName>
           <archive>
             <manifest>
-              <mainClass>ru.regiuss.vk.group.mailing.VkGroupMailing</mainClass>
+              <mainClass>space.regiuss.vk.mailing.VkMailing</mainClass>
             </manifest>
           </archive>
         </configuration>

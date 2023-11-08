@@ -4,13 +4,14 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<?import ru.regiuss.vk.group.mailing.node.CurrentKitView?>
-<?import ru.regiuss.vk.group.mailing.node.SelectAccountButton?>
+<?import space.regiuss.vk.mailing.node.CurrentKitView?>
+<?import space.regiuss.vk.mailing.node.SelectAccountButton?>
 <?import space.regiuss.rgfx.node.RunnablePane?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.control.CheckBox?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
-         fx:controller="ru.regiuss.vk.group.mailing.screen.BookmarkRunnableScreen">
+         fx:controller="space.regiuss.vk.mailing.screen.BookmarkRunnableScreen">
     <header>
         <HBox spacing="10" alignment="CENTER_LEFT">
             <SelectAccountButton fx:id="selectAccountButton" fx:factory="getInstance"/>
@@ -32,6 +33,11 @@
                     </Label>
                     <ComboBox fx:id="bookmarkType" maxWidth="1.7976931348623157E308"/>
                 </VBox>
+                <CheckBox fx:id="onlyCanMessageCheckBox" mnemonicParsing="false" text="Только доступные для отправки сообщения">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </CheckBox>
             </VBox>
             <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
         </HBox>

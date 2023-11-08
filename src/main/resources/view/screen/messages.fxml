@@ -13,7 +13,7 @@
 <?import space.regiuss.rgfx.node.Icon?>
 <fx:root type="HBox" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
-         fx:controller="ru.regiuss.vk.group.mailing.screen.MessagesScreen"
+         fx:controller="space.regiuss.vk.mailing.screen.MessagesScreen"
          spacing="10"
          prefHeight="400.0" prefWidth="600.0">
     <padding>

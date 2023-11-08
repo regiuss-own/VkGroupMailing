@@ -4,19 +4,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.regiuss</groupId>
-    <artifactId>VkGroupMailing</artifactId>
-    <version>1.0.0</version>
+    <groupId>space.regiuss</groupId>
+    <artifactId>VkMailing</artifactId>
+    <version>${revision}</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <resource.delimiter>@</resource.delimiter>
         <log4j.version>2.20.0</log4j.version>
         <lombok.version>1.18.28</lombok.version>
         <jackson.version>2.15.2</jackson.version>
         <javafx.version>21-ea+24</javafx.version>
         <h2.version>2.2.222</h2.version>
         <spring.boot.version>2.7.17</spring.boot.version>
+        <revision>1.0.1</revision>
     </properties>
 
     <dependencies>
@@ -85,6 +87,25 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/application*.yml</include>
+                    <include>**/application*.yaml</include>
+                    <include>**/application*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <excludes>
+                    <exclude>**/application*.yml</exclude>
+                    <exclude>**/application*.yaml</exclude>
+                    <exclude>**/application*.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -94,7 +115,7 @@
                     <finalName>app</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>ru.regiuss.vk.group.mailing.VkGroupMailing</mainClass>
+                            <mainClass>space.regiuss.vk.mailing.VkMailing</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

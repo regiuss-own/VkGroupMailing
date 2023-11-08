@@ -14,7 +14,7 @@
 <fx:root type="BackgroundPopup"
          fx:id="rootNode"
          xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-         fx:controller="ru.regiuss.vk.group.mailing.popup.SelectAccountPopup"
+         fx:controller="space.regiuss.vk.mailing.popup.SelectAccountPopup"
 >
     <VBox maxWidth="1000.0" maxHeight="${rootNode.height * 0.75}" spacing="10.0"
           style="-fx-background-color: #e4e7ea; -fx-background-radius: 5px;" StackPane.alignment="CENTER">

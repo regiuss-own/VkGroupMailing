@@ -3,12 +3,12 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import ru.regiuss.vk.group.mailing.node.SelectAccountButton?>
+<?import space.regiuss.vk.mailing.node.SelectAccountButton?>
 <?import space.regiuss.rgfx.node.Icon?>
 <?import space.regiuss.rgfx.node.RunnablePane?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
-         fx:controller="ru.regiuss.vk.group.mailing.screen.MailingRunnableScreen">
+         fx:controller="space.regiuss.vk.mailing.screen.MailingRunnableScreen">
     <header>
         <HBox spacing="10" alignment="CENTER_LEFT">
             <SelectAccountButton fx:id="selectAccountButton" fx:factory="getInstance"/>

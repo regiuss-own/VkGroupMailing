@@ -5,7 +5,7 @@
 <?import javafx.scene.text.*?>
 <?import space.regiuss.rgfx.popup.BackgroundPopup?>
 <?import javafx.scene.control.ScrollPane?>
-<fx:root type="space.regiuss.rgfx.popup.BackgroundPopup" fx:controller="ru.regiuss.vk.group.mailing.popup.KitImportPopup"
+<fx:root type="space.regiuss.rgfx.popup.BackgroundPopup" fx:controller="space.regiuss.vk.mailing.popup.KitImportPopup"
          xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
    <VBox maxWidth="900.0" maxHeight="800.0" spacing="10.0"
          style="-fx-background-color: #e4e7ea; -fx-background-radius: 5px;" StackPane.alignment="CENTER">

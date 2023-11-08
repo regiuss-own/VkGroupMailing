@@ -8,7 +8,7 @@
 <?import space.regiuss.rgfx.popup.BackgroundPopup?>
 <fx:root type="BackgroundPopup"
          xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-         fx:controller="ru.regiuss.vk.group.mailing.popup.SelectMessagePopup"
+         fx:controller="space.regiuss.vk.mailing.popup.SelectMessagePopup"
 >
     <VBox maxWidth="500.0" maxHeight="0" minHeight="500" spacing="10.0"
           style="-fx-background-color: #e4e7ea; -fx-background-radius: 5px;" StackPane.alignment="CENTER">

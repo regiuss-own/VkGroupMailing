@@ -20,7 +20,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="ru.regiuss" level="TRACE" />
+        <Logger name="space.regiuss" level="TRACE" />
         <Root level="INFO">
             <AppenderRef ref="console" level="INFO" />
             <AppenderRef ref="file" level="TRACE"/>

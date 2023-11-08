@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 <?import space.regiuss.rgfx.node.Icon?>
-<fx:root type="HBox" spacing="10" alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="ru.regiuss.vk.group.mailing.node.AccountAndMessageHeader">
+<fx:root type="HBox" spacing="10" alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="space.regiuss.vk.mailing.node.AccountAndMessageHeader">
     <Button styleClass="white" text="Аккаунт: Илья Сбодунов" onAction="#onSelectAccountClick">
         <graphic>
             <Icon type="REGULAR" value="USER" size="15" />

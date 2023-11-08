@@ -1,3 +1,7 @@
+app:
+  name: "@artifactId@"
+  version: "@revision@"
+
 spring:
   jpa:
     hibernate:

@@ -6,7 +6,7 @@
 <?import space.regiuss.rgfx.node.*?>
 <?import javafx.geometry.Insets?>
 <fx:root type="VBox" spacing="10"
-         fx:controller="ru.regiuss.vk.group.mailing.node.CurrentKitView"
+         fx:controller="space.regiuss.vk.mailing.node.CurrentKitView"
          xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
     <HBox alignment="CENTER_LEFT">
         <Text text="Текущий набор ">
@@ -20,7 +20,7 @@
             </font>
         </Text>
         <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="5">
-            <Button onAction="#clearPagesList" prefWidth="150" text="Очистить">
+            <Button styleClass="danger" onAction="#clearPagesList" prefWidth="150" text="Очистить">
                 <font>
                     <Font size="16"/>
                 </font>
@@ -85,7 +85,7 @@
                                 <Font size="16"/>
                             </font>
                         </Text>
-                        <Button prefWidth="150" text="Очистить">
+                        <Button styleClass="danger" prefWidth="150" text="Очистить">
                             <font>
                                 <Font size="14"/>
                             </font>
