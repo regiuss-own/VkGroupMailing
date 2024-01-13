@@ -5,6 +5,8 @@
 <?import javafx.scene.text.*?>
 <?import space.regiuss.rgfx.popup.BackgroundPopup?>
 <?import javafx.scene.control.ScrollPane?>
+<?import space.regiuss.rgfx.node.Icon?>
+<?import space.regiuss.rgfx.node.SimpleAlert?>
 <fx:root type="space.regiuss.rgfx.popup.BackgroundPopup" fx:controller="space.regiuss.vk.mailing.popup.KitImportPopup"
          xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
    <VBox maxWidth="900.0" maxHeight="800.0" spacing="10.0"
@@ -22,11 +24,37 @@
       </Text>
       <ScrollPane VBox.vgrow="ALWAYS" hbarPolicy="NEVER" fitToWidth="true">
          <VBox spacing="10.0">
+            <SimpleAlert graphicTextGap="10" wrapText="true" text="Для импорта из файла необходимо указать аккаунт на странице Рассылка" maxWidth="Infinity" variant="PRIMARY">
+               <graphic>
+                  <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+               </graphic>
+            </SimpleAlert>
+            <SimpleAlert graphicTextGap="10" wrapText="true" text="Первая строка в файле считается шапкой и будет пропущена" maxWidth="Infinity" variant="PRIMARY">
+               <graphic>
+                  <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+               </graphic>
+            </SimpleAlert>
+            <VBox fx:id="importBox" onMouseClicked="#onImportClick" styleClass="dot-border" alignment="CENTER" spacing="5">
+               <padding>
+                  <Insets top="30" bottom="30"/>
+               </padding>
+               <Icon value="FILE" type="REGULAR" size="30" fill="gray"/>
+               <Text text="Нажмите или перетащите .csv файл для импорта">
+                  <font>
+                     <Font size="16.0"/>
+                  </font>
+               </Text>
+            </VBox>
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Страницы">
                <font>
                   <Font size="22.0"/>
                </font>
             </Text>
+            <SimpleAlert graphicTextGap="10" wrapText="true" text="Для импорта из страницы, набор на странице должен быть заполнен" maxWidth="Infinity" variant="PRIMARY">
+               <graphic>
+                  <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+               </graphic>
+            </SimpleAlert>
             <TilePane hgap="10" vgap="10" fx:id="screensBox"/>
             <Text visible="false" managed="false" strokeType="OUTSIDE" strokeWidth="0.0" text="Сохраненные наборы">
                <font>

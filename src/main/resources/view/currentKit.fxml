@@ -20,6 +20,9 @@
             </font>
         </Text>
         <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="5">
+            <padding>
+                <Insets left="10"/>
+            </padding>
             <Button styleClass="danger" onAction="#clearPagesList" prefWidth="150" text="Очистить">
                 <font>
                     <Font size="16"/>
@@ -34,6 +37,14 @@
                 </font>
                 <graphic>
                     <Icon value="PAPER_PLANE" type="SOLID" size="16" fill="#fff"/>
+                </graphic>
+            </Button>
+            <Button onAction="#onExportClick" prefWidth="200" text="Экспортировать">
+                <font>
+                    <Font size="16"/>
+                </font>
+                <graphic>
+                    <Icon value="FILE_EXPORT" type="SOLID" size="16" fill="#fff"/>
                 </graphic>
             </Button>
         </HBox>

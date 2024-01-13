@@ -8,6 +8,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -46,6 +47,7 @@ public class MailingRunnableScreen extends RunnablePane {
     private int currentMessageKit = -1;
 
     @FXML
+    @Getter
     private SelectAccountButton selectAccountButton;
 
     @FXML
@@ -194,9 +196,14 @@ public class MailingRunnableScreen extends RunnablePane {
                     return progressWrapper;
                 })
                 .collect(Collectors.toList());
-        kitListView.setItems(FXCollections.observableList(mapItems));
-        countText.setVisible(!kitListView.getItems().isEmpty());
-        countText.setText(String.format("(%s)", kitListView.getItems().size()));
+        try {
+            kitListView.setItems(FXCollections.observableList(mapItems));
+            kitListView.refresh();
+            countText.setVisible(!kitListView.getItems().isEmpty());
+            countText.setText(String.format("(%s)", kitListView.getItems().size()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return true;
     }
 

@@ -9,6 +9,9 @@
 <?import space.regiuss.vk.mailing.node.SelectAccountButton?>
 <?import space.regiuss.rgfx.node.RunnablePane?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Button?>
+<?import space.regiuss.rgfx.node.Icon?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="space.regiuss.vk.mailing.screen.ProfileRunnableScreen">
@@ -25,17 +28,25 @@
                         <Font size="30"/>
                     </font>
                 </Text>
-                <VBox>
+                <VBox spacing="5">
                     <Label text="Ссылка/id сообщества">
                         <font>
                             <Font size="16.0"/>
                         </font>
                     </Label>
-                    <TextField fx:id="groupField">
+                    <TextArea fx:id="groupArea">
                         <font>
                             <Font size="16.0"/>
                         </font>
-                    </TextField>
+                    </TextArea>
+                    <Button graphicTextGap="8" contentDisplay="LEFT" onAction="#onUploadGroupClick" prefWidth="250" text="Загрузить из файла">
+                        <font>
+                            <Font size="16"/>
+                        </font>
+                        <graphic>
+                            <Icon value="FILE_IMPORT" type="SOLID" size="16" fill="#fff"/>
+                        </graphic>
+                    </Button>
                 </VBox>
                 <VBox>
                     <Label text="Минимальное количество подписчиков">

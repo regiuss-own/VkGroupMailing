@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ProfileTaskData {
-    private String group;
+    private String[] groups;
     private int minSubscribersCount;
     private int maxSubscribersCount;
     private boolean onlyCanMessage;

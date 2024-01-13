@@ -6,6 +6,8 @@
 <?import space.regiuss.vk.mailing.node.SelectAccountButton?>
 <?import space.regiuss.rgfx.node.RunnablePane?>
 <?import space.regiuss.vk.mailing.node.CurrentKitView?>
+<?import space.regiuss.rgfx.node.Icon?>
+<?import space.regiuss.rgfx.node.SimpleAlert?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="space.regiuss.vk.mailing.screen.GroupRunnableScreen">
     <header>
         <HBox spacing="10" alignment="CENTER_LEFT">
@@ -66,6 +68,36 @@
                         <Font size="16.0"/>
                     </font>
                 </CheckBox>
+                <SimpleAlert graphicTextGap="10" wrapText="true" text="Страницы содержащие указанные слова в названии будут удалены" maxWidth="Infinity" variant="PRIMARY">
+                    <graphic>
+                        <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+                    </graphic>
+                </SimpleAlert>
+                <SimpleAlert graphicTextGap="10" wrapText="true" text="Каждое слово с новой строки" maxWidth="Infinity" variant="PRIMARY">
+                    <graphic>
+                        <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+                    </graphic>
+                </SimpleAlert>
+                <VBox>
+                    <Label text="Слова исключения">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextArea fx:id="exclusionArea">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextArea>
+                </VBox>
+                <Button onAction="#onDeleteExclusionClick" prefWidth="200" text="Удалить страницы">
+                    <font>
+                        <Font size="16"/>
+                    </font>
+                    <graphic>
+                        <Icon value="TRASH_CAN" type="REGULAR" size="16" fill="#fff"/>
+                    </graphic>
+                </Button>
             </VBox>
             <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
         </HBox>

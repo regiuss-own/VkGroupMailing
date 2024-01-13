@@ -59,6 +59,17 @@ public class VkMessenger implements Messenger {
         return p;
     }
 
+    private Page userNodeToPage(JsonNode node) {
+        Page p = new Page();
+        p.setType(PageType.USER);
+        p.setId(node.get("id").asInt());
+        p.setSubscribers(node.get("followers_count").asInt());
+        p.setIcon(node.get("photo_100").asText());
+        p.setName(node.get("first_name").asText() + " " + node.get("last_name").asText());
+        p.setCanMessage(node.get("can_write_private_message").asInt() == 1);
+        return p;
+    }
+
     @Override
     public List<Page> getFaves(int page) throws Exception {
         try (InputStream is = executeByToken(
@@ -131,18 +142,49 @@ public class VkMessenger implements Messenger {
 
     @Override
     public List<Page> getGroupsById(Collection<String> groups) throws Exception {
+        log.debug("getGroupsById groups: {}", groups);
         try (InputStream is = executeByToken(
                 "/method/groups.getById",
                 "group_ids", String.join(",", groups),
                 "fields", "members_count,can_message"
-        )) {
-            JsonNode groupsNode = OM.readValue(is, new TypeReference<Response<JsonNode>>() {
-                    })
+        ); BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null)
+                sb.append(line);
+            String response = sb.toString();
+            log.debug("getGroupsById response {}", response);
+            JsonNode groupsNode = OM.readValue(response, new TypeReference<Response<JsonNode>>() {})
                     .getResponse().get("groups");
             List<Page> pages = new LinkedList<>();
             for (JsonNode groupNode : groupsNode) {
                 if (groupNode.hasNonNull("members_count"))
                     pages.add(groupNodeToPage(groupNode));
+            }
+            return pages;
+        }
+    }
+
+    @Override
+    public List<Page> getUsersById(Collection<String> users) throws Exception {
+        log.debug("getUsersById groups: {}", users);
+        try (InputStream is = executeByToken(
+                "/method/users.get",
+                "user_ids", String.join(",", users),
+                "fields", "photo_100, followers_count, can_write_private_message"
+        ); BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null)
+                sb.append(line);
+            String response = sb.toString();
+            log.debug("getUsersById response {}", response);
+            JsonNode groupsNode = OM.readValue(response, new TypeReference<Response<JsonNode>>() {})
+                    .getResponse();
+            List<Page> pages = new LinkedList<>();
+            for (JsonNode userNode : groupsNode) {
+                if (userNode.hasNonNull("followers_count"))
+                    pages.add(userNodeToPage(userNode));
             }
             return pages;
         }

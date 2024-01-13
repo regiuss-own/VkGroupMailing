@@ -4,7 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>space.regiuss</groupId>
+
+    <parent>
+        <groupId>space.regiuss</groupId>
+        <artifactId>rgfx-project</artifactId>
+        <version>1.0.0</version>
+        <relativePath/>
+    </parent>
+
+
     <artifactId>VkMailing</artifactId>
     <version>${revision}</version>
 
@@ -18,10 +26,25 @@
         <javafx.version>21-ea+24</javafx.version>
         <h2.version>2.2.222</h2.version>
         <spring.boot.version>2.7.17</spring.boot.version>
-        <revision>1.0.1</revision>
+        <revision>1.0.2</revision>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>space.regiuss.rgfx-project</groupId>
+            <artifactId>rgfx-spring</artifactId>
+            <version>0.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -42,21 +65,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5.14</version>
-        </dependency>
-        <dependency>
-            <groupId>space.regiuss.rgfx</groupId>
-            <artifactId>rgfx-spring</artifactId>
-            <version>0.0.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -87,25 +95,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/application*.yml</include>
-                    <include>**/application*.yaml</include>
-                    <include>**/application*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/main/resources</directory>
-                <excludes>
-                    <exclude>**/application*.yml</exclude>
-                    <exclude>**/application*.yaml</exclude>
-                    <exclude>**/application*.properties</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

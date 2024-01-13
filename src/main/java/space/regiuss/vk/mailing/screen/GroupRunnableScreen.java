@@ -1,8 +1,12 @@
 package space.regiuss.vk.mailing.screen;
 
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -11,21 +15,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import space.regiuss.vk.mailing.VkMailingApp;
-import space.regiuss.vk.mailing.messenger.Messenger;
-import space.regiuss.vk.mailing.messenger.VkMessenger;
-import space.regiuss.vk.mailing.model.Account;
-import space.regiuss.vk.mailing.model.SearchGroupData;
-import space.regiuss.vk.mailing.node.CurrentKitView;
-import space.regiuss.vk.mailing.node.SelectAccountButton;
-import space.regiuss.vk.mailing.task.GroupTask;
 import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
+import space.regiuss.vk.mailing.VkMailingApp;
+import space.regiuss.vk.mailing.messenger.Messenger;
+import space.regiuss.vk.mailing.messenger.VkMessenger;
+import space.regiuss.vk.mailing.model.Account;
+import space.regiuss.vk.mailing.model.ImageItemWrapper;
+import space.regiuss.vk.mailing.model.Page;
+import space.regiuss.vk.mailing.model.SearchGroupData;
+import space.regiuss.vk.mailing.node.CurrentKitView;
+import space.regiuss.vk.mailing.node.SelectAccountButton;
+import space.regiuss.vk.mailing.task.GroupTask;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.util.LinkedList;
+import java.util.Locale;
 
 @Slf4j
 @Component
@@ -34,7 +42,10 @@ import java.io.*;
 public class GroupRunnableScreen extends RunnablePane {
 
     private final VkMailingApp app;
-    private GroupTask task;
+    private Task<?> task;
+
+    @FXML
+    private TextArea exclusionArea;
 
     @FXML
     private CheckBox onlyCanMessageCheckBox;
@@ -107,8 +118,7 @@ public class GroupRunnableScreen extends RunnablePane {
             );
         }
 
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
+        start();
         save();
         SearchGroupData data = new SearchGroupData();
         data.setSearch(searchField.getText());
@@ -117,14 +127,20 @@ public class GroupRunnableScreen extends RunnablePane {
         data.setMinSubscribers(minSubCount);
         data.setOnlyCanMessage(onlyCanMessageCheckBox.isSelected());
         Messenger messenger = new VkMessenger(account.getToken());
-        task = new GroupTask(messenger, data);
+        GroupTask task = new GroupTask(messenger, data);
         currentKitView.applyPageListListener(task.getPageListProperty());
         applyTask(
                 task,
                 "По группам",
                 app
         );
+        this.task = task;
         app.getExecutorService().execute(task);
+    }
+
+    private void start() {
+        startButton.setDisable(true);
+        stopButton.setDisable(false);
     }
 
     @Override
@@ -134,6 +150,50 @@ public class GroupRunnableScreen extends RunnablePane {
             task.cancel(true);
             task = null;
         }
+    }
+
+    @FXML
+    public void onDeleteExclusionClick(ActionEvent event) {
+        if (task != null && !task.isDone() && !task.isCancelled()) {
+            app.showAlert(new SimpleAlert("Запуск возможен только после завершения задачи", AlertVariant.WARN), Duration.seconds(2));
+            return;
+        }
+        if (exclusionArea.getText().trim().isEmpty()) {
+            app.showAlert(new SimpleAlert("Список слов пуст", AlertVariant.WARN), Duration.seconds(2));
+            return;
+        }
+        if (currentKitView.getListView().getItems().isEmpty()) {
+            app.showAlert(new SimpleAlert("Текущий набор пуст", AlertVariant.WARN), Duration.seconds(2));
+            return;
+        }
+        final String[] exclusionWords = exclusionArea.getText().split("\n");
+        for (int i = 0; i < exclusionWords.length; i++) {
+            exclusionWords[i] = exclusionWords[i].toLowerCase(Locale.ROOT);
+        }
+        Task<?> deleteTask = new Task<Object>() {
+            @Override
+            protected Object call() throws Exception {
+                LinkedList<ImageItemWrapper<Page>> removeItems = new LinkedList<>();
+                ObservableList<ImageItemWrapper<Page>> items = currentKitView.getListView().getItems();
+                for (ImageItemWrapper<Page> item : items) {
+                    for (String w : exclusionWords) {
+                        if (w.trim().isEmpty()) {
+                            continue;
+                        }
+                        if (item.getItem().getName().toLowerCase(Locale.ROOT).contains(w)) {
+                            removeItems.add(item);
+                            break;
+                        }
+                    }
+                }
+                Platform.runLater(() -> items.removeAll(removeItems));
+                return null;
+            }
+        };
+        applyTask(deleteTask, "Удаление страниц", app);
+        task = deleteTask;
+        start();
+        app.getExecutorService().execute(deleteTask);
     }
 
     private void save() {
@@ -148,6 +208,7 @@ public class GroupRunnableScreen extends RunnablePane {
             os.writeUTF(searchField.getText());
             os.writeBoolean(sortCheckBox.isSelected());
             os.writeBoolean(onlyCanMessageCheckBox.isSelected());
+            os.writeUTF(exclusionArea.getText());
         } catch (Exception e) {
             log.warn("save group settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
@@ -167,6 +228,7 @@ public class GroupRunnableScreen extends RunnablePane {
             searchField.setText(is.readUTF());
             sortCheckBox.setSelected(is.readBoolean());
             onlyCanMessageCheckBox.setSelected(is.readBoolean());
+            exclusionArea.setText(is.readUTF());
         } catch (Exception e) {
             log.warn("load group settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));

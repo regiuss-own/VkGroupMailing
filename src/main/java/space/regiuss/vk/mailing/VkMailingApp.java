@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Getter
-public class VkMailingApp extends RGFXAPP<RootSideBarPane> {
+public class VkMailingApp extends RGFXAPP {
     private final Map<Class<?>, Toggle> buttons = new HashMap<>(16);
     private Text versionText;
 
@@ -48,7 +48,7 @@ public class VkMailingApp extends RGFXAPP<RootSideBarPane> {
         ToggleGroup menuToggleGroup = new ToggleGroup();
         Paint fill = Paint.valueOf("#333");
         int size = 20;
-        root.setMenuItems(Arrays.asList(
+        ((RootSideBarPane) root).setMenuItems(Arrays.asList(
                 createMenuButton(
                         menuToggleGroup,
                         "По группам",
@@ -113,10 +113,10 @@ public class VkMailingApp extends RGFXAPP<RootSideBarPane> {
         header.setPadding(new Insets(0, 10, 0, 10));
         header.setSpacing(15);
         header.setAlignment(Pos.CENTER_LEFT);
-        root.setHeader(header);
+        ((RootSideBarPane) root).setHeader(header);
         versionText = new Text("Unknown");
         versionText.setFill(Paint.valueOf("gray"));
-        root.setFooter(versionText);
+        ((RootSideBarPane) root).setFooter(versionText);
 
         currentScreen.addListener((observableValue, aClass, t1) -> {
             if (t1 == null)

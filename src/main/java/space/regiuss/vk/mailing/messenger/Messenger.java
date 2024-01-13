@@ -16,6 +16,8 @@ public interface Messenger {
 
     List<Page> getGroupsById(Collection<String> groups) throws Exception;
 
+    List<Page> getUsersById(Collection<String> users) throws Exception;
+
     void send(int id, Message message) throws Exception;
 
     Account getAccount();

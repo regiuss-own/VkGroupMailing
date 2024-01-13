@@ -28,6 +28,7 @@ import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.rgfx.popup.ConfirmPopup;
 
 import javax.annotation.PostConstruct;
+import java.util.LinkedList;
 
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
@@ -117,7 +118,8 @@ public class MessagesScreen extends HBox {
     public void onAddMessageKitClick(ActionEvent event) {
         MessageKit messageKit = new MessageKit();
         messageKit.setName("Без имени");
-        messageService.save(messageKit);
+        messageKit.setMessages(new LinkedList<>());
+        messageKit = messageService.save(messageKit);
         kitList.getItems().add(messageKit);
         kitList.scrollTo(messageKit);
         kitList.getSelectionModel().select(messageKit);

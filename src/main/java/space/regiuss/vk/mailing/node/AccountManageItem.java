@@ -27,7 +27,7 @@ public class AccountManageItem extends StackPane {
     private final AccountItem item;
     protected final Button removeButton;
 
-    public AccountManageItem(Account account, RGFXAPP<?> app) {
+    public AccountManageItem(Account account, RGFXAPP app) {
         item = new AccountItem(account);
         removeButton = createIconButton(Icon.IconValue.TRASH_CAN, Icon.IconType.REGULAR, "Удалить");
         Button openButton = createIconButton(Icon.IconValue.ARROW_UP_RIGHT_FROM_SQUARE, Icon.IconType.SOLID, "Открыть страницу");

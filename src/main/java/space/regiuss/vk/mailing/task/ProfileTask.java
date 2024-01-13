@@ -18,6 +18,7 @@ import space.regiuss.vk.mailing.model.UserInfoData;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -32,12 +33,22 @@ public class ProfileTask extends Task<Void> {
 
     @Override
     protected Void call() throws Exception {
-        String targetGroupPrepared = prepareLink(taskData.getGroup());
         groupIds = new HashSet<>(1024);
+        for (String group : taskData.getGroups()) {
+            if (isCancelled())
+                break;
+            log.info("start get profiles from group - {}", group);
+            executeGroup(group);
+        }
+        return null;
+    }
+
+    private void executeGroup(String group) throws Exception {
+        String targetGroupPrepared = prepareLink(group);
         int page = 1;
-        ItemsResult<Integer> itemResult;
+        ItemsResult<Integer> itemResult = null;
         do {
-            for (int i = 0; true; i++) {
+            for (int i = 0; !isCancelled(); i++) {
                 try {
                     itemResult = messenger.getGroupMembers(targetGroupPrepared, page);
                     page++;
@@ -47,11 +58,12 @@ public class ProfileTask extends Task<Void> {
                         throw e;
                 }
             }
-            if (itemResult == null)
-                throw new RuntimeException("Не удалось получить информацию по пользователям");
+            if (itemResult == null) {
+                // throw new RuntimeException("Не удалось получить информацию по пользователям");
+                break;
+            }
             processItemResult(itemResult);
         } while (!itemResult.getItems().isEmpty() && !isCancelled());
-        return null;
     }
 
     private void processItemResult(ItemsResult<Integer> itemResult) throws Exception {
@@ -95,6 +107,8 @@ public class ProfileTask extends Task<Void> {
                 }
             }
         }
+        searchGroups = searchGroups.stream().filter(s -> !(s.startsWith("app") && s.length() > 3 && Character.isDigit(s.charAt(3))))
+                .map(s -> s.startsWith("id") ? s.substring(2) : s).collect(Collectors.toList());
         if (searchGroups.isEmpty())
             return;
         List<Page> pages;
