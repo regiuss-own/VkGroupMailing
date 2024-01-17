@@ -23,4 +23,10 @@ public class Message {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "message_id")
     private List<Attachment> attachments;
+
+    @Column(name = "is_dont_parse_link")
+    private Boolean dontParseLink;
+
+    @Column(name = "attachment_link_text", length = 4096)
+    private String attachmentLinkText;
 }

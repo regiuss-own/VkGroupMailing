@@ -1,29 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>rgfx-project</artifactId>
+    <groupId>space.regiuss</groupId>
+    <version>1.0.0</version>
+    <relativePath>pom.xml</relativePath>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>space.regiuss</groupId>
   <artifactId>VkMailing</artifactId>
   <version>${revision}</version>
   <build>
-    <resources>
-      <resource>
-        <filtering>true</filtering>
-        <directory>${basedir}/src/main/resources</directory>
-        <includes>
-          <include>**/application*.yml</include>
-          <include>**/application*.yaml</include>
-          <include>**/application*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/src/main/resources</directory>
-        <excludes>
-          <exclude>**/application*.yml</exclude>
-          <exclude>**/application*.yaml</exclude>
-          <exclude>**/application*.properties</exclude>
-        </excludes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
@@ -66,7 +52,7 @@
     <maven.compiler.target>8</maven.compiler.target>
     <h2.version>2.2.222</h2.version>
     <log4j.version>2.20.0</log4j.version>
-    <revision>1.0.2</revision>
+    <revision>1.0.5</revision>
     <spring.boot.version>2.7.17</spring.boot.version>
     <jackson.version>2.15.2</jackson.version>
     <maven.compiler.source>8</maven.compiler.source>

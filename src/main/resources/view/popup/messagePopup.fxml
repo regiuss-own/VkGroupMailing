@@ -5,11 +5,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <?import space.regiuss.rgfx.popup.BackgroundPopup?>
+<?import space.regiuss.rgfx.node.SimpleAlert?>
+<?import space.regiuss.rgfx.node.Icon?>
 <fx:root
         type="space.regiuss.rgfx.popup.BackgroundPopup"
         fx:controller="space.regiuss.vk.mailing.popup.MessagePopup"
         xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1">
-   <VBox maxHeight="300.0" maxWidth="500.0" prefHeight="300.0" prefWidth="500.0" spacing="10.0"
+   <VBox maxWidth="800.0" prefHeight="300.0" prefWidth="500.0" spacing="10.0"
          style="-fx-background-color: #e4e7ea; -fx-background-radius: 5px;">
       <StackPane.margin>
          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
@@ -22,13 +24,13 @@
             <Font size="25.0"/>
          </font>
       </Text>
-      <VBox>
+      <VBox VBox.vgrow="ALWAYS">
          <Label text="Текст">
             <font>
                <Font size="16.0"/>
             </font>
          </Label>
-         <TextArea fx:id="textArea" prefHeight="200.0" prefWidth="200.0">
+         <TextArea VBox.vgrow="ALWAYS" fx:id="textArea" prefHeight="200.0" prefWidth="200.0">
             <font>
                <Font size="16.0"/>
             </font>
@@ -39,7 +41,38 @@
             <Font size="16.0"/>
          </font>
       </Button>
+      <SimpleAlert graphicTextGap="10" wrapText="true"
+                   text="Нажмите на файл для изменения способа прикрепления&#xD;Синий - обычная загрузк&#xD;Зеленый - прикрепить как файл"
+                   maxWidth="800" variant="PRIMARY">
+         <graphic>
+            <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+         </graphic>
+      </SimpleAlert>
       <FlowPane fx:id="attachmentsFlow" hgap="5.0" vgap="2.0"/>
+      <CheckBox fx:id="dontParseLinkCheckBox" text="Не парсить ссылки">
+         <font>
+            <Font size="16.0"/>
+         </font>
+      </CheckBox>
+      <SimpleAlert graphicTextGap="10" wrapText="true"
+                   text="Список фото/видео/аудио и прочих принадлежащих пользователю/группе&#xD;Формат {type}{owner_id}_{media_id}_{access_key&#xD;Например: video-70264776_456239376"
+                   maxWidth="800" variant="PRIMARY">
+         <graphic>
+            <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+         </graphic>
+      </SimpleAlert>
+      <VBox>
+         <Label text="Вложения">
+            <font>
+               <Font size="16.0"/>
+            </font>
+         </Label>
+         <TextArea fx:id="attachmentArea" prefHeight="200.0" prefWidth="200.0">
+            <font>
+               <Font size="16.0"/>
+            </font>
+         </TextArea>
+      </VBox>
       <HBox alignment="CENTER_RIGHT" spacing="5.0">
          <Button mnemonicParsing="false" onAction="#onClose" prefWidth="100.0" text="Отмена">
             <font>

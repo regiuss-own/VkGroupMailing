@@ -142,7 +142,7 @@ public class CurrentKitView extends VBox {
                             page.getLink(),
                             page.getId(),
                             page.getType().name(),
-                            page.getName(),
+                            page.getName().replace(";", ""),
                             page.getSubscribers(),
                             page.getIcon()
                     ).getBytes(StandardCharsets.UTF_8));

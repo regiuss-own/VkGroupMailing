@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
@@ -22,6 +23,7 @@ import space.regiuss.rgfx.popup.BackgroundPopup;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
@@ -30,6 +32,10 @@ public class MessagePopup extends BackgroundPopup {
 
     private static FXMLLoader loader;
 
+    @FXML
+    private CheckBox dontParseLinkCheckBox;
+    @FXML
+    private TextArea attachmentArea;
     @FXML
     private TextArea textArea;
     @FXML
@@ -54,6 +60,12 @@ public class MessagePopup extends BackgroundPopup {
                 HBox hBox = createFileView(attachment);
                 attachmentsFlow.getChildren().add(hBox);
             }
+        }
+        if (Objects.nonNull(message.getDontParseLink())) {
+            dontParseLinkCheckBox.setSelected(message.getDontParseLink());
+        }
+        if (Objects.nonNull(message.getAttachmentLinkText())) {
+            attachmentArea.setText(message.getAttachmentLinkText());
         }
     }
 
@@ -120,6 +132,8 @@ public class MessagePopup extends BackgroundPopup {
                 message = new Message();
             message.setText(textArea.getText());
             message.setAttachments(attachments);
+            message.setDontParseLink(dontParseLinkCheckBox.isSelected());
+            message.setAttachmentLinkText(attachmentArea.getText());
             onMessage.accept(message);
         }
         onClose.run();

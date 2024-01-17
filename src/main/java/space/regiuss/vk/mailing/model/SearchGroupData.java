@@ -3,10 +3,12 @@ package space.regiuss.vk.mailing.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SearchGroupData extends MailingData {
-    private String search;
+    private List<String> search;
     private int minSubscribers;
     private int maxSubscribers;
     private boolean sort;

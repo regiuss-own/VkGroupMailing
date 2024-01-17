@@ -8,6 +8,7 @@
 <?import space.regiuss.vk.mailing.node.CurrentKitView?>
 <?import space.regiuss.rgfx.node.Icon?>
 <?import space.regiuss.rgfx.node.SimpleAlert?>
+<?import javafx.geometry.Insets?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="space.regiuss.vk.mailing.screen.GroupRunnableScreen">
     <header>
         <HBox spacing="10" alignment="CENTER_LEFT">
@@ -46,17 +47,22 @@
                         </font>
                     </TextField>
                 </VBox>
+                <SimpleAlert graphicTextGap="10" wrapText="true" text="Несколько значений через новую строку" maxWidth="Infinity" variant="PRIMARY">
+                    <graphic>
+                        <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+                    </graphic>
+                </SimpleAlert>
                 <VBox>
                     <Label text="Строка поиска">
                         <font>
                             <Font size="16.0"/>
                         </font>
                     </Label>
-                    <TextField fx:id="searchField">
+                    <TextArea fx:id="searchArea">
                         <font>
                             <Font size="16.0"/>
                         </font>
-                    </TextField>
+                    </TextArea>
                 </VBox>
                 <CheckBox fx:id="sortCheckBox" mnemonicParsing="false" text="Сортировать по количеству подписчиков">
                     <font>
@@ -73,7 +79,7 @@
                         <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
                     </graphic>
                 </SimpleAlert>
-                <SimpleAlert graphicTextGap="10" wrapText="true" text="Каждое слово с новой строки" maxWidth="Infinity" variant="PRIMARY">
+                <SimpleAlert graphicTextGap="10" wrapText="true" text="Несколько значений через новую строку" maxWidth="Infinity" variant="PRIMARY">
                     <graphic>
                         <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
                     </graphic>
@@ -102,4 +108,17 @@
             <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
         </HBox>
     </content>
+    <footer>
+        <VBox alignment="CENTER_RIGHT" HBox.Hgrow="ALWAYS">
+            <Label fx:id="statusText" textFill="#777" text="Готово">
+                <padding>
+                    <Insets right="5"/>
+                </padding>
+                <font>
+                    <Font size="14"/>
+                </font>
+            </Label>
+            <ProgressBar fx:id="progressBar" progress="0" maxWidth="Infinity"/>
+        </VBox>
+    </footer>
 </fx:root>

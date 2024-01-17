@@ -199,6 +199,9 @@ public class VkMessenger implements Messenger {
                 attachments.add(uploaded);
             }
         }
+        if (Objects.nonNull(message.getAttachmentLinkText()) && !message.getAttachmentLinkText().trim().isEmpty()) {
+            attachments.addAll(Arrays.asList(message.getAttachmentLinkText().split("\n")));
+        }
         try (InputStream is = getSendResult(id, message, attachments); BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             StringBuilder sb = new StringBuilder();
             String line;
@@ -216,6 +219,7 @@ public class VkMessenger implements Messenger {
             return executeByToken(
                     "/method/messages.send",
                     "random_id", 0,
+                    "dont_parse_links", message.getDontParseLink() ? 1 : 0,
                     "peer_id", id,
                     "message", message.getText()
             );
@@ -225,6 +229,7 @@ public class VkMessenger implements Messenger {
                     "random_id", 0,
                     "peer_id", id,
                     "message", message.getText(),
+                    "dont_parse_links", message.getDontParseLink() ? 1 : 0,
                     "attachment", String.join(",", attachments)
             );
         }

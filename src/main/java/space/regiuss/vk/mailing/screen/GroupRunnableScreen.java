@@ -5,9 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +30,7 @@ import space.regiuss.vk.mailing.task.GroupTask;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Locale;
 
@@ -43,6 +42,12 @@ public class GroupRunnableScreen extends RunnablePane {
 
     private final VkMailingApp app;
     private Task<?> task;
+
+    @FXML
+    private ProgressBar progressBar;
+
+    @FXML
+    private Label statusText;
 
     @FXML
     private TextArea exclusionArea;
@@ -64,7 +69,7 @@ public class GroupRunnableScreen extends RunnablePane {
     private TextField maxSubCountField;
 
     @FXML
-    private TextField searchField;
+    private TextArea searchArea;
 
     @FXML
     private CheckBox sortCheckBox;
@@ -85,7 +90,7 @@ public class GroupRunnableScreen extends RunnablePane {
             app.showAlert(new SimpleAlert("Выберите аккаунт", AlertVariant.DANGER), Duration.seconds(5));
             return;
         }
-        if (searchField.getText() == null || searchField.getText().trim().isEmpty()) {
+        if (searchArea.getText() == null || searchArea.getText().trim().isEmpty()) {
             app.showAlert(new SimpleAlert("Поле Поиск не может быть пустым", AlertVariant.DANGER), Duration.seconds(5));
             return;
         }
@@ -121,7 +126,7 @@ public class GroupRunnableScreen extends RunnablePane {
         start();
         save();
         SearchGroupData data = new SearchGroupData();
-        data.setSearch(searchField.getText());
+        data.setSearch(Arrays.asList(searchArea.getText().split("\n")));
         data.setSort(sortCheckBox.isSelected());
         data.setMaxSubscribers(maxSubCount);
         data.setMinSubscribers(minSubCount);
@@ -134,6 +139,8 @@ public class GroupRunnableScreen extends RunnablePane {
                 "По группам",
                 app
         );
+        progressBar.progressProperty().bind(task.progressProperty());
+        statusText.textProperty().bind(task.messageProperty());
         this.task = task;
         app.getExecutorService().execute(task);
     }
@@ -141,6 +148,15 @@ public class GroupRunnableScreen extends RunnablePane {
     private void start() {
         startButton.setDisable(true);
         stopButton.setDisable(false);
+    }
+
+    @Override
+    protected void clear() {
+        super.clear();
+        statusText.textProperty().unbind();
+        statusText.setText("Готово");
+        progressBar.progressProperty().unbind();
+        progressBar.setProgress(0);
     }
 
     @Override
@@ -205,7 +221,7 @@ public class GroupRunnableScreen extends RunnablePane {
                 os.writeInt(account.getId());
             os.writeUTF(minSubCountField.getText());
             os.writeUTF(maxSubCountField.getText());
-            os.writeUTF(searchField.getText());
+            os.writeUTF(searchArea.getText());
             os.writeBoolean(sortCheckBox.isSelected());
             os.writeBoolean(onlyCanMessageCheckBox.isSelected());
             os.writeUTF(exclusionArea.getText());
@@ -225,7 +241,7 @@ public class GroupRunnableScreen extends RunnablePane {
                 selectAccountButton.selectAccountById(accountId);
             minSubCountField.setText(is.readUTF());
             maxSubCountField.setText(is.readUTF());
-            searchField.setText(is.readUTF());
+            searchArea.setText(is.readUTF());
             sortCheckBox.setSelected(is.readBoolean());
             onlyCanMessageCheckBox.setSelected(is.readBoolean());
             exclusionArea.setText(is.readUTF());

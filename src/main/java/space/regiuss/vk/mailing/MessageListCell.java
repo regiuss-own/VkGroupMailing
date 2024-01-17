@@ -10,6 +10,7 @@ import space.regiuss.vk.mailing.model.Attachment;
 import space.regiuss.vk.mailing.model.Message;
 
 import java.io.File;
+import java.util.Objects;
 
 public class MessageListCell extends ListCell<Message> {
     @Override
@@ -35,6 +36,13 @@ public class MessageListCell extends ListCell<Message> {
                     else
                         label.setStyle("-fx-border-color: #346df1; -fx-border-radius: 5px; -fx-padding: 5px");
                     flowPane.getChildren().add(label);
+                }
+                if (Objects.nonNull(item.getAttachmentLinkText()) && !item.getAttachmentLinkText().trim().isEmpty()) {
+                    for (String attachment : item.getAttachmentLinkText().split("\n")) {
+                        Label label = new Label(attachment);
+                        label.setStyle("-fx-border-color: #346df1; -fx-border-radius: 5px; -fx-padding: 5px");
+                        flowPane.getChildren().add(label);
+                    }
                 }
             }
             vBox.getChildren().addAll(text, flowPane);
