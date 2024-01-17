@@ -1,10 +1,14 @@
 package space.regiuss.vk.mailing.screen;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
@@ -31,7 +35,9 @@ import space.regiuss.vk.mailing.task.MailingTask;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -43,12 +49,15 @@ public class MailingRunnableScreen extends RunnablePane {
     private final VkMailingApp app;
     private final MessageService messageService;
 
-    private MailingTask task;
+    private Task<?> task;
     private int currentMessageKit = -1;
 
     @FXML
     @Getter
     private SelectAccountButton selectAccountButton;
+
+    @FXML
+    private TextArea exclusionArea;
 
     @FXML
     private Button selectMessageButton;
@@ -135,8 +144,7 @@ public class MailingRunnableScreen extends RunnablePane {
                     Duration.seconds(5)
             );
         }
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
+        start();
         save();
         MailingData mailingData = new MailingData();
         mailingData.setMessages(messages);
@@ -159,6 +167,7 @@ public class MailingRunnableScreen extends RunnablePane {
             os.writeInt(currentMessageKit);
             os.writeUTF(messageDelayField.getText());
             os.writeUTF(dialogDelayField.getText());
+            os.writeUTF(exclusionArea.getText());
         } catch (Exception e) {
             log.warn("save mailing settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
@@ -179,6 +188,7 @@ public class MailingRunnableScreen extends RunnablePane {
             }
             messageDelayField.setText(is.readUTF());
             dialogDelayField.setText(is.readUTF());
+            exclusionArea.setText(is.readUTF());
         } catch (Exception e) {
             log.warn("load mailing settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.DANGER), Duration.seconds(5));
@@ -199,12 +209,16 @@ public class MailingRunnableScreen extends RunnablePane {
         try {
             kitListView.setItems(FXCollections.observableList(mapItems));
             kitListView.refresh();
-            countText.setVisible(!kitListView.getItems().isEmpty());
-            countText.setText(String.format("(%s)", kitListView.getItems().size()));
+            updateListViewItemsCount();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return true;
+    }
+
+    private void updateListViewItemsCount() {
+        countText.setVisible(!kitListView.getItems().isEmpty());
+        countText.setText(String.format("(%s)", kitListView.getItems().size()));
     }
 
     @Override
@@ -214,6 +228,59 @@ public class MailingRunnableScreen extends RunnablePane {
             task.cancel(true);
             task = null;
         }
+    }
+
+    private void start() {
+        startButton.setDisable(true);
+        stopButton.setDisable(false);
+    }
+
+    @FXML
+    public void onDeleteExclusionClick(ActionEvent event) {
+        if (task != null && !task.isDone() && !task.isCancelled()) {
+            app.showAlert(new SimpleAlert("Запуск возможен только после завершения задачи", AlertVariant.WARN), Duration.seconds(2));
+            return;
+        }
+        if (exclusionArea.getText().trim().isEmpty()) {
+            app.showAlert(new SimpleAlert("Список слов пуст", AlertVariant.WARN), Duration.seconds(2));
+            return;
+        }
+        if (kitListView.getItems().isEmpty()) {
+            app.showAlert(new SimpleAlert("Текущий набор пуст", AlertVariant.WARN), Duration.seconds(2));
+            return;
+        }
+        final String[] exclusionWords = exclusionArea.getText().split("\n");
+        for (int i = 0; i < exclusionWords.length; i++) {
+            exclusionWords[i] = exclusionWords[i].toLowerCase(Locale.ROOT);
+        }
+        Task<?> deleteTask = new Task<Object>() {
+            @Override
+            protected Object call() throws Exception {
+                LinkedList<ImageItemWrapper<Page>> removeItems = new LinkedList<>();
+                ObservableList<ProgressItemWrapper<Page>> items = kitListView.getItems();
+                for (ProgressItemWrapper<Page> item : items) {
+                    for (String w : exclusionWords) {
+                        if (w.trim().isEmpty()) {
+                            continue;
+                        }
+                        if (item.getItem().getName().toLowerCase(Locale.ROOT).contains(w)) {
+                            removeItems.add(item);
+                            break;
+                        }
+                    }
+                }
+                Platform.runLater(() -> {
+                    items.removeAll(removeItems);
+                    updateListViewItemsCount();
+                });
+                return null;
+            }
+        };
+        save();
+        applyTask(deleteTask, "Удаление страниц", app);
+        task = deleteTask;
+        start();
+        app.getExecutorService().execute(deleteTask);
     }
 
     @FXML

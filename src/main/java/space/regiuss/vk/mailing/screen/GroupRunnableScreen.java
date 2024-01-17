@@ -50,9 +50,6 @@ public class GroupRunnableScreen extends RunnablePane {
     private Label statusText;
 
     @FXML
-    private TextArea exclusionArea;
-
-    @FXML
     private CheckBox onlyCanMessageCheckBox;
 
     @FXML
@@ -168,50 +165,6 @@ public class GroupRunnableScreen extends RunnablePane {
         }
     }
 
-    @FXML
-    public void onDeleteExclusionClick(ActionEvent event) {
-        if (task != null && !task.isDone() && !task.isCancelled()) {
-            app.showAlert(new SimpleAlert("Запуск возможен только после завершения задачи", AlertVariant.WARN), Duration.seconds(2));
-            return;
-        }
-        if (exclusionArea.getText().trim().isEmpty()) {
-            app.showAlert(new SimpleAlert("Список слов пуст", AlertVariant.WARN), Duration.seconds(2));
-            return;
-        }
-        if (currentKitView.getListView().getItems().isEmpty()) {
-            app.showAlert(new SimpleAlert("Текущий набор пуст", AlertVariant.WARN), Duration.seconds(2));
-            return;
-        }
-        final String[] exclusionWords = exclusionArea.getText().split("\n");
-        for (int i = 0; i < exclusionWords.length; i++) {
-            exclusionWords[i] = exclusionWords[i].toLowerCase(Locale.ROOT);
-        }
-        Task<?> deleteTask = new Task<Object>() {
-            @Override
-            protected Object call() throws Exception {
-                LinkedList<ImageItemWrapper<Page>> removeItems = new LinkedList<>();
-                ObservableList<ImageItemWrapper<Page>> items = currentKitView.getListView().getItems();
-                for (ImageItemWrapper<Page> item : items) {
-                    for (String w : exclusionWords) {
-                        if (w.trim().isEmpty()) {
-                            continue;
-                        }
-                        if (item.getItem().getName().toLowerCase(Locale.ROOT).contains(w)) {
-                            removeItems.add(item);
-                            break;
-                        }
-                    }
-                }
-                Platform.runLater(() -> items.removeAll(removeItems));
-                return null;
-            }
-        };
-        applyTask(deleteTask, "Удаление страниц", app);
-        task = deleteTask;
-        start();
-        app.getExecutorService().execute(deleteTask);
-    }
-
     private void save() {
         try (DataOutputStream os = new DataOutputStream(new FileOutputStream("data/group"))) {
             Account account = selectAccountButton.getCurrentAccount().get();
@@ -224,7 +177,6 @@ public class GroupRunnableScreen extends RunnablePane {
             os.writeUTF(searchArea.getText());
             os.writeBoolean(sortCheckBox.isSelected());
             os.writeBoolean(onlyCanMessageCheckBox.isSelected());
-            os.writeUTF(exclusionArea.getText());
         } catch (Exception e) {
             log.warn("save group settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
@@ -244,7 +196,6 @@ public class GroupRunnableScreen extends RunnablePane {
             searchArea.setText(is.readUTF());
             sortCheckBox.setSelected(is.readBoolean());
             onlyCanMessageCheckBox.setSelected(is.readBoolean());
-            exclusionArea.setText(is.readUTF());
         } catch (Exception e) {
             log.warn("load group settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));
