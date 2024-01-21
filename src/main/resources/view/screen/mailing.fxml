@@ -84,7 +84,7 @@
                     </TextField>
                 </VBox>
                 <VBox>
-                    <Label text="Здержка между ошибками (&lt; 1 для отключения)">
+                    <Label text="Здержка при ошибках (&lt; 1 для отключения)">
                         <font>
                             <Font size="16.0"/>
                         </font>

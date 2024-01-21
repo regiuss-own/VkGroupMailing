@@ -1,6 +1,10 @@
 package space.regiuss.vk.mailing.screen;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -42,6 +46,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -136,7 +141,7 @@ public class MailingRunnableScreen extends RunnablePane {
         int messageDelay = parseNumber(messageDelayField, "messageDelayField", "Задержка между сообщениями");
         int dialogDelay = parseNumber(dialogDelayField, "dialogDelayField", "Задержка между диалогами");
         int maxErrors = parseNumber(errorCountField, "errorCountField", "Количество ошибок");
-        int errorsDelay = parseNumber(errorDelayField, "errorDelayField", "Задержка между ошибками");
+        int errorsDelay = parseNumber(errorDelayField, "errorDelayField", "Здержка при ошибках");
         setState(RunnableState.RUNNING);
         save();
         MailingData mailingData = new MailingData();
@@ -162,10 +167,39 @@ public class MailingRunnableScreen extends RunnablePane {
                     break;
                 }
                 case WAITING: {
-                    app.showAlert(new SimpleAlert(
+                    SimpleAlert alert = new SimpleAlert(
                             "Задач Рассылка приостановлена. Достигнуто максимальное количество ошибок",
                             AlertVariant.WARN
-                    ), Duration.seconds(5));
+                    );
+                    int[] seconds = {(int) Duration.minutes(mailingData.getOnErrorDelay()).toSeconds()};
+                    Timeline timeline = new Timeline();
+                    ChangeListener<RunnableState> changeListener = new ChangeListener<RunnableState>() {
+                        @Override
+                        public void changed(ObservableValue<? extends RunnableState> observableValue, RunnableState runnableState, RunnableState t1) {
+                            timeline.stop();
+                            app.hideAlert(alert);
+                            getState().removeListener(this);
+                        }
+                    };
+                    timeline.getKeyFrames().add(new KeyFrame(
+                            Duration.seconds(1),
+                            ae -> {
+                                if (seconds[0]-- <= 0) {
+                                    getState().removeListener(changeListener);
+                                }
+                                String time = String.format("%02d:%02d:%02d",
+                                        TimeUnit.SECONDS.toHours(seconds[0]),
+                                        TimeUnit.SECONDS.toMinutes(seconds[0]) -
+                                                TimeUnit.HOURS.toMinutes(TimeUnit.SECONDS.toHours(seconds[0])),
+                                        TimeUnit.SECONDS.toSeconds(seconds[0]) -
+                                                TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(seconds[0])));
+                                alert.setText("Задач Рассылка приостановлена. Достигнуто максимальное количество ошибок " + time);
+                            }
+                    ));
+                    timeline.setCycleCount(seconds[0]);
+                    timeline.play();
+                    app.showAlert(alert, Duration.minutes(mailingData.getOnErrorDelay()));
+                    getState().addListener(changeListener);
                     break;
                 }
             }
