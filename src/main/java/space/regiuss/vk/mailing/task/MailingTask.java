@@ -7,19 +7,27 @@ import lombok.extern.log4j.Log4j2;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.*;
 
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
 
 @Log4j2
 @RequiredArgsConstructor
-public class MailingTask extends Task<Void> {
+public class MailingTask extends Task<MailingTask.State> {
 
     private final Messenger messenger;
     private final MailingData mailingData;
     private final ListView<?> listView;
+    private int errors = 0;
+
+    public static enum State {
+        PROCESS,
+        WAITING,
+        FINISH
+    }
 
     @Override
-    protected Void call() throws Exception {
+    protected MailingTask.State call() throws Exception {
         List<ProgressItemWrapper<Page>> items = mailingData.getItems();
         Iterator<ProgressItemWrapper<Page>> iterator = items.iterator();
         while (iterator.hasNext() && !isCancelled()) {
@@ -46,7 +54,7 @@ public class MailingTask extends Task<Void> {
                 if (mailingData.getMessageDelay() > 0)
                     Thread.sleep(mailingData.getMessageDelay());
             }
-
+            updateErrors(mailingData.getMessages().size() - sendCount);
             item.setTotal(mailingData.getMessages().size());
             item.setProgress(sendCount);
             listView.refresh();
@@ -54,6 +62,22 @@ public class MailingTask extends Task<Void> {
             if (mailingData.getDialogDelay() > 0)
                 Thread.sleep(mailingData.getDialogDelay());
         }
-        return null;
+        return State.FINISH;
+    }
+
+    private void updateErrors(int i) throws Exception {
+        log.info("updateErrors {} + {}", errors, i);
+        if (i < 1 || mailingData.getOnErrorDelay() < 1 || mailingData.getMaxErrorCount() < 1) {
+            return;
+        }
+        errors += i;
+        if (errors >= mailingData.getMaxErrorCount()) {
+            log.info("start wait {} min.", mailingData.getOnErrorDelay());
+            updateValue(State.WAITING);
+            errors = 0;
+            Thread.sleep(Duration.ofMinutes(mailingData.getOnErrorDelay()).toMillis());
+            log.info("start after wait {} min.", mailingData.getOnErrorDelay());
+            updateValue(State.PROCESS);
+        }
     }
 }

@@ -70,6 +70,12 @@ public class MailingRunnableScreen extends RunnablePane {
     private Text countText;
 
     @FXML
+    private TextField errorCountField;
+
+    @FXML
+    private TextField errorDelayField;
+
+    @FXML
     private TextField messageDelayField;
 
     @FXML
@@ -127,44 +133,64 @@ public class MailingRunnableScreen extends RunnablePane {
             kitListView.refresh();
         }
 
-        int messageDelay = 0;
-        try {
-            messageDelay = Integer.parseInt(messageDelayField.getText());
-        } catch (Exception e) {
-            log.warn("messageDelay number convert error", e);
-            app.showAlert(
-                    new SimpleAlert(
-                            "Неверный формат поля Задержка между сообщениями\nиспользовано значение по умолчанию - 0",
-                            AlertVariant.WARN
-                    ),
-                    Duration.seconds(5)
-            );
-        }
-
-        int dialogDelay = 0;
-        try {
-            dialogDelay = Integer.parseInt(dialogDelayField.getText());
-        } catch (Exception e) {
-            log.warn("minSubCount number convert error", e);
-            app.showAlert(
-                    new SimpleAlert(
-                            "Неверный формат поля Задержка между диалогами\nиспользовано значение по умолчанию - 0",
-                            AlertVariant.WARN
-                    ),
-                    Duration.seconds(5)
-            );
-        }
+        int messageDelay = parseNumber(messageDelayField, "messageDelayField", "Задержка между сообщениями");
+        int dialogDelay = parseNumber(dialogDelayField, "dialogDelayField", "Задержка между диалогами");
+        int maxErrors = parseNumber(errorCountField, "errorCountField", "Количество ошибок");
+        int errorsDelay = parseNumber(errorDelayField, "errorDelayField", "Задержка между ошибками");
         setState(RunnableState.RUNNING);
         save();
         MailingData mailingData = new MailingData();
         mailingData.setMessages(messages);
+        mailingData.setMaxErrorCount(maxErrors);
+        mailingData.setOnErrorDelay(errorsDelay);
         mailingData.setMessageDelay(messageDelay * 1000);
         mailingData.setDialogDelay(dialogDelay * 1000);
         mailingData.setItems(kitListView.getItems());
         Messenger messenger = new VkMessenger(account.getToken());
-        task = new MailingTask(messenger, mailingData, kitListView);
+        MailingTask task = new MailingTask(messenger, mailingData, kitListView);
         applyTask(task, "Рассылка", app);
+        task.valueProperty().addListener((observableValue, state, t1) -> {
+            if (t1 == null) {
+                return;
+            }
+            switch (t1) {
+                case PROCESS: {
+                    app.showAlert(new SimpleAlert(
+                            "Задач Рассылка продолжает работу после задержки",
+                            AlertVariant.SUCCESS
+                    ), Duration.seconds(5));
+                    break;
+                }
+                case WAITING: {
+                    app.showAlert(new SimpleAlert(
+                            "Задач Рассылка приостановлена. Достигнуто максимальное количество ошибок",
+                            AlertVariant.WARN
+                    ), Duration.seconds(5));
+                    break;
+                }
+            }
+        });
+        this.task = task;
         app.getExecutorService().execute(task);
+    }
+
+    private int parseNumber(TextField field, String fieldName, String fieldDisplayName) {
+        try {
+            return Integer.parseInt(field.getText());
+        } catch (Exception e) {
+            log.warn("{} number convert error", fieldName, e);
+            app.showAlert(
+                    new SimpleAlert(
+                            String.format(
+                                    "Неверный формат поля %s\nиспользовано значение по умолчанию - 0",
+                                    fieldDisplayName
+                            ),
+                            AlertVariant.WARN
+                    ),
+                    Duration.seconds(5)
+            );
+        }
+        return 0;
     }
 
     private void save() {
@@ -178,6 +204,8 @@ public class MailingRunnableScreen extends RunnablePane {
             os.writeUTF(messageDelayField.getText());
             os.writeUTF(dialogDelayField.getText());
             os.writeUTF(exclusionArea.getText());
+            os.writeUTF(errorCountField.getText());
+            os.writeUTF(errorDelayField.getText());
         } catch (Exception e) {
             log.warn("save mailing settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
@@ -199,6 +227,8 @@ public class MailingRunnableScreen extends RunnablePane {
             messageDelayField.setText(is.readUTF());
             dialogDelayField.setText(is.readUTF());
             exclusionArea.setText(is.readUTF());
+            errorCountField.setText(is.readUTF());
+            errorDelayField.setText(is.readUTF());
         } catch (Exception e) {
             log.warn("load mailing settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.DANGER), Duration.seconds(5));

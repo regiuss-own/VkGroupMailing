@@ -71,6 +71,37 @@
                         </Text>
                     </HBox>
                 </VBox>
+                <VBox>
+                    <Label text="Количество ошибок для задержки (&lt; 1 для отключения)">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="errorCountField" text="0">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
+                <VBox>
+                    <Label text="Здержка между ошибками (&lt; 1 для отключения)">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <HBox alignment="CENTER_LEFT" spacing="5.0">
+                        <TextField HBox.hgrow="ALWAYS" fx:id="errorDelayField" text="0">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </TextField>
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="мин.">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Text>
+                    </HBox>
+                </VBox>
                 <SimpleAlert graphicTextGap="10" wrapText="true" text="Страницы содержащие указанные слова в названии будут удалены" maxWidth="Infinity" variant="PRIMARY">
                     <graphic>
                         <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
