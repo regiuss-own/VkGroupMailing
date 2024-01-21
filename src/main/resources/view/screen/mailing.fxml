@@ -7,6 +7,7 @@
 <?import space.regiuss.rgfx.node.Icon?>
 <?import space.regiuss.rgfx.node.RunnablePane?>
 <?import space.regiuss.rgfx.node.SimpleAlert?>
+<?import javafx.geometry.Insets?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="space.regiuss.vk.mailing.screen.MailingRunnableScreen">
@@ -112,7 +113,18 @@
                             <Font size="30"/>
                         </font>
                     </Text>
-                    <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
+                    <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT" spacing="5">
+                        <padding>
+                            <Insets left="10"/>
+                        </padding>
+                        <Button onAction="#onExportClick" prefWidth="200" text="Экспортировать">
+                            <font>
+                                <Font size="16"/>
+                            </font>
+                            <graphic>
+                                <Icon value="FILE_EXPORT" type="SOLID" size="16" fill="#fff"/>
+                            </graphic>
+                        </Button>
                         <Button minWidth="220" graphicTextGap="10" text="Указать набор" onAction="#onUploadKitClick">
                             <graphic>
                                 <Icon value="FILE_IMPORT" type="SOLID" size="16" fill="#fff"/>
