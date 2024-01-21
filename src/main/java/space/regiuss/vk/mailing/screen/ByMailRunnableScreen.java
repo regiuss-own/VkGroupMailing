@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
+import space.regiuss.rgfx.enums.RunnableState;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
@@ -74,7 +75,7 @@ public class ByMailRunnableScreen extends RunnablePane {
         }
 
         save();
-        start();
+        setState(RunnableState.RUNNING);
 
         Messenger messenger = new VkMessenger(account.getToken());
         ByEmailTask task = new ByEmailTask(messenger, Arrays.asList(searchArea.getText().split("\n")));
@@ -97,11 +98,6 @@ public class ByMailRunnableScreen extends RunnablePane {
             task.cancel(true);
             task = null;
         }
-    }
-
-    private void start() {
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
     }
 
     @Override
@@ -133,7 +129,7 @@ public class ByMailRunnableScreen extends RunnablePane {
             searchArea.setText(sb.toString());
         } catch (Exception e) {
             log.warn("import error", e);
-            app.showAlert(new SimpleAlert("Не удалось импортировать файл", AlertVariant.DANGER), Duration.seconds(5000));
+            app.showAlert(new SimpleAlert("Не удалось импортировать файл", AlertVariant.DANGER), Duration.seconds(5));
         }
     }
 

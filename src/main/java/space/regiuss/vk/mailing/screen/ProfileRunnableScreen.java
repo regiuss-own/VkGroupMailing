@@ -14,6 +14,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.enums.AlertVariant;
+import space.regiuss.rgfx.enums.RunnableState;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.rgfx.spring.RGFXAPP;
@@ -112,8 +113,7 @@ public class ProfileRunnableScreen extends RunnablePane {
             );
         }
 
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
+        setState(RunnableState.RUNNING);
         save();
         ProfileTaskData taskData = new ProfileTaskData();
         taskData.setGroups(groups);

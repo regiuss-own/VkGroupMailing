@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import space.regiuss.rgfx.enums.RunnableState;
 import space.regiuss.vk.mailing.VkMailingApp;
 import space.regiuss.vk.mailing.enums.BookmarkType;
 import space.regiuss.vk.mailing.messenger.Messenger;
@@ -68,8 +69,7 @@ public class BookmarkRunnableScreen extends RunnablePane {
             app.showAlert(new SimpleAlert("Выберите аккаунт", AlertVariant.DANGER), Duration.seconds(5));
             return;
         }
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
+        setState(RunnableState.RUNNING);
         save();
         Messenger messenger = new VkMessenger(account.getToken());
         task = new BookmarkTask(messenger, bookmarkType.getValue(), onlyCanMessageCheckBox.isSelected());

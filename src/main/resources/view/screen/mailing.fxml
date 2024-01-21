@@ -10,6 +10,7 @@
 <?import javafx.geometry.Insets?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
+         pause="true"
          fx:controller="space.regiuss.vk.mailing.screen.MailingRunnableScreen">
     <header>
         <HBox spacing="10" alignment="CENTER_LEFT">

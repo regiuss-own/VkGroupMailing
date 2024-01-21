@@ -1,7 +1,5 @@
 package space.regiuss.vk.mailing.screen;
 
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -15,14 +13,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
+import space.regiuss.rgfx.enums.RunnableState;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
-import space.regiuss.vk.mailing.model.ImageItemWrapper;
-import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.model.SearchGroupData;
 import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
@@ -31,8 +28,6 @@ import space.regiuss.vk.mailing.task.GroupTask;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Locale;
 
 @Slf4j
 @Component
@@ -120,7 +115,7 @@ public class GroupRunnableScreen extends RunnablePane {
             );
         }
 
-        start();
+        setState(RunnableState.RUNNING);
         save();
         SearchGroupData data = new SearchGroupData();
         data.setSearch(Arrays.asList(searchArea.getText().split("\n")));
@@ -140,11 +135,6 @@ public class GroupRunnableScreen extends RunnablePane {
         statusText.textProperty().bind(task.messageProperty());
         this.task = task;
         app.getExecutorService().execute(task);
-    }
-
-    private void start() {
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
     }
 
     @Override

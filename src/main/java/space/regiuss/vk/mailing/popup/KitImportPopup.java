@@ -207,15 +207,11 @@ public class KitImportPopup extends BackgroundPopup {
         try {
             List<Page> pages = messenger.getGroupsById(pageIds);
             fillItems(pages, items);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
         try {
             List<Page> pages = messenger.getUsersById(pageIds);
             fillItems(pages, items);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception ignored) {}
     }
 
     private void fillItems(List<Page> pages, List<ImageItemWrapper<Page>> items) {

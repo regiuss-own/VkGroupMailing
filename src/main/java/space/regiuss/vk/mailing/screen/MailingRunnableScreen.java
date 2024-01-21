@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
+import space.regiuss.rgfx.enums.RunnableState;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
@@ -96,6 +97,10 @@ public class MailingRunnableScreen extends RunnablePane {
 
     @Override
     public void onStart(ActionEvent event) {
+        executeTask(true);
+    }
+
+    private void executeTask(boolean clearStatus) {
         Account account = selectAccountButton.getCurrentAccount().get();
         if (account == null) {
             app.showAlert(new SimpleAlert("Выберите аккаунт", AlertVariant.DANGER), Duration.seconds(5));
@@ -114,11 +119,13 @@ public class MailingRunnableScreen extends RunnablePane {
             app.showAlert(new SimpleAlert("Набор сообщений пуст", AlertVariant.DANGER), Duration.seconds(5));
             return;
         }
-        kitListView.getItems().forEach(item -> {
-            item.setTotal(-1);
-            item.setProgress(-1);
-        });
-        kitListView.refresh();
+        if (clearStatus) {
+            kitListView.getItems().forEach(item -> {
+                item.setTotal(-1);
+                item.setProgress(-1);
+            });
+            kitListView.refresh();
+        }
 
         int messageDelay = 0;
         try {
@@ -147,7 +154,7 @@ public class MailingRunnableScreen extends RunnablePane {
                     Duration.seconds(5)
             );
         }
-        start();
+        setState(RunnableState.RUNNING);
         save();
         MailingData mailingData = new MailingData();
         mailingData.setMessages(messages);
@@ -225,17 +232,26 @@ public class MailingRunnableScreen extends RunnablePane {
     }
 
     @Override
-    public void onStop(ActionEvent event) {
-        clear();
+    public void onPause(ActionEvent event) {
+        super.onPause(event);
         if (task != null) {
             task.cancel(true);
             task = null;
         }
     }
 
-    private void start() {
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
+    @Override
+    public void onResume(ActionEvent event) {
+        executeTask(false);
+    }
+
+    @Override
+    public void onStop(ActionEvent event) {
+        super.onStop(event);
+        if (task != null) {
+            task.cancel(true);
+            task = null;
+        }
     }
 
     @FXML
@@ -331,7 +347,7 @@ public class MailingRunnableScreen extends RunnablePane {
         save();
         applyTask(deleteTask, "Удаление страниц", app);
         task = deleteTask;
-        start();
+        setState(RunnableState.RUNNING);
         app.getExecutorService().execute(deleteTask);
     }
 

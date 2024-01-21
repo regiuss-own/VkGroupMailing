@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.*;
 
+import java.util.Iterator;
 import java.util.List;
 
 @Log4j2
@@ -20,8 +21,12 @@ public class MailingTask extends Task<Void> {
     @Override
     protected Void call() throws Exception {
         List<ProgressItemWrapper<Page>> items = mailingData.getItems();
-        for (int i = 0; i < items.size() && !isCancelled(); i++) {
-            ProgressItemWrapper<Page> item = items.get(i);
+        Iterator<ProgressItemWrapper<Page>> iterator = items.iterator();
+        while (iterator.hasNext() && !isCancelled()) {
+            ProgressItemWrapper<Page> item = iterator.next();
+            if (item.getProgress() != -1 && item.getTotal() != -1) {
+                continue;
+            }
             Page page = item.getItem();
             int sendCount = 0;
 
