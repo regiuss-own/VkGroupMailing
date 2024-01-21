@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import space.regiuss.vk.mailing.node.SelectAccountButton?>
+<?import space.regiuss.rgfx.node.RunnablePane?>
+<?import space.regiuss.vk.mailing.node.CurrentKitView?>
+<?import space.regiuss.rgfx.node.Icon?>
+<?import space.regiuss.rgfx.node.SimpleAlert?>
+<?import javafx.geometry.Insets?>
+<fx:root type="RunnablePane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="space.regiuss.vk.mailing.screen.ByMailRunnableScreen">
+    <header>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <SelectAccountButton fx:id="selectAccountButton" fx:factory="getInstance"/>
+        </HBox>
+    </header>
+    <content>
+        <HBox alignment="TOP_CENTER" spacing="50.0">
+            <VBox HBox.hgrow="ALWAYS" maxWidth="550" spacing="10.0">
+                <Text text="Параметры">
+                    <font>
+                        <Font size="30"/>
+                    </font>
+                </Text>
+                <SimpleAlert graphicTextGap="10" wrapText="true" text="Несколько значений через новую строку" maxWidth="Infinity" variant="PRIMARY">
+                    <graphic>
+                        <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+                    </graphic>
+                </SimpleAlert>
+                <VBox VBox.vgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label HBox.hgrow="ALWAYS" maxWidth="Infinity" text="Список почтовых адресов для поиска">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Label>
+                        <Button minWidth="220" graphicTextGap="10" text="Импорт" onAction="#onUploadListMail">
+                            <graphic>
+                                <Icon value="FILE_IMPORT" type="SOLID" size="16" fill="#fff"/>
+                            </graphic>
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Button>
+                    </HBox>
+                    <TextArea fx:id="searchArea" VBox.vgrow="ALWAYS">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextArea>
+                </VBox>
+            </VBox>
+            <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
+        </HBox>
+    </content>
+    <footer>
+        <VBox alignment="CENTER_RIGHT" HBox.Hgrow="ALWAYS">
+            <Label fx:id="statusText" textFill="#777" text="Готово">
+                <padding>
+                    <Insets right="5"/>
+                </padding>
+                <font>
+                    <Font size="14"/>
+                </font>
+            </Label>
+            <ProgressBar fx:id="progressBar" progress="0" maxWidth="Infinity"/>
+        </VBox>
+    </footer>
+</fx:root>

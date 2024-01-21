@@ -63,7 +63,9 @@ public class VkMessenger implements Messenger {
         Page p = new Page();
         p.setType(PageType.USER);
         p.setId(node.get("id").asInt());
-        p.setSubscribers(node.get("followers_count").asInt());
+        if (node.hasNonNull("followers_count")) {
+            p.setSubscribers(node.get("followers_count").asInt());
+        }
         p.setIcon(node.get("photo_100").asText());
         p.setName(node.get("first_name").asText() + " " + node.get("last_name").asText());
         p.setCanMessage(node.get("can_write_private_message").asInt() == 1);
@@ -358,6 +360,33 @@ public class VkMessenger implements Messenger {
     @Override
     public Account getAccount() {
         return getUser(token);
+    }
+
+    @Override
+    public List<Page> getHints(String search) throws Exception {
+        try (InputStream is = executeByToken(
+                "/method/search.getHints",
+                "q", search,
+                "fields", "members_count, photo_100, can_message, can_write_private_message, followers_count"
+        )) {
+            return OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>() {
+                    }).getResponse()
+                    .getItems()
+                    .stream().map(node -> {
+                        String type = node.get("type").asText();
+                        switch (type) {
+                            case "group": {
+                                return groupNodeToPage(node.get("group"));
+                            }
+                            case "profile": {
+                                return userNodeToPage(node.get("profile"));
+                            }
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        }
     }
 
     public static Account getUser(String token) {

@@ -70,6 +70,13 @@ public class VkMailingApp extends RGFXAPP {
                         ProfileRunnableScreen.class,
                         () -> openScreen(ProfileRunnableScreen.class)
                 ),
+                createMenuButton(
+                        menuToggleGroup,
+                        "По почте",
+                        new Icon(Icon.IconValue.ENVELOPE, Icon.IconType.REGULAR, size, fill),
+                        ByMailRunnableScreen.class,
+                        () -> openScreen(ByMailRunnableScreen.class)
+                ),
                 new Separator(),
                 createMenuButton(
                         menuToggleGroup,

@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\projects\Java\VkGroupMailing\target\app.jar</jar>
+  <jar>C:\projects\Java\VkGroupMailing\target\VkMailing-1.0.6.jar</jar>
   <outfile>C:\projects\Java\VkGroupMailing\target\app.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>

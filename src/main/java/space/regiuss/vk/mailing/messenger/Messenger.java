@@ -21,4 +21,6 @@ public interface Messenger {
     void send(int id, Message message) throws Exception;
 
     Account getAccount();
+
+    List<Page> getHints(String search) throws Exception;
 }

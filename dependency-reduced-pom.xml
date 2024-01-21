@@ -15,7 +15,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.2.0</version>
         <configuration>
-          <finalName>app</finalName>
+          <finalName>${artifactId}-${revision}</finalName>
           <archive>
             <manifest>
               <mainClass>space.regiuss.vk.mailing.VkMailing</mainClass>
@@ -52,7 +52,7 @@
     <maven.compiler.target>8</maven.compiler.target>
     <h2.version>2.2.222</h2.version>
     <log4j.version>2.20.0</log4j.version>
-    <revision>1.0.5</revision>
+    <revision>1.0.6</revision>
     <spring.boot.version>2.7.17</spring.boot.version>
     <jackson.version>2.15.2</jackson.version>
     <maven.compiler.source>8</maven.compiler.source>
