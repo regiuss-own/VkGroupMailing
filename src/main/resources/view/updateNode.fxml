@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Button?>
+<?import space.regiuss.rgfx.node.Icon?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.geometry.Insets?>
+<fx:root type="StackPane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         visible="false"
+         managed="false"
+         fx:controller="space.regiuss.vk.mailing.node.UpdateNode">
+    <Button fx:id="startDownloadButton" onAction="#onStartDownload"
+            maxWidth="Infinity"
+            text="Обновить" graphicTextGap="10">
+        <font>
+            <Font size="16"/>
+        </font>
+        <graphic>
+            <Icon type="REGULAR" value="CIRCLE_UP" size="24" fill="white"/>
+        </graphic>
+    </Button>
+    <HBox fx:id="downloadBox" managed="false" visible="false" spacing="10" alignment="CENTER_LEFT">
+        <padding>
+            <Insets left="5" right="5"/>
+        </padding>
+        <Icon type="REGULAR" value="CIRCLE_UP" size="30" fill="#346df1"/>
+        <VBox>
+            <Label fx:id="downloadStatusLabel" text="Скачивние: 0%">
+                <font>
+                    <Font size="16"/>
+                </font>
+            </Label>
+            <ProgressBar maxWidth="Infinity" fx:id="downloadStatusProgressBar" progress="0"/>
+        </VBox>
+    </HBox>
+    <Button maxWidth="Infinity" fx:id="startUpdateButton"
+            managed="false" visible="false" text="Установить"
+            graphicTextGap="10">
+        <font>
+            <Font size="16"/>
+        </font>
+        <graphic>
+            <Icon type="REGULAR" value="CIRCLE_UP" size="24" fill="white"/>
+        </graphic>
+    </Button>
+</fx:root>

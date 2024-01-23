@@ -15,13 +15,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import lombok.Getter;
 import org.springframework.context.support.GenericApplicationContext;
-import space.regiuss.vk.mailing.screen.*;
 import space.regiuss.rgfx.AppInitData;
 import space.regiuss.rgfx.node.Icon;
 import space.regiuss.rgfx.node.Loader;
 import space.regiuss.rgfx.node.MenuButton;
 import space.regiuss.rgfx.node.RootSideBarPane;
 import space.regiuss.rgfx.spring.RGFXAPP;
+import space.regiuss.vk.mailing.screen.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,7 +33,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @Getter
 public class VkMailingApp extends RGFXAPP {
     private final Map<Class<?>, Toggle> buttons = new HashMap<>(16);
-    private Text versionText;
 
     @Override
     public void init(AppInitData appInitData) {
@@ -121,9 +120,6 @@ public class VkMailingApp extends RGFXAPP {
         header.setSpacing(15);
         header.setAlignment(Pos.CENTER_LEFT);
         ((RootSideBarPane) root).setHeader(header);
-        versionText = new Text("Unknown");
-        versionText.setFill(Paint.valueOf("gray"));
-        ((RootSideBarPane) root).setFooter(versionText);
 
         currentScreen.addListener((observableValue, aClass, t1) -> {
             if (t1 == null)

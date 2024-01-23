@@ -12,7 +12,6 @@
         <relativePath/>
     </parent>
 
-
     <artifactId>VkMailing</artifactId>
     <version>${revision}</version>
 
@@ -26,10 +25,33 @@
         <javafx.version>21-ea+24</javafx.version>
         <h2.version>2.2.222</h2.version>
         <spring.boot.version>2.7.17</spring.boot.version>
-        <revision>1.0.6</revision>
+        <revision>1.0.8</revision>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>space.regiuss.version</groupId>
+            <artifactId>client</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>space.regiuss.rgfx-project</groupId>
             <artifactId>rgfx-spring</artifactId>
