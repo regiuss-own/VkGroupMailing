@@ -8,8 +8,10 @@ import javafx.concurrent.Task;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import space.regiuss.vk.mailing.enums.PageMode;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.Page;
+import space.regiuss.vk.mailing.model.PageType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -29,6 +31,7 @@ public class ByEmailTask extends Task<Void> {
     private final ListProperty<Page> pageListProperty = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
     private final Messenger messenger;
     private final List<String> listMail;
+    private final PageMode mode;
     private LocalDateTime timeStart;
     private int currentSearchIndex;
 
@@ -73,6 +76,12 @@ public class ByEmailTask extends Task<Void> {
         }
         if (pages == null) {
             return;
+        }
+        if (mode != PageMode.ALL) {
+            pages.removeIf(page -> (
+                    page.getType() == PageType.USER && mode == PageMode.GROUPS)
+                    || (page.getType() == PageType.GROUP && mode == PageMode.USERS)
+            );
         }
         if (!pages.isEmpty()) {
             List<Page> finalPages = pages;

@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.enums.RunnableState;
 import space.regiuss.vk.mailing.VkMailingApp;
-import space.regiuss.vk.mailing.enums.BookmarkType;
+import space.regiuss.vk.mailing.enums.PageMode;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
@@ -45,7 +45,7 @@ public class BookmarkRunnableScreen extends RunnablePane {
     private SelectAccountButton selectAccountButton;
 
     @FXML
-    private ComboBox<BookmarkType> bookmarkType;
+    private ComboBox<PageMode> bookmarkType;
 
     @FXML
     @Getter
@@ -53,7 +53,7 @@ public class BookmarkRunnableScreen extends RunnablePane {
 
     {
         RGFXAPP.load(this, getClass().getResource("/view/screen/bookmark.fxml"));
-        bookmarkType.setItems(FXCollections.observableArrayList(BookmarkType.values()));
+        bookmarkType.setItems(FXCollections.observableArrayList(PageMode.values()));
         bookmarkType.getSelectionModel().select(0);
     }
 
@@ -105,7 +105,7 @@ public class BookmarkRunnableScreen extends RunnablePane {
             int accountId = is.readInt();
             if (accountId > -1)
                 selectAccountButton.selectAccountById(accountId);
-            bookmarkType.getSelectionModel().select(BookmarkType.valueOf(is.readUTF()));
+            bookmarkType.getSelectionModel().select(PageMode.valueOf(is.readUTF()));
             onlyCanMessageCheckBox.setSelected(is.readBoolean());
         } catch (Exception e) {
             log.warn("load bookmark settings error", e);

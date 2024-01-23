@@ -3,7 +3,7 @@ package space.regiuss.vk.mailing.enums;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum BookmarkType {
+public enum PageMode {
     ALL("Все"),
     USERS("Только пользователи"),
     GROUPS("Только сообщества");

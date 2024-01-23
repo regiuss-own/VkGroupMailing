@@ -3,7 +3,7 @@ package space.regiuss.vk.mailing.task;
 import javafx.concurrent.Task;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import space.regiuss.vk.mailing.enums.BookmarkType;
+import space.regiuss.vk.mailing.enums.PageMode;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.*;
 
@@ -54,16 +54,16 @@ public class BookmarkMailingTask extends Task<Void> {
             if (faves.isEmpty())
                 break;
             for (Page fave : faves) {
-                if (!data.getType().equals(BookmarkType.ALL)) {
-                    if (data.getType().equals(BookmarkType.USERS) && !fave.getType().equals(PageType.USER))
+                if (!data.getType().equals(PageMode.ALL)) {
+                    if (data.getType().equals(PageMode.USERS) && !fave.getType().equals(space.regiuss.vk.mailing.model.PageType.USER))
                         continue;
-                    if (data.getType().equals(BookmarkType.GROUPS) && fave.getType().equals(PageType.USER))
+                    if (data.getType().equals(PageMode.GROUPS) && fave.getType().equals(space.regiuss.vk.mailing.model.PageType.USER))
                         continue;
                 }
                 for (Message message : data.getMessages()) {
                     for (int i = 0; i < 3; i++) {
                         try {
-                            messenger.send(fave.getType().equals(PageType.USER) ? fave.getId() : -fave.getId(), message);
+                            messenger.send(fave.getType().equals(space.regiuss.vk.mailing.model.PageType.USER) ? fave.getId() : -fave.getId(), message);
                             sendCount++;
                             break;
                         } catch (Exception e) {

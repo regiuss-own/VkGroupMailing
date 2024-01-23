@@ -7,10 +7,9 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import space.regiuss.vk.mailing.enums.BookmarkType;
+import space.regiuss.vk.mailing.enums.PageMode;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.Page;
-import space.regiuss.vk.mailing.model.PageType;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,7 +21,7 @@ public class BookmarkTask extends Task<Void> {
     @Getter
     private final ListProperty<Page> pageListProperty = new SimpleListProperty<>(FXCollections.observableList(new LinkedList<>()));
     private final Messenger messenger;
-    private final BookmarkType bookmarkType;
+    private final PageMode bookmarkType;
     private final boolean onlyCanMessage;
 
     @Override
@@ -49,10 +48,10 @@ public class BookmarkTask extends Task<Void> {
                     iterator.remove();
                     continue;
                 }
-                if (!BookmarkType.ALL.equals(bookmarkType)) {
+                if (!PageMode.ALL.equals(bookmarkType)) {
                     if (
-                            (BookmarkType.USERS.equals(bookmarkType) && !PageType.USER.equals(p.getType()))
-                            || (BookmarkType.GROUPS.equals(bookmarkType) && !PageType.GROUP.equals(p.getType()))
+                            (PageMode.USERS.equals(bookmarkType) && !space.regiuss.vk.mailing.model.PageType.USER.equals(p.getType()))
+                            || (PageMode.GROUPS.equals(bookmarkType) && !space.regiuss.vk.mailing.model.PageType.GROUP.equals(p.getType()))
                     ) {
                         iterator.remove();
                     }
