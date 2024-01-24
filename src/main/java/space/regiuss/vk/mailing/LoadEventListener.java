@@ -46,9 +46,7 @@ public class LoadEventListener {
             versionText.setStyle("-fx-text-fill: gray; -fx-fill: gray;");
             versionText.setOnAction(event -> {
                 versionText.setVisited(false);
-                ChangelogPopup popup = new ChangelogPopup();
-                popup.setOnClose(() -> app.hideModal(popup));
-                app.showModal(popup);
+                showChangelogPopup();
             });
 
             VBox footer = new VBox(updateNode, versionText);
@@ -60,6 +58,16 @@ public class LoadEventListener {
 
             app.hideModal(node -> node instanceof Loader);
             app.openScreen(GroupRunnableScreen.class);
+
+            if (VkMailing.showChangelog) {
+                showChangelogPopup();
+            }
         });
+    }
+
+    private void showChangelogPopup() {
+        ChangelogPopup popup = new ChangelogPopup();
+        popup.setOnClose(() -> app.hideModal(popup));
+        app.showModal(popup);
     }
 }
