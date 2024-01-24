@@ -14,12 +14,18 @@ public class AppInstaller implements Consumer<File> {
 
     @Override
     public void accept(File file) {
+        try {
+            Thread.sleep(5_000);
+        } catch (Exception e) {
+            log.warn("install sleep error", e);
+        }
         File currentFile = PathUtils.getRunningFile();
         try {
             Files.copy(currentFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             log.error("install error", e);
-            JOptionPane.showMessageDialog(null, "install error");
+            JOptionPane.showMessageDialog(null, "install error " + e.getMessage());
+            return;
         }
 
         String filePath = file.toPath().toAbsolutePath().normalize().toString();
@@ -28,7 +34,7 @@ public class AppInstaller implements Consumer<File> {
             Runtime.getRuntime().exec(new String[]{filePath, "clearTemp"});
         } catch (Exception e) {
             log.error("run error", e);
-            JOptionPane.showMessageDialog(null, "run error");
+            JOptionPane.showMessageDialog(null, "run error " + e.getMessage());
         }
         System.exit(0);
     }
