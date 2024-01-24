@@ -12,7 +12,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import lombok.Getter;
-import space.regiuss.vk.mailing.model.ImageItemWrapper;
+import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.rgfx.node.Icon;
 
@@ -21,6 +21,7 @@ public class PageListItem<T extends ImageItemWrapper<Page>> extends ListCell<T> 
 
     protected final HBox hBox;
     protected final ImageView imageView;
+    protected final VBox infoBox;
     protected final Label nameLabel;
     protected final Label idLabel;
     protected final Label followersLabel;
@@ -57,7 +58,7 @@ public class PageListItem<T extends ImageItemWrapper<Page>> extends ListCell<T> 
         followersLabel = new Label();
         followersLabel.setGraphic(new Icon(Icon.IconValue.USER, Icon.IconType.REGULAR, 16, Paint.valueOf("#000")));
         followersLabel.setFont(font);
-        VBox infoBox = new VBox(nameLabel, idLabel, followersLabel);
+        infoBox = new VBox(nameLabel, idLabel, followersLabel);
         hBox.getChildren().add(infoBox);
     }
 

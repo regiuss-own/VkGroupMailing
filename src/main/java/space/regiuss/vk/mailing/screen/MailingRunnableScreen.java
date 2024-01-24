@@ -31,13 +31,18 @@ import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
-import space.regiuss.vk.mailing.model.*;
+import space.regiuss.vk.mailing.model.Account;
+import space.regiuss.vk.mailing.model.MailingData;
+import space.regiuss.vk.mailing.model.Message;
+import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.node.ProgressPageListItem;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.popup.KitImportPopup;
 import space.regiuss.vk.mailing.popup.SelectMessagePopup;
 import space.regiuss.vk.mailing.service.MessageService;
 import space.regiuss.vk.mailing.task.MailingTask;
+import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
+import space.regiuss.vk.mailing.wrapper.ProgressItemWrapper;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -387,8 +392,8 @@ public class MailingRunnableScreen extends RunnablePane {
         }
         Task<?> deleteTask = new Task<Object>() {
             @Override
-            protected Object call() throws Exception {
-                LinkedList<ImageItemWrapper<Page>> removeItems = new LinkedList<>();
+            protected Object call() {
+                LinkedList<ProgressItemWrapper<Page>> removeItems = new LinkedList<>();
                 ObservableList<ProgressItemWrapper<Page>> items = kitListView.getItems();
                 for (ProgressItemWrapper<Page> item : items) {
                     for (String w : exclusionWords) {

@@ -1,4 +1,4 @@
-package space.regiuss.vk.mailing.model;
+package space.regiuss.vk.mailing.wrapper;
 
 import javafx.scene.image.Image;
 import lombok.Data;

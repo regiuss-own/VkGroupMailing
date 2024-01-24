@@ -1,0 +1,39 @@
+.ellipsis-button {
+    -fx-background-color: #346df1;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.ellipsis-button:hover {
+    -fx-cursor: hand;
+}
+
+.ellipsis-button .arrow-button {
+    -fx-padding: 0; /* Remove padding */
+    -fx-background-color: transparent; /* Set background to transparent */
+    -fx-background-insets: 0; /* Remove background insets */
+}
+
+.ellipsis-button .arrow-button .arrow {
+    -fx-background-color: transparent; /* Set arrow background to transparent */
+    -fx-background-insets: 0; /* Remove arrow background insets */
+    -fx-padding: 0; /* Remove arrow padding */
+}
+
+.menu-item {
+    -fx-text-fill: #000;
+    -fx-font-size: 16;
+    -fx-fill: #000;
+    -fx-padding: 5px;
+}
+
+.menu-item:hover, .menu-item:hover * {
+    -fx-cursor: hand;
+    -fx-text-fill: #346df1;
+    -fx-fill: #346df1;
+}
+
+.context-menu {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+}

@@ -12,6 +12,7 @@ import space.regiuss.vk.mailing.enums.PageMode;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.model.PageType;
+import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -28,7 +29,7 @@ public class ByEmailTask extends Task<Void> {
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
     @Getter
-    private final ListProperty<Page> pageListProperty = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
+    private final ListProperty<EmailItemWrapper<Page>> pageListProperty = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
     private final Messenger messenger;
     private final List<String> listMail;
     private final PageMode mode;
@@ -66,7 +67,7 @@ public class ByEmailTask extends Task<Void> {
     }
 
     private void processForSearch(String search) {
-        List<Page> pages = null;
+        List<EmailItemWrapper<Page>> pages = null;
         for (int i = 0; i < 3 && !isCancelled(); i++) {
             try {
                 pages = messenger.getHints(search);
@@ -79,12 +80,12 @@ public class ByEmailTask extends Task<Void> {
         }
         if (mode != PageMode.ALL) {
             pages.removeIf(page -> (
-                    page.getType() == PageType.USER && mode == PageMode.GROUPS)
-                    || (page.getType() == PageType.GROUP && mode == PageMode.USERS)
+                    page.getItem().getType() == PageType.USER && mode == PageMode.GROUPS)
+                    || (page.getItem().getType() == PageType.GROUP && mode == PageMode.USERS)
             );
         }
         if (!pages.isEmpty()) {
-            List<Page> finalPages = pages;
+            List<EmailItemWrapper<Page>> finalPages = pages;
             Platform.runLater(() -> pageListProperty.addAll(finalPages));
         }
     }

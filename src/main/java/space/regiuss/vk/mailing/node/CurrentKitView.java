@@ -8,13 +8,17 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuButton;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
@@ -23,17 +27,16 @@ import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.rgfx.spring.RGFXAPP;
 import space.regiuss.vk.mailing.VkMailingApp;
-import space.regiuss.vk.mailing.model.ImageItemWrapper;
+import space.regiuss.vk.mailing.exporter.DefaultKitExporter;
+import space.regiuss.vk.mailing.exporter.KitExporter;
 import space.regiuss.vk.mailing.model.Page;
+import space.regiuss.vk.mailing.popup.DeleteByExceptionsPopup;
 import space.regiuss.vk.mailing.screen.MailingRunnableScreen;
+import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,15 +46,21 @@ import java.util.stream.Collectors;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
-public class CurrentKitView extends VBox {
+public class CurrentKitView<T extends ImageItemWrapper<Page>> extends VBox {
 
     private final VkMailingApp app;
+
+    @Setter
+    private KitExporter<T> kitExporter = new DefaultKitExporter<>();
+
+    @FXML
+    private MenuButton menuButton;
 
     @FXML
     private Text countText;
 
     @FXML
-    private ListView<ImageItemWrapper<Page>> listView;
+    private ListView<T> listView;
 
     {
         RGFXAPP.load(this, getClass().getResource("/view/currentKit.fxml"));
@@ -59,11 +68,15 @@ public class CurrentKitView extends VBox {
 
     @PostConstruct
     public void init() {
-        listView.setCellFactory(pageListView -> new PageListItem<>(getApp().getHostServices()));
+        setCellFactory(pageListView -> new PageListItem<>(getApp().getHostServices()));
         setEmptyItems();
     }
 
-    public static CurrentKitView getInstance() {
+    public void setCellFactory(Callback<ListView<T>, ListCell<T>> value) {
+        listView.setCellFactory(value);
+    }
+
+    public static CurrentKitView<?> getInstance() {
         return VkMailingApp.getContext().getBean(CurrentKitView.class);
     }
 
@@ -71,6 +84,38 @@ public class CurrentKitView extends VBox {
     public void clearPagesList(ActionEvent event) {
         listView.getItems().clear();
         app.showAlert(new SimpleAlert("Набор успешно очищен", AlertVariant.SUCCESS), Duration.seconds(5));
+    }
+
+    @FXML
+    public void onDeleteDuplicateClick(ActionEvent event) {
+        if (listView.getItems().isEmpty()) {
+            app.showAlert(new SimpleAlert("Текущий набор пуст", AlertVariant.WARN), Duration.seconds(5));
+            return;
+        }
+
+        Iterator<? extends ImageItemWrapper<Page>> iterator = listView.getItems().iterator();
+        Set<Integer> items = new HashSet<>(listView.getItems().size());
+        while (iterator.hasNext()) {
+            ImageItemWrapper<Page> item = iterator.next();
+            if (!items.add(item.getItem().getId())) {
+                iterator.remove();
+            }
+        }
+        app.showAlert(new SimpleAlert("Дубликаты удалены", AlertVariant.SUCCESS), Duration.seconds(5));
+    }
+
+    @FXML
+    public void onDeleteByExceptionsClick(ActionEvent event) {
+        if (listView.getItems().isEmpty()) {
+            app.showAlert(new SimpleAlert("Текущий набор пуст", AlertVariant.WARN), Duration.seconds(5));
+            return;
+        }
+        DeleteByExceptionsPopup popup = new DeleteByExceptionsPopup(listView);
+        popup.setOnClose(() -> app.hideModal(popup));
+        popup.setOnSuccess(() -> {
+            app.showAlert(new SimpleAlert("Удаление по исключениям завершено", AlertVariant.SUCCESS), Duration.seconds(5));
+        });
+        app.showModal(popup);
     }
 
     @FXML
@@ -119,6 +164,7 @@ public class CurrentKitView extends VBox {
         Button button = (Button) event.getTarget();
         button.setDisable(true);
         app.showAlert(new SimpleAlert("Начинаю экспорт набора", AlertVariant.SUCCESS), Duration.seconds(5));
+
         CompletableFuture<Void> completableFuture = new CompletableFuture<>();
         completableFuture.whenComplete((r, e) -> Platform.runLater(() -> {
             button.setDisable(false);
@@ -130,37 +176,25 @@ public class CurrentKitView extends VBox {
             }
         }));
         app.getExecutorService().execute(() -> {
-            try (OutputStream os = new FileOutputStream(file)) {
-                os.write(239);
-                os.write(187);
-                os.write(191);
-                os.write("ссылка;id;тип;имя;подписчики;фото\n".getBytes(StandardCharsets.UTF_8));
-                for (ImageItemWrapper<Page> item : listView.getItems()) {
-                    Page page = item.getItem();
-                    os.write(String.format(
-                            "%s;%s;%s;%s;%s;%s%n",
-                            page.getLink(),
-                            page.getId(),
-                            page.getType().name(),
-                            page.getName().replace(";", ""),
-                            page.getSubscribers(),
-                            page.getIcon()
-                    ).getBytes(StandardCharsets.UTF_8));
-                }
-                completableFuture.complete(null);
-            } catch (Exception e) {
-                completableFuture.completeExceptionally(e);
+            kitExporter.export(listView, file, completableFuture);
+        });
+    }
+
+    public void applyPageListListener(ListProperty<Page> pageListProperty, Function<Page, T> pageMapper) {
+        pageListProperty.addListener((ListChangeListener<? super Page>) change -> {
+            if (change.next() && change.wasAdded()) {
+                List<T> items = change.getAddedSubList().stream()
+                        .map(pageMapper)
+                        .collect(Collectors.toList());
+                getListView().getItems().addAll(items);
             }
         });
     }
 
-    public void applyPageListListener(ListProperty<Page> pageListProperty) {
-        pageListProperty.addListener((ListChangeListener<? super Page>) change -> {
+    public void applyWrapperListListener(ListProperty<T> pageListProperty) {
+        pageListProperty.addListener((ListChangeListener<T>) change -> {
             if (change.next() && change.wasAdded()) {
-                List<ImageItemWrapper<Page>> items = change.getAddedSubList().stream()
-                        .map((Function<Page, ImageItemWrapper<Page>>) ImageItemWrapper::new)
-                        .collect(Collectors.toList());
-                getListView().getItems().addAll(items);
+                getListView().getItems().addAll(change.getAddedSubList());
             }
         });
     }

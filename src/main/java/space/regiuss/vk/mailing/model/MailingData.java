@@ -1,6 +1,7 @@
 package space.regiuss.vk.mailing.model;
 
 import lombok.Data;
+import space.regiuss.vk.mailing.wrapper.ProgressItemWrapper;
 
 import java.util.List;
 

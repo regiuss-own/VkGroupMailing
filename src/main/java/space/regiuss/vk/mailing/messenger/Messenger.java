@@ -1,6 +1,7 @@
 package space.regiuss.vk.mailing.messenger;
 
 import space.regiuss.vk.mailing.model.*;
+import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,5 +23,5 @@ public interface Messenger {
 
     Account getAccount();
 
-    List<Page> getHints(String search) throws Exception;
+    List<EmailItemWrapper<Page>> getHints(String search) throws Exception;
 }

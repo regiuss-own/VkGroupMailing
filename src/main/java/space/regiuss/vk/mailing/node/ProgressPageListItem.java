@@ -8,7 +8,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import space.regiuss.vk.mailing.model.Page;
-import space.regiuss.vk.mailing.model.ProgressItemWrapper;
+import space.regiuss.vk.mailing.wrapper.ProgressItemWrapper;
 import space.regiuss.rgfx.node.Icon;
 
 public class ProgressPageListItem extends PageListItem<ProgressItemWrapper<Page>> {

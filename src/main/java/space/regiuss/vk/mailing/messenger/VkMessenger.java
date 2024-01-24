@@ -9,6 +9,7 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import space.regiuss.vk.mailing.model.*;
+import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -363,10 +364,11 @@ public class VkMessenger implements Messenger {
     }
 
     @Override
-    public List<Page> getHints(String search) throws Exception {
+    public List<EmailItemWrapper<Page>> getHints(String search) throws Exception {
         try (InputStream is = executeByToken(
                 "/method/search.getHints",
                 "q", search,
+                "limit", 100,
                 "fields", "members_count, photo_100, can_message, can_write_private_message, followers_count"
         )) {
             return OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>() {
@@ -385,6 +387,7 @@ public class VkMessenger implements Messenger {
                         return null;
                     })
                     .filter(Objects::nonNull)
+                    .map(page -> new EmailItemWrapper<>(page, search))
                     .collect(Collectors.toList());
         }
     }

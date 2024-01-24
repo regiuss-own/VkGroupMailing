@@ -20,10 +20,12 @@ import space.regiuss.vk.mailing.VkMailingApp;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
+import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.model.SearchGroupData;
 import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.task.GroupTask;
+import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -49,7 +51,7 @@ public class GroupRunnableScreen extends RunnablePane {
 
     @FXML
     @Getter
-    private CurrentKitView currentKitView;
+    private CurrentKitView<ImageItemWrapper<Page>> currentKitView;
 
     @FXML
     private SelectAccountButton selectAccountButton;
@@ -125,7 +127,7 @@ public class GroupRunnableScreen extends RunnablePane {
         data.setOnlyCanMessage(onlyCanMessageCheckBox.isSelected());
         Messenger messenger = new VkMessenger(account.getToken());
         GroupTask task = new GroupTask(messenger, data);
-        currentKitView.applyPageListListener(task.getPageListProperty());
+        currentKitView.applyPageListListener(task.getPageListProperty(), ImageItemWrapper::new);
         applyTask(
                 task,
                 "По группам",

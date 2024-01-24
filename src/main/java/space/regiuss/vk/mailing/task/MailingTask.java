@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.*;
+import space.regiuss.vk.mailing.wrapper.ProgressItemWrapper;
 
 import java.time.Duration;
 import java.util.Iterator;

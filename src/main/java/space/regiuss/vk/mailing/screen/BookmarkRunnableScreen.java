@@ -18,6 +18,7 @@ import space.regiuss.vk.mailing.enums.PageMode;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
+import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.task.BookmarkTask;
@@ -25,6 +26,7 @@ import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
+import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -49,7 +51,7 @@ public class BookmarkRunnableScreen extends RunnablePane {
 
     @FXML
     @Getter
-    private CurrentKitView currentKitView;
+    private CurrentKitView<ImageItemWrapper<Page>> currentKitView;
 
     {
         RGFXAPP.load(this, getClass().getResource("/view/screen/bookmark.fxml"));
@@ -73,7 +75,7 @@ public class BookmarkRunnableScreen extends RunnablePane {
         save();
         Messenger messenger = new VkMessenger(account.getToken());
         task = new BookmarkTask(messenger, bookmarkType.getValue(), onlyCanMessageCheckBox.isSelected());
-        currentKitView.applyPageListListener(task.getPageListProperty());
+        currentKitView.applyPageListListener(task.getPageListProperty(), ImageItemWrapper::new);
         applyTask(
                 task,
                 "По избранному",

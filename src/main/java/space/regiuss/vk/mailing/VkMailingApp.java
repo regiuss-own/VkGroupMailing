@@ -44,10 +44,25 @@ public class VkMailingApp extends RGFXAPP {
     }
 
     public void start() {
+        currentScreen.addListener((observableValue, aClass, t1) -> {
+            if (t1 == null)
+                return;
+            Toggle button = buttons.get(t1);
+            if (button != null)
+                button.setSelected(true);
+        });
+        showModal(new Loader());
+    }
+
+    @Override
+    protected RootSideBarPane createRoot() {
+        RootSideBarPane root = new RootSideBarPane();
+        root.getStylesheets().add(getClass().getResource("/style/style.css").toExternalForm());
+
         ToggleGroup menuToggleGroup = new ToggleGroup();
         Paint fill = Paint.valueOf("#333");
         int size = 20;
-        ((RootSideBarPane) root).setMenuItems(Arrays.asList(
+        root.setMenuItems(Arrays.asList(
                 createMenuButton(
                         menuToggleGroup,
                         "По группам",
@@ -119,21 +134,9 @@ public class VkMailingApp extends RGFXAPP {
         header.setPadding(new Insets(0, 10, 0, 10));
         header.setSpacing(15);
         header.setAlignment(Pos.CENTER_LEFT);
-        ((RootSideBarPane) root).setHeader(header);
+        root.setHeader(header);
 
-        currentScreen.addListener((observableValue, aClass, t1) -> {
-            if (t1 == null)
-                return;
-            Toggle button = buttons.get(t1);
-            if (button != null)
-                button.setSelected(true);
-        });
-        showModal(new Loader());
-    }
-
-    @Override
-    protected RootSideBarPane createRoot() {
-        return new RootSideBarPane();
+        return root;
     }
 
     private MenuButton createMenuButton(ToggleGroup toggleGroup, String text, Node graphic, Class<?> screen, Runnable onSelect) {

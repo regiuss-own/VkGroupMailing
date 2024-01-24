@@ -32,13 +32,13 @@ import space.regiuss.vk.mailing.VkMailingApp;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
-import space.regiuss.vk.mailing.model.ImageItemWrapper;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.model.PageType;
 import space.regiuss.vk.mailing.screen.BookmarkRunnableScreen;
 import space.regiuss.vk.mailing.screen.GroupRunnableScreen;
 import space.regiuss.vk.mailing.screen.MailingRunnableScreen;
 import space.regiuss.vk.mailing.screen.ProfileRunnableScreen;
+import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;

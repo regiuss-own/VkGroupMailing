@@ -23,7 +23,7 @@
             <padding>
                 <Insets left="10"/>
             </padding>
-            <Button styleClass="danger" onAction="#clearPagesList" prefWidth="150" text="Очистить">
+            <Button styleClass="danger" contentDisplay="GRAPHIC_ONLY" onAction="#clearPagesList" prefWidth="50" text="Очистить">
                 <font>
                     <Font size="16"/>
                 </font>
@@ -31,7 +31,7 @@
                     <Icon value="TRASH_CAN" type="SOLID" size="16" fill="#fff"/>
                 </graphic>
             </Button>
-            <Button onAction="#onMailingClick" prefWidth="150" text="Рассылка">
+            <Button onAction="#onMailingClick" contentDisplay="GRAPHIC_ONLY" prefWidth="50" text="Рассылка">
                 <font>
                     <Font size="16"/>
                 </font>
@@ -39,7 +39,7 @@
                     <Icon value="PAPER_PLANE" type="SOLID" size="16" fill="#fff"/>
                 </graphic>
             </Button>
-            <Button onAction="#onExportClick" prefWidth="200" text="Экспортировать">
+            <Button onAction="#onExportClick" contentDisplay="GRAPHIC_ONLY" prefWidth="50" text="Экспортировать">
                 <font>
                     <Font size="16"/>
                 </font>
@@ -47,6 +47,24 @@
                     <Icon value="FILE_EXPORT" type="SOLID" size="16" fill="#fff"/>
                 </graphic>
             </Button>
+            <MenuButton fx:id="menuButton" contentDisplay="GRAPHIC_ONLY" alignment="CENTER"
+                        prefHeight="37"
+                        pickOnBounds="false"
+                        mnemonicParsing="false"
+                        styleClass="ellipsis-button" graphicTextGap="0">
+                <font>
+                    <Font size="16"/>
+                </font>
+                <graphic>
+                    <HBox prefWidth="25" alignment="CENTER">
+                        <Icon value="ELLIPSIS" type="SOLID" size="16" fill="#fff"/>
+                    </HBox>
+                </graphic>
+                <items>
+                    <MenuItem onAction="#onDeleteDuplicateClick" text="Удалить дубликаты"/>
+                    <MenuItem onAction="#onDeleteByExceptionsClick" text="Удалить по исключениям"/>
+                </items>
+            </MenuButton>
         </HBox>
     </HBox>
     <SimpleAlert graphicTextGap="10" wrapText="true" text="Для открытия страницы нажмите на название или картинку" maxWidth="Infinity" variant="PRIMARY">
@@ -96,7 +114,7 @@
                                 <Font size="16"/>
                             </font>
                         </Text>
-                        <Button styleClass="danger" prefWidth="150" text="Очистить">
+                        <Button contentDisplay="GRAPHIC_ONLY" styleClass="danger" prefWidth="150" text="Очистить">
                             <font>
                                 <Font size="14"/>
                             </font>
@@ -109,7 +127,7 @@
                                 <Font size="16"/>
                             </font>
                         </Text>
-                        <Button prefWidth="150" text="Рассылка">
+                        <Button contentDisplay="GRAPHIC_ONLY" prefWidth="150" text="Рассылка">
                             <font>
                                 <Font size="14"/>
                             </font>

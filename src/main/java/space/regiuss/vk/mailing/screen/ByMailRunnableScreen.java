@@ -21,12 +21,16 @@ import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
 import space.regiuss.vk.mailing.enums.PageMode;
+import space.regiuss.vk.mailing.exporter.EmailKitExporter;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
+import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.node.CurrentKitView;
+import space.regiuss.vk.mailing.node.EmailPageListItem;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.task.ByEmailTask;
+import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -51,7 +55,7 @@ public class ByMailRunnableScreen extends RunnablePane {
     private TextArea searchArea;
 
     @FXML
-    private CurrentKitView currentKitView;
+    private CurrentKitView<EmailItemWrapper<Page>> currentKitView;
 
     @FXML
     private Label statusText;
@@ -67,6 +71,8 @@ public class ByMailRunnableScreen extends RunnablePane {
 
     @PostConstruct
     public void init() {
+        currentKitView.setCellFactory(pageListView -> new EmailPageListItem(app.getHostServices()));
+        currentKitView.setKitExporter(new EmailKitExporter<>());
         load();
     }
 
@@ -91,7 +97,7 @@ public class ByMailRunnableScreen extends RunnablePane {
                 Arrays.asList(searchArea.getText().split("\n")),
                 pageModeComboBox.getSelectionModel().getSelectedItem()
         );
-        currentKitView.applyPageListListener(task.getPageListProperty());
+        currentKitView.applyWrapperListListener(task.getPageListProperty());
         applyTask(
                 task,
                 "По почте",
