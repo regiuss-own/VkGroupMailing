@@ -22,11 +22,10 @@ public class AppInstaller implements Consumer<File> {
             JOptionPane.showMessageDialog(null, "install error");
         }
 
-        String jrePath = PathUtils.getJREPath().resolve("bin/java.exe").toAbsolutePath().normalize().toString();
         String filePath = file.toPath().toAbsolutePath().normalize().toString();
 
         try {
-            Runtime.getRuntime().exec(new String[]{jrePath, "-jar", filePath, "clearTemp"});
+            Runtime.getRuntime().exec(new String[]{filePath, "clearTemp"});
         } catch (Exception e) {
             log.error("run error", e);
             JOptionPane.showMessageDialog(null, "run error");
