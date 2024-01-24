@@ -37,3 +37,7 @@
     -fx-background-color: white;
     -fx-background-radius: 8px;
 }
+
+TextFlow {
+    -fx-background-color: transparent;
+}

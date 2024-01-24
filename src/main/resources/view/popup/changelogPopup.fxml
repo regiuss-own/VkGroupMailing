@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+<?import space.regiuss.rgfx.popup.BackgroundPopup?>
+<fx:root type="BackgroundPopup"
+         xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+         fx:controller="space.regiuss.vk.mailing.popup.ChangelogPopup"
+>
+    <VBox maxWidth="800.0" maxHeight="700" spacing="10.0"
+          style="-fx-background-color: #e4e7ea; -fx-background-radius: 5px;" StackPane.alignment="CENTER">
+        <StackPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </StackPane.margin>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+        </padding>
+        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Changelog">
+            <font>
+                <Font size="25.0"/>
+            </font>
+        </Text>
+        <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER">
+            <TextFlow maxHeight="Infinity" fx:id="textFlow" />
+        </ScrollPane>
+        <HBox alignment="CENTER_RIGHT" spacing="5.0">
+            <Button mnemonicParsing="false" onAction="#onClose" prefWidth="100.0" text="Закрыть">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Button>
+        </HBox>
+    </VBox>
+</fx:root>

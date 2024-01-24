@@ -113,6 +113,13 @@ public class VkMailingApp extends RGFXAPP {
                         new Icon(Icon.IconValue.COMMENT, Icon.IconType.REGULAR, size, fill),
                         MessagesScreen.class,
                         () -> openScreen(MessagesScreen.class)
+                ),
+                createMenuButton(
+                        menuToggleGroup,
+                        "Черный список",
+                        new Icon(Icon.IconValue.BAN, Icon.IconType.SOLID, size, fill),
+                        BlackListScreen.class,
+                        () -> openScreen(BlackListScreen.class)
                 )
                 /*createMenuButton(
                         menuToggleGroup,
