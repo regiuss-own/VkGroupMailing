@@ -12,15 +12,15 @@ import space.regiuss.vk.mailing.enums.PageMode;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.model.PageType;
+import space.regiuss.vk.mailing.model.UserInfoData;
 import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -67,26 +67,122 @@ public class ByEmailTask extends Task<Void> {
     }
 
     private void processForSearch(String search) {
+
+        final String searchLowerCase = search.toLowerCase(Locale.ROOT);
+        List<EmailItemWrapper<Page>> pages = fetchPages(searchLowerCase);
+
+        if (pages == null) {
+            return;
+        }
+
+        filterByMode(pages);
+
+        if (pages.isEmpty()) {
+            return;
+        }
+
+        Map<PageType, List<Integer>> typeIds = pagesToTypeIds(pages);
+        Map<Integer, UserInfoData> usersInfo = fetchUsersInfo(typeIds);
+        Map<Integer, String> groupsInfo = fetchGroupsInfo(typeIds);
+
+        filterByInfo(searchLowerCase, pages, usersInfo, groupsInfo);
+
+        if (pages.isEmpty()) {
+            return;
+        }
+
+        Platform.runLater(() -> pageListProperty.addAll(pages));
+    }
+
+    private List<EmailItemWrapper<Page>> fetchPages(String searchLowerCase) {
         List<EmailItemWrapper<Page>> pages = null;
         for (int i = 0; i < 3 && !isCancelled(); i++) {
             try {
-                pages = messenger.getHints(search);
+                pages = messenger.getHints(searchLowerCase);
+                break;
             } catch (Exception e) {
                 log.warn("getHints error {}/3", i, e);
             }
         }
-        if (pages == null) {
-            return;
+        return pages;
+    }
+
+    private Map<PageType, List<Integer>> pagesToTypeIds(List<EmailItemWrapper<Page>> pages) {
+        return pages.stream().collect(Collectors.groupingBy(
+                wrapper -> wrapper.getItem().getType(),
+                Collectors.mapping(wrapper -> wrapper.getItem().getId(), Collectors.toList())
+        ));
+    }
+
+    private Map<Integer, UserInfoData> fetchUsersInfo(Map<PageType, List<Integer>> typeIds) {
+        List<Integer> ids = typeIds.get(PageType.USER);
+        if (ids == null || ids.isEmpty()) {
+            return null;
         }
+        Map<Integer, UserInfoData> usersInfo = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                usersInfo = messenger.getUserInfoByIds(ids).stream()
+                        .collect(Collectors.toMap(UserInfoData::getUserId, o -> o, (t, t2) -> t));
+                break;
+            } catch (Exception e) {
+                log.warn("getUserInfoByIds error {}/3", i, e);
+            }
+        }
+        return usersInfo;
+    }
+
+    private Map<Integer, String> fetchGroupsInfo(Map<PageType, List<Integer>> typeIds) {
+        List<Integer> ids = typeIds.get(PageType.GROUP);
+        if (ids == null || ids.isEmpty()) {
+            return null;
+        }
+        Map<Integer, String> groupsInfo = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                groupsInfo = messenger.getGroupInfoByIds(ids).stream()
+                        .collect(Collectors.toMap(t -> t.get("id").asInt(), o -> o.toString().toLowerCase(Locale.ROOT), (t, t2) -> t));
+                break;
+            } catch (Exception e) {
+                log.warn("getGroupInfoByIds error {}/3", i, e);
+            }
+        }
+        return groupsInfo;
+    }
+
+    private void filterByInfo(String searchLowerCase, List<EmailItemWrapper<Page>> pages, Map<Integer, UserInfoData> usersInfo, Map<Integer, String> groupsInfo) {
+        Iterator<EmailItemWrapper<Page>> iterator = pages.iterator();
+        while (iterator.hasNext()) {
+            EmailItemWrapper<Page> wrapper = iterator.next();
+            if (wrapper.getItem().getType() == PageType.USER) {
+                if (usersInfo == null || usersInfo.isEmpty()) {
+                    iterator.remove();
+                    continue;
+                }
+                UserInfoData info = usersInfo.get(wrapper.getItem().getId());
+                if (info == null || !info.getJson().toLowerCase(Locale.ROOT).contains(searchLowerCase)) {
+                    iterator.remove();
+                }
+            } else {
+                if (groupsInfo == null || groupsInfo.isEmpty()) {
+                    iterator.remove();
+                    continue;
+                }
+                String info = groupsInfo.get(wrapper.getItem().getId());
+                if (info == null || !info.contains(searchLowerCase)) {
+                    iterator.remove();
+                }
+            }
+        }
+    }
+
+    private void filterByMode(List<EmailItemWrapper<Page>> pages) {
         if (mode != PageMode.ALL) {
             pages.removeIf(page -> (
                     page.getItem().getType() == PageType.USER && mode == PageMode.GROUPS)
                     || (page.getItem().getType() == PageType.GROUP && mode == PageMode.USERS)
             );
         }
-        if (!pages.isEmpty()) {
-            List<EmailItemWrapper<Page>> finalPages = pages;
-            Platform.runLater(() -> pageListProperty.addAll(finalPages));
-        }
     }
+
 }

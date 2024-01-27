@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class VkMessenger implements Messenger {
 
     private static final ObjectMapper OM = new ObjectMapper();
-    private static final String VERSION = "5.154";
+    private static final String VERSION = "5.199";
     private static final String BASE_PATH = "https://api.vk.com";
     private final Map<String, String> files;
     private final String token;
@@ -163,6 +163,30 @@ public class VkMessenger implements Messenger {
             for (JsonNode groupNode : groupsNode) {
                 if (groupNode.hasNonNull("members_count"))
                     pages.add(groupNodeToPage(groupNode));
+            }
+            return pages;
+        }
+    }
+
+    @Override
+    public List<JsonNode> getGroupInfoByIds(Collection<Integer> groups) throws Exception {
+        log.debug("getGroupInfoByIds groups: {}", groups);
+        try (InputStream is = executeByToken(
+                "/method/groups.getById",
+                "group_ids", groups.stream().map(i -> Integer.toString(i)).collect(Collectors.joining(",")),
+                "fields", "members_count,can_message,description,site,status,wiki_page"
+        ); BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null)
+                sb.append(line);
+            String response = sb.toString();
+            log.debug("getGroupsById response {}", response);
+            JsonNode groupsNode = OM.readValue(response, new TypeReference<Response<JsonNode>>() {})
+                    .getResponse().get("groups");
+            List<JsonNode> pages = new LinkedList<>();
+            for (JsonNode groupNode : groupsNode) {
+                pages.add(groupNode);
             }
             return pages;
         }
@@ -368,7 +392,7 @@ public class VkMessenger implements Messenger {
         try (InputStream is = executeByToken(
                 "/method/search.getHints",
                 "q", search,
-                "limit", 100,
+                "limit", 200,
                 "fields", "members_count, photo_100, can_message, can_write_private_message, followers_count"
         )) {
             return OM.readValue(is, new TypeReference<Response<ItemsResult<JsonNode>>>() {

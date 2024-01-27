@@ -1,5 +1,6 @@
 package space.regiuss.vk.mailing.messenger;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import space.regiuss.vk.mailing.model.*;
 import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
@@ -16,6 +17,8 @@ public interface Messenger {
     List<UserInfoData> getUserInfoByIds(List<Integer> userIds) throws Exception;
 
     List<Page> getGroupsById(Collection<String> groups) throws Exception;
+
+    List<JsonNode> getGroupInfoByIds(Collection<Integer> groups) throws Exception;
 
     List<Page> getUsersById(Collection<String> users) throws Exception;
 
