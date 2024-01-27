@@ -11,6 +11,11 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import space.regiuss.rgfx.enums.AlertVariant;
+import space.regiuss.rgfx.node.SimpleAlert;
+import space.regiuss.rgfx.node.TileView;
+import space.regiuss.rgfx.popup.ConfirmPopup;
+import space.regiuss.rgfx.spring.RGFXAPP;
 import space.regiuss.vk.mailing.VkMailingApp;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
@@ -18,12 +23,6 @@ import space.regiuss.vk.mailing.model.Account;
 import space.regiuss.vk.mailing.node.AccountManageItem;
 import space.regiuss.vk.mailing.popup.AuthPopup;
 import space.regiuss.vk.mailing.service.AccountService;
-import space.regiuss.rgfx.enums.AlertVariant;
-import space.regiuss.rgfx.node.SimpleAlert;
-import space.regiuss.rgfx.node.TileView;
-import space.regiuss.rgfx.popup.ConfirmPopup;
-import space.regiuss.rgfx.screen.Screen;
-import space.regiuss.rgfx.spring.RGFXAPP;
 
 import javax.annotation.PostConstruct;
 
@@ -32,7 +31,7 @@ import javax.annotation.PostConstruct;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @SuppressWarnings("unused")
 @RequiredArgsConstructor
-public class AccountListScreen extends VBox implements Screen {
+public class AccountListScreen extends VBox {
 
     private final VkMailingApp app;
     private final AccountService accountService;
@@ -52,16 +51,6 @@ public class AccountListScreen extends VBox implements Screen {
     private void init() {
         for (Account account : accountService.getAll())
             addAccount(account);
-    }
-
-    @Override
-    public void onShow() {
-
-    }
-
-    @Override
-    public void onHide() {
-
     }
 
     private void addAccount(final Account account) {

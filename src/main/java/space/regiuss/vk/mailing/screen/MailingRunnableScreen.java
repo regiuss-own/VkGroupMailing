@@ -26,6 +26,8 @@ import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.enums.RunnableState;
+import space.regiuss.rgfx.interfaces.SavableAndLoadable;
+import space.regiuss.rgfx.manager.SaveLoadManager;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
@@ -58,8 +60,12 @@ import java.util.stream.Collectors;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
-public class MailingRunnableScreen extends RunnablePane {
+@SuppressWarnings("unused")
+public class MailingRunnableScreen extends RunnablePane implements SavableAndLoadable {
 
+    @Getter
+    @SuppressWarnings("FieldMayBeFinal")
+    private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
     private final MessageService messageService;
 
@@ -96,6 +102,7 @@ public class MailingRunnableScreen extends RunnablePane {
 
     {
         RGFXAPP.load(this, getClass().getResource("/view/screen/mailing.fxml"));
+        saveLoadManager = createSaveLoadManager();
     }
 
     @PostConstruct
@@ -232,46 +239,46 @@ public class MailingRunnableScreen extends RunnablePane {
         return 0;
     }
 
-    private void save() {
-        try (DataOutputStream os = new DataOutputStream(new FileOutputStream("data/mailing"))) {
-            Account account = selectAccountButton.getCurrentAccount().get();
-            if (account == null)
-                os.writeInt(-1);
-            else
-                os.writeInt(account.getId());
-            os.writeInt(currentMessageKit);
-            os.writeUTF(messageDelayField.getText());
-            os.writeUTF(dialogDelayField.getText());
-            os.writeUTF(exclusionArea.getText());
-            os.writeUTF(errorCountField.getText());
-            os.writeUTF(errorDelayField.getText());
-        } catch (Exception e) {
+    @Override
+    public SaveLoadManager createSaveLoadManager() {
+        SaveLoadManager saveLoadManager = new SaveLoadManager(new File("data/mailing"));
+        saveLoadManager.add(
+                os -> {
+                    Account account = selectAccountButton.getCurrentAccount().get();
+                    if (account == null)
+                        os.writeInt(-1);
+                    else
+                        os.writeInt(account.getId());
+                },
+                is -> {
+                    int accountId = is.readInt();
+                    if (accountId > -1)
+                        selectAccountButton.selectAccountById(accountId);
+                }
+        );
+        saveLoadManager.add(
+                os -> os.writeInt(currentMessageKit),
+                is -> {
+                    currentMessageKit = is.readInt();
+                    if (currentMessageKit > -1) {
+                        selectMessageButton.setText("Сообщение: " + messageService.findById(currentMessageKit).getName());
+                    }
+                }
+        );
+        saveLoadManager.add(messageDelayField);
+        saveLoadManager.add(dialogDelayField);
+        saveLoadManager.add(exclusionArea);
+        saveLoadManager.add(errorCountField);
+        saveLoadManager.add(errorDelayField);
+        saveLoadManager.setOnSaveError(e -> {
             log.warn("save mailing settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
-        }
-    }
-
-    private void load() {
-        File loadFile = new File("data/mailing");
-        if (!loadFile.exists())
-            return;
-        try (DataInputStream is = new DataInputStream(new FileInputStream(loadFile))) {
-            int accountId = is.readInt();
-            if (accountId > -1)
-                selectAccountButton.selectAccountById(accountId);
-            currentMessageKit = is.readInt();
-            if (currentMessageKit > -1) {
-                selectMessageButton.setText("Сообщение: " + messageService.findById(currentMessageKit).getName());
-            }
-            messageDelayField.setText(is.readUTF());
-            dialogDelayField.setText(is.readUTF());
-            exclusionArea.setText(is.readUTF());
-            errorCountField.setText(is.readUTF());
-            errorDelayField.setText(is.readUTF());
-        } catch (Exception e) {
+        });
+        saveLoadManager.setOnLoadError(e -> {
             log.warn("load mailing settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.DANGER), Duration.seconds(5));
-        }
+        });
+        return saveLoadManager;
     }
 
     public boolean setKitItems(List<? extends ImageItemWrapper<Page>> items) {
@@ -432,4 +439,5 @@ public class MailingRunnableScreen extends RunnablePane {
         });
         app.showModal(popup);
     }
+
 }

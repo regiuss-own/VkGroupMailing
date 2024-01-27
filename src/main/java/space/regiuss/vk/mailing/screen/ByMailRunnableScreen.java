@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.enums.RunnableState;
+import space.regiuss.rgfx.interfaces.SavableAndLoadable;
+import space.regiuss.rgfx.manager.SaveLoadManager;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
@@ -38,8 +41,12 @@ import java.util.Arrays;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
-public class ByMailRunnableScreen extends RunnablePane {
+@SuppressWarnings("unused")
+public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoadable {
 
+    @Getter
+    @SuppressWarnings("FieldMayBeFinal")
+    private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
     private ByEmailTask task;
 
@@ -66,6 +73,7 @@ public class ByMailRunnableScreen extends RunnablePane {
 
     {
         RGFXAPP.load(this, getClass().getResource("/view/screen/byMail.fxml"));
+        saveLoadManager = createSaveLoadManager();
         pageModeComboBox.setItems(FXCollections.observableArrayList(PageMode.values()));
         pageModeComboBox.getSelectionModel().select(0);
     }
@@ -154,36 +162,35 @@ public class ByMailRunnableScreen extends RunnablePane {
         }
     }
 
-    private void save() {
-        try (DataOutputStream os = new DataOutputStream(new FileOutputStream("data/byMail"))) {
-            Account account = selectAccountButton.getCurrentAccount().get();
-            if (account == null)
-                os.writeInt(-1);
-            else
-                os.writeInt(account.getId());
-            os.writeUTF(searchArea.getText());
-            os.writeInt(pageModeComboBox.getSelectionModel().getSelectedIndex());
-            os.writeBoolean(checkDescriptionCheckBox.isSelected());
-        } catch (Exception e) {
-            log.warn("save byMail settings error", e);
-            app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
-        }
-    }
-
-    private void load() {
-        File loadFile = new File("data/byMail");
-        if (!loadFile.exists())
-            return;
-        try (DataInputStream is = new DataInputStream(new FileInputStream(loadFile))) {
-            int accountId = is.readInt();
-            if (accountId > -1)
-                selectAccountButton.selectAccountById(accountId);
-            searchArea.setText(is.readUTF());
-            pageModeComboBox.getSelectionModel().select(is.readInt());
-            checkDescriptionCheckBox.setSelected(is.readBoolean());
-        } catch (Exception e) {
+    @Override
+    public SaveLoadManager createSaveLoadManager() {
+        SaveLoadManager saveLoadManager = new SaveLoadManager(new File("data/byMail"));
+        saveLoadManager.add(
+                os -> {
+                    Account account = selectAccountButton.getCurrentAccount().get();
+                    if (account == null)
+                        os.writeInt(-1);
+                    else
+                        os.writeInt(account.getId());
+                },
+                is -> {
+                    int accountId = is.readInt();
+                    if (accountId > -1)
+                        selectAccountButton.selectAccountById(accountId);
+                }
+        );
+        saveLoadManager.add(searchArea);
+        saveLoadManager.add(pageModeComboBox);
+        saveLoadManager.add(checkDescriptionCheckBox);
+        saveLoadManager.setOnLoadError(e -> {
             log.warn("load byMail settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));
-        }
+        });
+        saveLoadManager.setOnSaveError(e -> {
+            log.warn("save byMail settings error", e);
+            app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
+        });
+        return saveLoadManager;
     }
+
 }

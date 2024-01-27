@@ -152,14 +152,9 @@ public class MessagesScreen extends HBox {
             MessageKit kit = kitList.getSelectionModel().getSelectedItem();
             if (kit == null)
                 return;
-            //kit.getMessages().add(message);
             messageService.save(message);
             messagesList.getItems().add(message);
             messageService.save(kit);
-            //messagesList.refresh();
-            //message.setMessageKit(kit);
-            //messageService.save(message);
-            //messagesList.getItems().add(message);
         });
         app.showModal(popup);
     }

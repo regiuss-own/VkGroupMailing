@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.RGFXAPP;
 import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.enums.RunnableState;
+import space.regiuss.rgfx.interfaces.SavableAndLoadable;
+import space.regiuss.rgfx.manager.SaveLoadManager;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
@@ -35,8 +37,11 @@ import java.util.Arrays;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
-public class GroupRunnableScreen extends RunnablePane {
+public class GroupRunnableScreen extends RunnablePane implements SavableAndLoadable {
 
+    @Getter
+    @SuppressWarnings("FieldMayBeFinal")
+    private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
     private Task<?> task;
 
@@ -70,6 +75,7 @@ public class GroupRunnableScreen extends RunnablePane {
 
     {
         RGFXAPP.load(this, getClass().getResource("/view/screen/group.fxml"));
+        saveLoadManager = createSaveLoadManager();
     }
 
     @PostConstruct
@@ -157,40 +163,37 @@ public class GroupRunnableScreen extends RunnablePane {
         }
     }
 
-    private void save() {
-        try (DataOutputStream os = new DataOutputStream(new FileOutputStream("data/group"))) {
-            Account account = selectAccountButton.getCurrentAccount().get();
-            if (account == null)
-                os.writeInt(-1);
-            else
-                os.writeInt(account.getId());
-            os.writeUTF(minSubCountField.getText());
-            os.writeUTF(maxSubCountField.getText());
-            os.writeUTF(searchArea.getText());
-            os.writeBoolean(sortCheckBox.isSelected());
-            os.writeBoolean(onlyCanMessageCheckBox.isSelected());
-        } catch (Exception e) {
+    @Override
+    public SaveLoadManager createSaveLoadManager() {
+        SaveLoadManager saveLoadManager = new SaveLoadManager(new File("data/group"));
+        saveLoadManager.add(
+                os -> {
+                    Account account = selectAccountButton.getCurrentAccount().get();
+                    if (account == null)
+                        os.writeInt(-1);
+                    else
+                        os.writeInt(account.getId());
+                },
+                is -> {
+                    int accountId = is.readInt();
+                    if (accountId > -1)
+                        selectAccountButton.selectAccountById(accountId);
+                }
+        );
+        saveLoadManager.add(minSubCountField);
+        saveLoadManager.add(maxSubCountField);
+        saveLoadManager.add(searchArea);
+        saveLoadManager.add(sortCheckBox);
+        saveLoadManager.add(onlyCanMessageCheckBox);
+        saveLoadManager.setOnSaveError(e -> {
             log.warn("save group settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
-        }
-    }
-
-    private void load() {
-        File loadFile = new File("data/group");
-        if (!loadFile.exists())
-            return;
-        try (DataInputStream is = new DataInputStream(new FileInputStream(loadFile))) {
-            int accountId = is.readInt();
-            if (accountId > -1)
-                selectAccountButton.selectAccountById(accountId);
-            minSubCountField.setText(is.readUTF());
-            maxSubCountField.setText(is.readUTF());
-            searchArea.setText(is.readUTF());
-            sortCheckBox.setSelected(is.readBoolean());
-            onlyCanMessageCheckBox.setSelected(is.readBoolean());
-        } catch (Exception e) {
+        });
+        saveLoadManager.setOnLoadError(e -> {
             log.warn("load group settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));
-        }
+        });
+        return saveLoadManager;
     }
+
 }

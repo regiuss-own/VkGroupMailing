@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import space.regiuss.rgfx.enums.AlertVariant;
 import space.regiuss.rgfx.enums.RunnableState;
+import space.regiuss.rgfx.interfaces.SavableAndLoadable;
+import space.regiuss.rgfx.manager.SaveLoadManager;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.rgfx.spring.RGFXAPP;
@@ -36,8 +38,12 @@ import java.io.*;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
-public class ProfileRunnableScreen extends RunnablePane {
+@SuppressWarnings("unused")
+public class ProfileRunnableScreen extends RunnablePane implements SavableAndLoadable {
 
+    @Getter
+    @SuppressWarnings("FieldMayBeFinal")
+    private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
     private ProfileTask task;
 
@@ -62,6 +68,7 @@ public class ProfileRunnableScreen extends RunnablePane {
 
     {
         RGFXAPP.load(this, getClass().getResource("/view/screen/profiles.fxml"));
+        saveLoadManager = createSaveLoadManager();
     }
 
     @PostConstruct
@@ -133,39 +140,36 @@ public class ProfileRunnableScreen extends RunnablePane {
         app.getExecutorService().execute(task);
     }
 
-    private void save() {
-        try (DataOutputStream os = new DataOutputStream(new FileOutputStream("data/profile"))) {
-            Account account = selectAccountButton.getCurrentAccount().get();
-            if (account == null)
-                os.writeInt(-1);
-            else
-                os.writeInt(account.getId());
-            os.writeUTF(minSubCountField.getText());
-            os.writeUTF(maxSubCountField.getText());
-            os.writeUTF(groupArea.getText());
-            os.writeBoolean(onlyCanMessageCheckBox.isSelected());
-        } catch (Exception e) {
+    @Override
+    public SaveLoadManager createSaveLoadManager() {
+        SaveLoadManager saveLoadManager = new SaveLoadManager(new File("data/profile"));
+        saveLoadManager.add(
+                os -> {
+                    Account account = selectAccountButton.getCurrentAccount().get();
+                    if (account == null)
+                        os.writeInt(-1);
+                    else
+                        os.writeInt(account.getId());
+                },
+                is -> {
+                    int accountId = is.readInt();
+                    if (accountId > -1)
+                        selectAccountButton.selectAccountById(accountId);
+                }
+        );
+        saveLoadManager.add(minSubCountField);
+        saveLoadManager.add(maxSubCountField);
+        saveLoadManager.add(groupArea);
+        saveLoadManager.add(onlyCanMessageCheckBox);
+        saveLoadManager.setOnSaveError(e -> {
             log.warn("save profile settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
-        }
-    }
-
-    private void load() {
-        File loadFile = new File("data/profile");
-        if (!loadFile.exists())
-            return;
-        try (DataInputStream is = new DataInputStream(new FileInputStream(loadFile))) {
-            int accountId = is.readInt();
-            if (accountId > -1)
-                selectAccountButton.selectAccountById(accountId);
-            minSubCountField.setText(is.readUTF());
-            maxSubCountField.setText(is.readUTF());
-            groupArea.setText(is.readUTF());
-            onlyCanMessageCheckBox.setSelected(is.readBoolean());
-        } catch (Exception e) {
+        });
+        saveLoadManager.setOnLoadError(e -> {
             log.warn("load profile settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));
-        }
+        });
+        return saveLoadManager;
     }
 
     @FXML
@@ -205,4 +209,5 @@ public class ProfileRunnableScreen extends RunnablePane {
             task = null;
         }
     }
+
 }
