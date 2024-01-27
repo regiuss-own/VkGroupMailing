@@ -58,6 +58,12 @@
                         </font>
                     </TextArea>
                 </VBox>
+                <CheckBox fx:id="checkDescriptionCheckBox" mnemonicParsing="false"
+                          text="Проверять описание на наличие почты">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </CheckBox>
             </VBox>
             <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
         </HBox>

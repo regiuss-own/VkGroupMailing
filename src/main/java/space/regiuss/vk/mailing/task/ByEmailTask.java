@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import space.regiuss.vk.mailing.enums.PageMode;
-import space.regiuss.vk.mailing.messenger.Messenger;
+import space.regiuss.vk.mailing.model.ByEmailData;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.model.PageType;
 import space.regiuss.vk.mailing.model.UserInfoData;
@@ -30,16 +30,15 @@ public class ByEmailTask extends Task<Void> {
 
     @Getter
     private final ListProperty<EmailItemWrapper<Page>> pageListProperty = new SimpleListProperty<>(FXCollections.observableList(new ArrayList<>()));
-    private final Messenger messenger;
-    private final List<String> listMail;
-    private final PageMode mode;
+
+    private final ByEmailData data;
     private LocalDateTime timeStart;
     private int currentSearchIndex;
 
     @Override
     protected Void call() {
         timeStart = LocalDateTime.now();
-        Iterator<String> iter = listMail.iterator();
+        Iterator<String> iter = data.getListMail().iterator();
         while (iter.hasNext() && !isCancelled() && !Thread.currentThread().isInterrupted()) {
             currentSearchIndex++;
             update();
@@ -59,11 +58,11 @@ public class ByEmailTask extends Task<Void> {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
         updateMessage(String.format(
                 "Поиск %s/%-20s Время старта: %-30s Времени прошло %s",
-                currentSearchIndex, listMail.size(),
+                currentSearchIndex, data.getListMail().size(),
                 timeStart.format(DF),
                 time
         ));
-        updateProgress(currentSearchIndex - 1, listMail.size());
+        updateProgress(currentSearchIndex - 1, data.getListMail().size());
     }
 
     private void processForSearch(String search) {
@@ -81,11 +80,12 @@ public class ByEmailTask extends Task<Void> {
             return;
         }
 
-        Map<PageType, List<Integer>> typeIds = pagesToTypeIds(pages);
-        Map<Integer, UserInfoData> usersInfo = fetchUsersInfo(typeIds);
-        Map<Integer, String> groupsInfo = fetchGroupsInfo(typeIds);
-
-        filterByInfo(searchLowerCase, pages, usersInfo, groupsInfo);
+        if (data.isCheckDescription()) {
+            Map<PageType, List<Integer>> typeIds = pagesToTypeIds(pages);
+            Map<Integer, UserInfoData> usersInfo = fetchUsersInfo(typeIds);
+            Map<Integer, String> groupsInfo = fetchGroupsInfo(typeIds);
+            filterByInfo(searchLowerCase, pages, usersInfo, groupsInfo);
+        }
 
         if (pages.isEmpty()) {
             return;
@@ -98,7 +98,7 @@ public class ByEmailTask extends Task<Void> {
         List<EmailItemWrapper<Page>> pages = null;
         for (int i = 0; i < 3 && !isCancelled(); i++) {
             try {
-                pages = messenger.getHints(searchLowerCase);
+                pages = data.getMessenger().getHints(searchLowerCase);
                 break;
             } catch (Exception e) {
                 log.warn("getHints error {}/3", i, e);
@@ -122,7 +122,7 @@ public class ByEmailTask extends Task<Void> {
         Map<Integer, UserInfoData> usersInfo = null;
         for (int i = 0; i < 3; i++) {
             try {
-                usersInfo = messenger.getUserInfoByIds(ids).stream()
+                usersInfo = data.getMessenger().getUserInfoByIds(ids).stream()
                         .collect(Collectors.toMap(UserInfoData::getUserId, o -> o, (t, t2) -> t));
                 break;
             } catch (Exception e) {
@@ -140,7 +140,7 @@ public class ByEmailTask extends Task<Void> {
         Map<Integer, String> groupsInfo = null;
         for (int i = 0; i < 3; i++) {
             try {
-                groupsInfo = messenger.getGroupInfoByIds(ids).stream()
+                groupsInfo = data.getMessenger().getGroupInfoByIds(ids).stream()
                         .collect(Collectors.toMap(t -> t.get("id").asInt(), o -> o.toString().toLowerCase(Locale.ROOT), (t, t2) -> t));
                 break;
             } catch (Exception e) {
@@ -177,10 +177,10 @@ public class ByEmailTask extends Task<Void> {
     }
 
     private void filterByMode(List<EmailItemWrapper<Page>> pages) {
-        if (mode != PageMode.ALL) {
+        if (data.getMode() != PageMode.ALL) {
             pages.removeIf(page -> (
-                    page.getItem().getType() == PageType.USER && mode == PageMode.GROUPS)
-                    || (page.getItem().getType() == PageType.GROUP && mode == PageMode.USERS)
+                    page.getItem().getType() == PageType.USER && data.getMode() == PageMode.GROUPS)
+                    || (page.getItem().getType() == PageType.GROUP && data.getMode() == PageMode.USERS)
             );
         }
     }

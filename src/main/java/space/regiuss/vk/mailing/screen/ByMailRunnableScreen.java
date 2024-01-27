@@ -3,10 +3,7 @@ package space.regiuss.vk.mailing.screen;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +22,7 @@ import space.regiuss.vk.mailing.exporter.EmailKitExporter;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
+import space.regiuss.vk.mailing.model.ByEmailData;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.EmailPageListItem;
@@ -44,6 +42,9 @@ public class ByMailRunnableScreen extends RunnablePane {
 
     private final VkMailingApp app;
     private ByEmailTask task;
+
+    @FXML
+    private CheckBox checkDescriptionCheckBox;
 
     @FXML
     private ComboBox<PageMode> pageModeComboBox;
@@ -92,11 +93,13 @@ public class ByMailRunnableScreen extends RunnablePane {
         setState(RunnableState.RUNNING);
 
         Messenger messenger = new VkMessenger(account.getToken());
-        ByEmailTask task = new ByEmailTask(
+        ByEmailData data = new ByEmailData(
                 messenger,
                 Arrays.asList(searchArea.getText().split("\n")),
-                pageModeComboBox.getSelectionModel().getSelectedItem()
+                pageModeComboBox.getSelectionModel().getSelectedItem(),
+                checkDescriptionCheckBox.isSelected()
         );
+        ByEmailTask task = new ByEmailTask(data);
         currentKitView.applyWrapperListListener(task.getPageListProperty());
         applyTask(
                 task,
@@ -160,6 +163,7 @@ public class ByMailRunnableScreen extends RunnablePane {
                 os.writeInt(account.getId());
             os.writeUTF(searchArea.getText());
             os.writeInt(pageModeComboBox.getSelectionModel().getSelectedIndex());
+            os.writeBoolean(checkDescriptionCheckBox.isSelected());
         } catch (Exception e) {
             log.warn("save byMail settings error", e);
             app.showAlert(new SimpleAlert("Не удалось сохранить настройки", AlertVariant.DANGER), Duration.seconds(5));
@@ -176,6 +180,7 @@ public class ByMailRunnableScreen extends RunnablePane {
                 selectAccountButton.selectAccountById(accountId);
             searchArea.setText(is.readUTF());
             pageModeComboBox.getSelectionModel().select(is.readInt());
+            checkDescriptionCheckBox.setSelected(is.readBoolean());
         } catch (Exception e) {
             log.warn("load byMail settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));
