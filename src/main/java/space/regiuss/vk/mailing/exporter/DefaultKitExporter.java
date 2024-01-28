@@ -24,8 +24,8 @@ public class DefaultKitExporter<T extends ImageItemWrapper<Page>> implements Kit
                 os.write(String.format(
                         "%s;%s;%s;%s;%s;%s%n",
                         page.getLink(),
-                        page.getId(),
-                        page.getType().name(),
+                        page.getId().getPageId(),
+                        page.getId().getPageType().name(),
                         page.getName().replace(";", ""),
                         page.getSubscribers(),
                         page.getIcon()

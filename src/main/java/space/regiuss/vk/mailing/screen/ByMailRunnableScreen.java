@@ -30,6 +30,7 @@ import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.EmailPageListItem;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
+import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 import space.regiuss.vk.mailing.task.ByEmailTask;
 import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
@@ -48,6 +49,7 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
     @SuppressWarnings("FieldMayBeFinal")
     private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
+    private final PageBlacklistRepository pageBlacklistRepository;
     private ByEmailTask task;
 
     @FXML
@@ -105,7 +107,8 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
                 messenger,
                 Arrays.asList(searchArea.getText().split("\n")),
                 pageModeComboBox.getSelectionModel().getSelectedItem(),
-                checkDescriptionCheckBox.isSelected()
+                checkDescriptionCheckBox.isSelected(),
+                pageBlacklistRepository
         );
         ByEmailTask task = new ByEmailTask(data);
         currentKitView.applyWrapperListListener(task.getPageListProperty());

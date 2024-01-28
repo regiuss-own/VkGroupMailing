@@ -10,10 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import space.regiuss.vk.mailing.messenger.Messenger;
-import space.regiuss.vk.mailing.model.ItemsResult;
-import space.regiuss.vk.mailing.model.Page;
-import space.regiuss.vk.mailing.model.ProfileTaskData;
-import space.regiuss.vk.mailing.model.UserInfoData;
+import space.regiuss.vk.mailing.model.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -59,7 +56,6 @@ public class ProfileTask extends Task<Void> {
                 }
             }
             if (itemResult == null) {
-                // throw new RuntimeException("Не удалось получить информацию по пользователям");
                 break;
             }
             processItemResult(itemResult);
@@ -135,6 +131,19 @@ public class ProfileTask extends Task<Void> {
                 iterator.remove();
             }
         }
+
+        if (pages.isEmpty()) {
+            return;
+        }
+
+        List<PageId> ids = pages.stream().map(Page::getId).collect(Collectors.toList());
+        Set<PageId> blacklistIds = taskData.getPageBlacklistRepository().findAllByIdIn(ids);
+        pages.removeIf(p -> blacklistIds.contains(p.getId()));
+
+        if (pages.isEmpty()) {
+            return;
+        }
+
         List<Page> finalPages = pages;
         Platform.runLater(() -> pageListProperty.addAll(finalPages));
     }

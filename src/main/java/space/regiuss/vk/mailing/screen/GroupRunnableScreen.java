@@ -26,6 +26,7 @@ import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.model.SearchGroupData;
 import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
+import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 import space.regiuss.vk.mailing.task.GroupTask;
 import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
@@ -43,6 +44,7 @@ public class GroupRunnableScreen extends RunnablePane implements SavableAndLoada
     @SuppressWarnings("FieldMayBeFinal")
     private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
+    private final PageBlacklistRepository pageBlacklistRepository;
     private Task<?> task;
 
     @FXML
@@ -131,6 +133,7 @@ public class GroupRunnableScreen extends RunnablePane implements SavableAndLoada
         data.setMaxSubscribers(maxSubCount);
         data.setMinSubscribers(minSubCount);
         data.setOnlyCanMessage(onlyCanMessageCheckBox.isSelected());
+        data.setPageBlacklistRepository(pageBlacklistRepository);
         Messenger messenger = new VkMessenger(account.getToken());
         GroupTask task = new GroupTask(messenger, data);
         currentKitView.applyPageListListener(task.getPageListProperty(), ImageItemWrapper::new);

@@ -97,7 +97,7 @@ public class CurrentKitView<T extends ImageItemWrapper<Page>> extends VBox {
         Set<Integer> items = new HashSet<>(listView.getItems().size());
         while (iterator.hasNext()) {
             ImageItemWrapper<Page> item = iterator.next();
-            if (!items.add(item.getItem().getId())) {
+            if (!items.add(item.getItem().getId().getPageId())) {
                 iterator.remove();
             }
         }

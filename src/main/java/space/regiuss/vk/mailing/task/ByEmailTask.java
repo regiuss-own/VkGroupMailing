@@ -9,10 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import space.regiuss.vk.mailing.enums.PageMode;
-import space.regiuss.vk.mailing.model.ByEmailData;
-import space.regiuss.vk.mailing.model.Page;
-import space.regiuss.vk.mailing.model.PageType;
-import space.regiuss.vk.mailing.model.UserInfoData;
+import space.regiuss.vk.mailing.model.*;
 import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import java.time.Duration;
@@ -91,6 +88,14 @@ public class ByEmailTask extends Task<Void> {
             return;
         }
 
+        List<PageId> ids = pages.stream().map(wrapper -> wrapper.getItem().getId()).collect(Collectors.toList());
+        Set<PageId> blacklistIds = data.getPageBlacklistRepository().findAllByIdIn(ids);
+        pages.removeIf(wrapper -> blacklistIds.contains(wrapper.getItem().getId()));
+
+        if (pages.isEmpty()) {
+            return;
+        }
+
         Platform.runLater(() -> pageListProperty.addAll(pages));
     }
 
@@ -109,8 +114,8 @@ public class ByEmailTask extends Task<Void> {
 
     private Map<PageType, List<Integer>> pagesToTypeIds(List<EmailItemWrapper<Page>> pages) {
         return pages.stream().collect(Collectors.groupingBy(
-                wrapper -> wrapper.getItem().getType(),
-                Collectors.mapping(wrapper -> wrapper.getItem().getId(), Collectors.toList())
+                wrapper -> wrapper.getItem().getId().getPageType(),
+                Collectors.mapping(wrapper -> wrapper.getItem().getId().getPageId(), Collectors.toList())
         ));
     }
 
@@ -154,12 +159,12 @@ public class ByEmailTask extends Task<Void> {
         Iterator<EmailItemWrapper<Page>> iterator = pages.iterator();
         while (iterator.hasNext()) {
             EmailItemWrapper<Page> wrapper = iterator.next();
-            if (wrapper.getItem().getType() == PageType.USER) {
+            if (wrapper.getItem().getId().getPageType() == PageType.USER) {
                 if (usersInfo == null || usersInfo.isEmpty()) {
                     iterator.remove();
                     continue;
                 }
-                UserInfoData info = usersInfo.get(wrapper.getItem().getId());
+                UserInfoData info = usersInfo.get(wrapper.getItem().getId().getPageId());
                 if (info == null || !info.getJson().toLowerCase(Locale.ROOT).contains(searchLowerCase)) {
                     iterator.remove();
                 }
@@ -168,7 +173,7 @@ public class ByEmailTask extends Task<Void> {
                     iterator.remove();
                     continue;
                 }
-                String info = groupsInfo.get(wrapper.getItem().getId());
+                String info = groupsInfo.get(wrapper.getItem().getId().getPageId());
                 if (info == null || !info.contains(searchLowerCase)) {
                     iterator.remove();
                 }
@@ -179,8 +184,8 @@ public class ByEmailTask extends Task<Void> {
     private void filterByMode(List<EmailItemWrapper<Page>> pages) {
         if (data.getMode() != PageMode.ALL) {
             pages.removeIf(page -> (
-                    page.getItem().getType() == PageType.USER && data.getMode() == PageMode.GROUPS)
-                    || (page.getItem().getType() == PageType.GROUP && data.getMode() == PageMode.USERS)
+                    page.getItem().getId().getPageType() == PageType.USER && data.getMode() == PageMode.GROUPS)
+                    || (page.getItem().getId().getPageType() == PageType.GROUP && data.getMode() == PageMode.USERS)
             );
         }
     }

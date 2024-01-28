@@ -41,6 +41,7 @@ import space.regiuss.vk.mailing.node.ProgressPageListItem;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.popup.KitImportPopup;
 import space.regiuss.vk.mailing.popup.SelectMessagePopup;
+import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 import space.regiuss.vk.mailing.service.MessageService;
 import space.regiuss.vk.mailing.task.MailingTask;
 import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
@@ -67,6 +68,7 @@ public class MailingRunnableScreen extends RunnablePane implements SavableAndLoa
     @SuppressWarnings("FieldMayBeFinal")
     private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
+    private final PageBlacklistRepository pageBlacklistRepository;
     private final MessageService messageService;
 
     private Task<?> task;
@@ -163,6 +165,7 @@ public class MailingRunnableScreen extends RunnablePane implements SavableAndLoa
         mailingData.setMessageDelay(messageDelay * 1000);
         mailingData.setDialogDelay(dialogDelay * 1000);
         mailingData.setItems(kitListView.getItems());
+        mailingData.setPageBlacklistRepository(pageBlacklistRepository);
         Messenger messenger = new VkMessenger(account.getToken());
         MailingTask task = new MailingTask(messenger, mailingData, kitListView);
         applyTask(task, "Рассылка", app);
@@ -365,8 +368,8 @@ public class MailingRunnableScreen extends RunnablePane implements SavableAndLoa
                     os.write(String.format(
                             "%s;%s;%s;%s;%s;%s%n",
                             page.getLink(),
-                            page.getId(),
-                            page.getType().name(),
+                            page.getId().getPageId(),
+                            page.getId().getPageType().name(),
                             page.getName().replace(";", ""),
                             page.getSubscribers(),
                             page.getIcon()

@@ -27,6 +27,7 @@ import space.regiuss.vk.mailing.model.Account;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
+import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 import space.regiuss.vk.mailing.task.BookmarkTask;
 import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
@@ -43,6 +44,7 @@ public class BookmarkRunnableScreen extends RunnablePane implements SavableAndLo
     @SuppressWarnings("FieldMayBeFinal")
     private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
+    private final PageBlacklistRepository pageBlacklistRepository;
     private BookmarkTask task;
 
     @FXML
@@ -80,7 +82,12 @@ public class BookmarkRunnableScreen extends RunnablePane implements SavableAndLo
         setState(RunnableState.RUNNING);
         save();
         Messenger messenger = new VkMessenger(account.getToken());
-        task = new BookmarkTask(messenger, bookmarkType.getValue(), onlyCanMessageCheckBox.isSelected());
+        task = new BookmarkTask(
+                messenger,
+                bookmarkType.getValue(),
+                pageBlacklistRepository,
+                onlyCanMessageCheckBox.isSelected()
+        );
         currentKitView.applyPageListListener(task.getPageListProperty(), ImageItemWrapper::new);
         applyTask(
                 task,

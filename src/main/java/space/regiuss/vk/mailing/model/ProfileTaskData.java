@@ -1,6 +1,7 @@
 package space.regiuss.vk.mailing.model;
 
 import lombok.Data;
+import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 
 @Data
 public class ProfileTaskData {
@@ -8,4 +9,5 @@ public class ProfileTaskData {
     private int minSubscribersCount;
     private int maxSubscribersCount;
     private boolean onlyCanMessage;
+    private PageBlacklistRepository pageBlacklistRepository;
 }

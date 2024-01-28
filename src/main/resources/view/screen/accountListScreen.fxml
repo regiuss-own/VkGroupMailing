@@ -40,11 +40,14 @@
             </graphic>
         </Button>
     </HBox>
-    <TileView scrollable="true" fx:id="accountsPane">
+    <TileView VBox.vgrow="ALWAYS" scrollable="true" fx:id="accountsPane">
         <emptyGraphic>
             <VBox style="-fx-background-color: #fff; -fx-background-radius: 10px;"
                   maxWidth="350" maxHeight="150" alignment="CENTER"
                   spacing="10">
+                <padding>
+                    <Insets left="10" top="10" right="10" bottom="10"/>
+                </padding>
                 <Text text="У Вас пока нет ниодного аккаунта ">
                     <font>
                         <Font size="20"/>

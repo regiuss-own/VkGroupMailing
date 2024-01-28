@@ -1,6 +1,5 @@
 package space.regiuss.vk.mailing.popup;
 
-import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -33,26 +32,22 @@ import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
 import space.regiuss.vk.mailing.model.Page;
-import space.regiuss.vk.mailing.model.PageType;
 import space.regiuss.vk.mailing.screen.BookmarkRunnableScreen;
 import space.regiuss.vk.mailing.screen.GroupRunnableScreen;
 import space.regiuss.vk.mailing.screen.MailingRunnableScreen;
 import space.regiuss.vk.mailing.screen.ProfileRunnableScreen;
+import space.regiuss.vk.mailing.task.ImportTask;
 import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @Log4j2
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
+@SuppressWarnings("unused")
 public class KitImportPopup extends BackgroundPopup {
 
     private final VkMailingApp app;
@@ -92,32 +87,29 @@ public class KitImportPopup extends BackgroundPopup {
             }
         });
         importBox.pseudoClassStateChanged(HOVER, false);
-        importBox.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                Dragboard db = event.getDragboard();
-                boolean success = false;
-                if (db.hasFiles() && db.getFiles().size() == 1 && db.getFiles().get(0).getName().endsWith(".csv")) {
-                    importFromFile(db.getFiles().get(0));
-                    success = true;
-                }
-                event.setDropCompleted(success);
-                event.consume();
+        importBox.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if (db.hasFiles() && db.getFiles().size() == 1 && db.getFiles().get(0).getName().endsWith(".csv")) {
+                importFromFile(db.getFiles().get(0));
+                success = true;
             }
+            event.setDropCompleted(success);
+            event.consume();
         });
     }
 
     @PostConstruct
     public void init() {
-        addButton(screensBox, "По группам", Icon.IconValue.COMPASS, Icon.IconType.REGULAR, event -> {
+        addButton(screensBox, "По группам", Icon.IconValue.COMPASS, event -> {
             app.getScreen(GroupRunnableScreen.class).getCurrentKitView().onMailingClick(null);
             onClose.run();
         });
-        addButton(screensBox, "По избранное", Icon.IconValue.BOOKMARK, Icon.IconType.REGULAR, event -> {
+        addButton(screensBox, "По избранное", Icon.IconValue.BOOKMARK, event -> {
             app.getScreen(BookmarkRunnableScreen.class).getCurrentKitView().onMailingClick(null);
             onClose.run();
         });
-        addButton(screensBox, "По профилям", Icon.IconValue.USER, Icon.IconType.REGULAR, event -> {
+        addButton(screensBox, "По профилям", Icon.IconValue.USER, event -> {
             app.getScreen(ProfileRunnableScreen.class).getCurrentKitView().onMailingClick(null);
             onClose.run();
         });
@@ -126,10 +118,12 @@ public class KitImportPopup extends BackgroundPopup {
 
     @FXML
     public void onImportClick(MouseEvent event) {
+
         if (screen.getSelectAccountButton().getCurrentAccount().get() == null) {
-            app.showAlert(new SimpleAlert("Для импорта необходимо указать аккаунт", AlertVariant.SUCCESS), Duration.seconds(5));
+            app.showAlert(new SimpleAlert("Для импорта необходимо указать аккаунт", AlertVariant.WARN), Duration.seconds(5));
             return;
         }
+
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("csv", "*.csv"));
         File file = chooser.showOpenDialog(app.getStage());
@@ -139,65 +133,21 @@ public class KitImportPopup extends BackgroundPopup {
 
     private void importFromFile(File file) {
         onClose.run();
-        CompletableFuture<Void> completableFuture = new CompletableFuture<>();
         app.showAlert(new SimpleAlert("Начинаю импорт", AlertVariant.SUCCESS), Duration.seconds(5));
-        completableFuture.whenComplete((r, e) -> Platform.runLater(() -> {
-            if (e == null) {
-                app.showAlert(new SimpleAlert("Импорт завершен", AlertVariant.SUCCESS), Duration.seconds(5));
-            } else {
-                log.warn("import error", e);
-                app.showAlert(new SimpleAlert("Ошибка импорта: " + e.getMessage(), AlertVariant.DANGER), Duration.seconds(5));
-            }
-        }));
         Account account = screen.getSelectAccountButton().getCurrentAccount().get();
         Messenger messenger = new VkMessenger(account.getToken());
-        app.getExecutorService().execute(() -> {
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                List<ImageItemWrapper<Page>> items = new LinkedList<>();
-                String line = reader.readLine();
-                List<String> pageIds = new ArrayList<>();
-                while ((line = reader.readLine()) != null) {
-                    if (line.trim().isEmpty())
-                        continue;
-                    String[] data = line.trim().split(";");
-                    if (data.length < 6 && data.length > 1)
-                        throw new RuntimeException("Неверный формат");
-                    if (data.length == 1) {
-                        String pageId = data[0];
-                        int index = pageId.lastIndexOf('/');
-                        if (index != -1) {
-                            pageId = pageId.substring(index + 1);
-                        }
-                        index = pageId.indexOf('?');
-                        if (index != -1) {
-                            pageId = pageId.substring(0, index);
-                        }
-                        pageIds.add(pageId);
-                        if (pageIds.size() >= 10) {
-                            getPagesByIds(messenger, pageIds, items);
-                        }
-                    } else {
-                        Page page = new Page();
-                        page.setId(Integer.parseInt(data[1]));
-                        page.setType(PageType.valueOf(data[2]));
-                        page.setName(data[3]);
-                        page.setSubscribers(Integer.parseInt(data[4]));
-                        page.setIcon(data[5]);
-                        ImageItemWrapper<Page> item = new ImageItemWrapper<>(page);
-                        items.add(item);
-                    }
-                }
-                getPagesByIds(messenger, pageIds, items);
-                if (items.isEmpty())
-                    throw new RuntimeException("Файл пуст");
-                Platform.runLater(() -> {
-                    screen.setKitItems(items);
-                });
-                completableFuture.complete(null);
-            } catch (Exception e) {
-                completableFuture.completeExceptionally(e);
-            }
+
+        ImportTask task = new ImportTask(messenger, file);
+        task.setOnSucceeded(event -> {
+            app.showAlert(new SimpleAlert("Импорт завершен", AlertVariant.SUCCESS), Duration.seconds(5));
+            screen.setKitItems(task.getValue());
         });
+        task.setOnFailed(event -> {
+            Throwable e = task.getException();
+            log.warn("import error", e);
+            app.showAlert(new SimpleAlert("Ошибка импорта: " + e.getMessage(), AlertVariant.DANGER), Duration.seconds(5));
+        });
+        app.getExecutorService().execute(task);
     }
 
     private void getPagesByIds(Messenger messenger, List<String> pageIds, List<ImageItemWrapper<Page>> items) {
@@ -220,7 +170,7 @@ public class KitImportPopup extends BackgroundPopup {
         }
     }
 
-    private void addButton(TilePane container, String text, Icon.IconValue iconValue, Icon.IconType iconType, EventHandler<ActionEvent> onAction) {
+    private void addButton(TilePane container, String text, Icon.IconValue iconValue, EventHandler<ActionEvent> onAction) {
         Button button = new Button(text);
         button.setOnAction(onAction);
         button.setAlignment(Pos.CENTER_LEFT);
@@ -230,7 +180,7 @@ public class KitImportPopup extends BackgroundPopup {
         button.setFont(Font.font(18));
         button.getStyleClass().add("white");
         if (container.equals(screensBox))
-            button.setGraphic(new Icon(iconValue, iconType, 18, Paint.valueOf("#000")));
+            button.setGraphic(new Icon(iconValue, Icon.IconType.REGULAR, 18, Paint.valueOf("#000")));
         container.getChildren().add(button);
     }
 }

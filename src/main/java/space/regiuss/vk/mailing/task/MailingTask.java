@@ -11,6 +11,8 @@ import space.regiuss.vk.mailing.wrapper.ProgressItemWrapper;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class MailingTask extends Task<MailingTask.State> {
     private final ListView<?> listView;
     private int errors = 0;
 
-    public static enum State {
+    public enum State {
         PROCESS,
         WAITING,
         FINISH
@@ -30,9 +32,20 @@ public class MailingTask extends Task<MailingTask.State> {
     @Override
     protected MailingTask.State call() throws Exception {
         List<ProgressItemWrapper<Page>> items = mailingData.getItems();
+
+        if (items.isEmpty()) {
+            return State.FINISH;
+        }
+
+        List<PageId> ids = items.stream().map(wrapper -> wrapper.getItem().getId()).collect(Collectors.toList());
+        Set<PageId> blacklistIds = mailingData.getPageBlacklistRepository().findAllByIdIn(ids);
+
         Iterator<ProgressItemWrapper<Page>> iterator = items.iterator();
         while (iterator.hasNext() && !isCancelled()) {
             ProgressItemWrapper<Page> item = iterator.next();
+            if (blacklistIds.contains(item.getItem().getId())) {
+                continue;
+            }
             if (item.getProgress() != -1 && item.getTotal() != -1) {
                 continue;
             }
@@ -42,7 +55,7 @@ public class MailingTask extends Task<MailingTask.State> {
             for (Message message : mailingData.getMessages()) {
                 for (int j = 0; j < 3; j++) {
                     try {
-                        messenger.send(page.getType().equals(PageType.USER) ? page.getId() : -page.getId(), message);
+                        messenger.send(page.getId().getPageType().equals(PageType.USER) ? page.getId().getPageId() : -page.getId().getPageId(), message);
                         sendCount++;
                         break;
                     } catch (RuntimeException e) {

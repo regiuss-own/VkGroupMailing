@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.model.GroupTaskResult;
 import space.regiuss.vk.mailing.model.Page;
+import space.regiuss.vk.mailing.model.PageId;
 import space.regiuss.vk.mailing.model.SearchGroupData;
 
 import java.time.Duration;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class GroupTask extends Task<GroupTaskResult> {
@@ -105,14 +107,25 @@ public class GroupTask extends Task<GroupTaskResult> {
                     enabled = !data.isSort();
                     continue;
                 }
-                if (!savedPages.add(p.getId())) {
+                if (!savedPages.add(p.getId().getPageId())) {
                     iterator.remove();
                 }
             }
-            if (!pages.isEmpty()) {
-                List<Page> finalPages = pages;
-                Platform.runLater(() -> pageListProperty.addAll(finalPages));
+
+            if (pages.isEmpty()) {
+                return;
             }
+
+            List<PageId> ids = pages.stream().map(Page::getId).collect(Collectors.toList());
+            Set<PageId> blacklistIds = data.getPageBlacklistRepository().findAllByIdIn(ids);
+            pages.removeIf(p -> blacklistIds.contains(p.getId()));
+
+            if (pages.isEmpty()) {
+                return;
+            }
+
+            List<Page> finalPages = pages;
+            Platform.runLater(() -> pageListProperty.addAll(finalPages));
         } while (enabled && !isCancelled());
     }
 }

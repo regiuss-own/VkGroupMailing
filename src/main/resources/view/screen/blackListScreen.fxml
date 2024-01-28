@@ -8,35 +8,49 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.*?>
 <?import space.regiuss.rgfx.node.Icon?>
+<?import space.regiuss.vk.mailing.node.SelectAccountButton?>
 <fx:root type="VBox" spacing="10.0" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1"
          fx:controller="space.regiuss.vk.mailing.screen.BlackListScreen">
-    <padding>
-        <Insets left="10" top="10" right="10" bottom="10"/>
-    </padding>
-    <HBox alignment="CENTER_LEFT" spacing="5.0">
-        <Text text="Черный список">
-            <font>
-                <Font size="25"/>
-            </font>
-        </Text>
-        <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
-            <Button mnemonicParsing="false" text="Добавить" onAction="#onAddClick">
-                <font>
-                    <Font size="16.0"/>
-                </font>
-                <graphic>
-                    <Icon type="SOLID" value="ADD" size="20" fill="#fff"/>
-                </graphic>
-            </Button>
-        </HBox>
+    <HBox style="-fx-background-color: #fff;" minHeight="62.0" spacing="10" alignment="CENTER_LEFT">
+        <padding>
+            <Insets left="10" top="10" right="10" bottom="10"/>
+        </padding>
+        <SelectAccountButton fx:id="selectAccountButton" fx:factory="getInstance"/>
     </HBox>
-    <ListView VBox.vgrow="ALWAYS" fx:id="blackListView">
-        <placeholder>
-            <Text text="Черный список пуст">
+    <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets left="10" top="10" right="10" bottom="10"/>
+        </padding>
+        <HBox alignment="CENTER_LEFT" spacing="5.0">
+            <Text text="Черный список">
                 <font>
-                    <Font size="16.0"/>
+                    <Font size="25"/>
                 </font>
             </Text>
-        </placeholder>
-    </ListView>
+            <Text text="(0)" fx:id="countItemsText">
+                <font>
+                    <Font size="25"/>
+                </font>
+            </Text>
+            <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
+                <Button mnemonicParsing="false" text="Импорт" prefWidth="150" alignment="CENTER" graphicTextGap="10" onAction="#onImportClick">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                    <graphic>
+                        <Icon type="SOLID" value="FILE_IMPORT" size="20" fill="#fff"/>
+                    </graphic>
+                </Button>
+            </HBox>
+        </HBox>
+        <ListView VBox.vgrow="ALWAYS" fx:id="blackListView">
+            <placeholder>
+                <Text text="Черный список пуст">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+            </placeholder>
+        </ListView>
+    </VBox>
 </fx:root>

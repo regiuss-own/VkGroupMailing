@@ -51,8 +51,7 @@ public class VkMessenger implements Messenger {
 
     private Page groupNodeToPage(JsonNode node) {
         Page p = new Page();
-        p.setType(PageType.GROUP);
-        p.setId(node.get("id").asInt());
+        p.setId(new PageId(node.get("id").asInt(), PageType.GROUP));
         p.setSubscribers(node.get("members_count").asInt());
         p.setIcon(node.get("photo_100").asText());
         p.setName(node.get("name").asText());
@@ -62,8 +61,7 @@ public class VkMessenger implements Messenger {
 
     private Page userNodeToPage(JsonNode node) {
         Page p = new Page();
-        p.setType(PageType.USER);
-        p.setId(node.get("id").asInt());
+        p.setId(new PageId(node.get("id").asInt(), PageType.USER));
         if (node.hasNonNull("followers_count")) {
             p.setSubscribers(node.get("followers_count").asInt());
         }
@@ -87,8 +85,10 @@ public class VkMessenger implements Messenger {
                         String type = node.get("type").asText();
                         JsonNode n = node.get(type);
                         Page pageData = new Page();
-                        pageData.setType(PageType.valueOf(type.toUpperCase(Locale.ROOT)));
-                        pageData.setId(n.get("id").asInt());
+                        pageData.setId(new PageId(
+                                n.get("id").asInt(),
+                                PageType.valueOf(type.toUpperCase(Locale.ROOT))
+                        ));
                         pageData.setIcon(n.get("photo_100").asText());
                         if (type.equals("user")) {
                             pageData.setName(n.get("first_name").asText() + " " + n.get("last_name").asText());

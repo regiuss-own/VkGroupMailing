@@ -9,38 +9,36 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
-@AllArgsConstructor
 public class Page {
-    @Id
-    @NonNull
-    @Column(name = "page_id", nullable = false)
-    private Integer id;
 
-    @Column(name = "name", length = 100)
+    @EmbeddedId
+    private PageId id;
+
+    @Column(name = "name")
     private String name;
 
     @Column(name = "subscribers", nullable = false)
     private int subscribers;
 
-    @Column(name = "icon", nullable = false)
+    @Column(name = "icon", length = 500, nullable = false)
     private String icon;
+
+    @OneToOne()
+    @PrimaryKeyJoinColumn
+    private PageBlacklist blackList;
 
     private transient boolean canMessage;
 
-    @Column(name = "page_type")
-    @Enumerated(EnumType.STRING)
-    private PageType type;
-
     public String getLink() {
         String baseUrl = "https://vk.com/";
-        switch (type) {
+        switch (id.getPageType()) {
             case USER:
                 baseUrl += "id";
                 break;
             case GROUP:
                 baseUrl += "club";
         }
-        return baseUrl + id;
+        return baseUrl + id.getPageId();
     }
+
 }

@@ -76,7 +76,7 @@ public class PageListItem<T extends ImageItemWrapper<Page>> extends ListCell<T> 
             imageView.setImage(wrapper.getImage());
         }
         nameLabel.setText(page.getName());
-        idLabel.setText(page.getId().toString());
+        idLabel.setText(page.getId().getPageId().toString());
         if (page.getSubscribers() > -1) {
             followersLabel.setText(Integer.toString(page.getSubscribers()));
             followersLabel.setManaged(true);
