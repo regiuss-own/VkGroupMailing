@@ -1,9 +1,13 @@
 package space.regiuss.vk.mailing.screen;
 
 import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -69,7 +73,32 @@ public class BlackListScreen extends VBox implements SavableAndLoadable {
 
     @PostConstruct
     public void init() {
-        blackListView.setCellFactory(pageListView -> new PageListItem<>(app.getHostServices()));
+        blackListView.setCellFactory(pageListView -> {
+            PageListItem<ImageItemWrapper<Page>> listItem = new PageListItem<>(app.getHostServices());
+            listItem.getHBox().getStyleClass().add("selectable");
+            listItem.getHBox().setOnContextMenuRequested(event -> {
+                ContextMenu contextMenu = new ContextMenu();
+                MenuItem deleteMenuItem = new MenuItem("Удалить");
+                deleteMenuItem.setOnAction(event1 -> {
+                    pageBlacklistRepository.deleteById(listItem.getItem().getItem().getId());
+                    blackListView.getItems().remove(listItem.getItem());
+                });
+                contextMenu.getItems().add(deleteMenuItem);
+                MenuItem deleteAllMenuItem = new MenuItem(String.format(
+                        "Удалить выбранное (%s)",
+                        blackListView.getSelectionModel().getSelectedItems().size())
+                );
+                deleteAllMenuItem.setOnAction(event1 -> {
+                    ObservableList<ImageItemWrapper<Page>> items = blackListView.getSelectionModel().getSelectedItems();
+                    pageBlacklistRepository.deleteAllById(items.stream().map(wrapper -> wrapper.getItem().getId()).collect(Collectors.toList()));
+                    blackListView.getItems().removeAll(items);
+                });
+                contextMenu.getItems().add(deleteAllMenuItem);
+                contextMenu.show(listItem.getHBox(), event.getScreenX(), event.getScreenY());
+            });
+            return listItem;
+        });
+        blackListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         load();
         List<ImageItemWrapper<Page>> items = pageBlacklistRepository.findAll().stream().map(pageBlacklist -> {
             Page page = pageBlacklist.getPage();
