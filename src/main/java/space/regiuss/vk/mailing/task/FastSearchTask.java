@@ -17,7 +17,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,18 +34,38 @@ public class FastSearchTask extends Task<Void> {
     private final FastSearchData data;
     private LocalDateTime timeStart;
     private int currentSearchIndex;
-    private int skipCount;
+    private final AtomicInteger skipCount = new AtomicInteger();
 
     @Override
     protected Void call() {
         timeStart = LocalDateTime.now();
         Iterator<String> iter = data.getListMail().iterator();
+        List<Callable<Void>> tasks = new ArrayList<>(data.getTreadsCount());
         while (iter.hasNext() && !isCancelled() && !Thread.currentThread().isInterrupted()) {
             currentSearchIndex++;
             update();
-            processForSearch(iter.next());
+            final String search = iter.next();
+            tasks.add(() -> {
+                processForSearch(search);
+                return null;
+            });
+            if (tasks.size() == data.getTreadsCount()) {
+                invokeAll(tasks);
+            }
         }
+        invokeAll(tasks);
         return null;
+    }
+
+    private void invokeAll(List<Callable<Void>> tasks) {
+        if (!tasks.isEmpty()) {
+            try {
+                data.getEs().invokeAll(tasks);
+            } catch (Exception e) {
+                log.warn("invokeAll error", e);
+            }
+            tasks.clear();
+        }
     }
 
 
@@ -58,15 +80,14 @@ public class FastSearchTask extends Task<Void> {
         updateMessage(String.format(
                 "Поиск %s/%-20s Пропущено: %-20s Время старта: %-30s Времени прошло %s",
                 currentSearchIndex, data.getListMail().size(),
-                skipCount,
+                skipCount.get(),
                 timeStart.format(DF),
                 time
         ));
         updateProgress(currentSearchIndex - 1, data.getListMail().size());
     }
 
-    private void processForSearch(String search) {
-
+    private void processForSearch(final String search) {
         final String searchLowerCase = search.toLowerCase(Locale.ROOT);
         List<Page> pages = fetchPages(searchLowerCase);
 
@@ -90,7 +111,7 @@ public class FastSearchTask extends Task<Void> {
             Map<Integer, String> groupsInfo = fetchGroupsInfo(typeIds);
 
             if (usersInfo == null && groupsInfo == null) {
-                skipCount++;
+                skipCount.incrementAndGet();
                 return;
             }
 
@@ -102,9 +123,11 @@ public class FastSearchTask extends Task<Void> {
         }
 
         List<PageId> ids = wrappers.stream().map(wrapper -> wrapper.getItem().getId()).collect(Collectors.toList());
-        Set<PageId> blacklistIds = data.getPageBlacklistRepository().findAllByIdIn(ids);
-        if (!blacklistIds.isEmpty()) {
-            wrappers.removeIf(wrapper -> blacklistIds.contains(wrapper.getItem().getId()));
+        synchronized (data) {
+            Set<PageId> blacklistIds = data.getPageBlacklistRepository().findAllByIdIn(ids);
+            if (!blacklistIds.isEmpty()) {
+                wrappers.removeIf(wrapper -> blacklistIds.contains(wrapper.getItem().getId()));
+            }
         }
 
         if (wrappers.isEmpty()) {
@@ -122,7 +145,7 @@ public class FastSearchTask extends Task<Void> {
                 log.warn("getHints error {}/{}", i, data.getTryCount(), e);
             }
         }
-        skipCount++;
+        skipCount.incrementAndGet();
         return null;
     }
 
@@ -200,7 +223,7 @@ public class FastSearchTask extends Task<Void> {
         }
     }
 
-    private void checkDescription(String searchLowerCase, Iterator<DescriptionItemWrapper<Page>> iterator, String description, DescriptionItemWrapper<Page> wrapper) {
+    private synchronized void checkDescription(String searchLowerCase, Iterator<DescriptionItemWrapper<Page>> iterator, String description, DescriptionItemWrapper<Page> wrapper) {
         List<String> found = new ArrayList<>(data.getDescriptionWords().size());
         for (String word : data.getDescriptionWords()) {
             String checkWord = word;

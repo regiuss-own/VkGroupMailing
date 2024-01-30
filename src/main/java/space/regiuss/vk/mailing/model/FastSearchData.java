@@ -8,6 +8,7 @@ import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 @Getter
 @Setter
@@ -20,4 +21,6 @@ public class FastSearchData {
     private final PageBlacklistRepository pageBlacklistRepository;
     private final int tryCount;
     private final Set<String> descriptionWords;
+    private final ExecutorService es;
+    private final int treadsCount;
 }

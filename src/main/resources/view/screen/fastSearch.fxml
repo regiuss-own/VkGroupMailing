@@ -17,80 +17,104 @@
     </header>
     <content>
         <HBox alignment="TOP_CENTER" spacing="50.0">
-            <VBox HBox.hgrow="ALWAYS" maxWidth="550" spacing="10.0">
+            <VBox spacing="10" HBox.hgrow="ALWAYS" maxWidth="560">
                 <Text text="Параметры">
                     <font>
                         <Font size="30"/>
                     </font>
                 </Text>
-                <VBox>
-                    <Label text="Тип">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <ComboBox fx:id="pageModeComboBox" maxWidth="1.7976931348623157E308"/>
-                </VBox>
-                <SimpleAlert graphicTextGap="10" wrapText="true" text="Несколько значений через новую строку" maxWidth="Infinity" variant="PRIMARY">
-                    <graphic>
-                        <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
-                    </graphic>
-                </SimpleAlert>
-                <VBox VBox.vgrow="ALWAYS">
-                    <HBox alignment="CENTER_LEFT">
-                        <Label HBox.hgrow="ALWAYS" maxWidth="Infinity" text="Список для поиска">
-                            <font>
-                                <Font size="16.0"/>
-                            </font>
-                        </Label>
-                        <Button minWidth="220" graphicTextGap="10" text="Импорт" onAction="#onUploadSearch">
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER">
+                    <padding>
+                        <Insets right="10"/>
+                    </padding>
+                    <VBox spacing="10.0">
+                        <VBox>
+                            <Label text="Тип">
+                                <font>
+                                    <Font size="16.0"/>
+                                </font>
+                            </Label>
+                            <ComboBox fx:id="pageModeComboBox" maxWidth="1.7976931348623157E308"/>
+                        </VBox>
+                        <SimpleAlert graphicTextGap="10" wrapText="true" text="Несколько значений через новую строку" maxWidth="Infinity" variant="PRIMARY">
                             <graphic>
-                                <Icon value="FILE_IMPORT" type="SOLID" size="16" fill="#fff"/>
+                                <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
                             </graphic>
-                            <font>
-                                <Font size="16.0"/>
-                            </font>
-                        </Button>
-                    </HBox>
-                    <TextArea fx:id="searchArea" VBox.vgrow="ALWAYS">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </TextArea>
-                </VBox>
-                <VBox>
-                    <Label text="Количество попыток">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <TextField fx:id="tryCountField" VBox.vgrow="ALWAYS" text="3">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </TextField>
-                </VBox>
-                <SimpleAlert graphicTextGap="10" wrapText="true" text="{search} - для проверки в описании слова&#xD;по которому страница была найдена" maxWidth="Infinity" variant="PRIMARY">
-                    <graphic>
-                        <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
-                    </graphic>
-                </SimpleAlert>
-                <VBox spacing="5">
-                    <HBox spacing="5" alignment="CENTER_LEFT">
-                        <Label text="Режим проверки описания"
-                               minWidth="300">
-                            <font>
-                                <Font size="16.0"/>
-                            </font>
-                        </Label>
-                        <ComboBox maxWidth="Infinity" HBox.hgrow="ALWAYS" fx:id="descriptionModeComboBox"/>
-                    </HBox>
-                    <TextArea fx:id="descriptionWordsArea" VBox.vgrow="ALWAYS">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </TextArea>
-                </VBox>
+                        </SimpleAlert>
+                        <VBox VBox.vgrow="ALWAYS">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label HBox.hgrow="ALWAYS" maxWidth="Infinity" text="Список для поиска">
+                                    <font>
+                                        <Font size="16.0"/>
+                                    </font>
+                                </Label>
+                                <Button minWidth="220" graphicTextGap="10" text="Импорт" onAction="#onUploadSearch">
+                                    <graphic>
+                                        <Icon value="FILE_IMPORT" type="SOLID" size="16" fill="#fff"/>
+                                    </graphic>
+                                    <font>
+                                        <Font size="16.0"/>
+                                    </font>
+                                </Button>
+                            </HBox>
+                            <TextArea fx:id="searchArea" VBox.vgrow="ALWAYS">
+                                <font>
+                                    <Font size="16.0"/>
+                                </font>
+                            </TextArea>
+                        </VBox>
+                        <VBox>
+                            <Label text="Количество попыток">
+                                <font>
+                                    <Font size="16.0"/>
+                                </font>
+                            </Label>
+                            <TextField fx:id="tryCountField" VBox.vgrow="ALWAYS" text="3">
+                                <font>
+                                    <Font size="16.0"/>
+                                </font>
+                            </TextField>
+                        </VBox>
+                        <VBox>
+                            <Label text="Количество потоков">
+                                <font>
+                                    <Font size="16.0"/>
+                                </font>
+                            </Label>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <Slider maxWidth="500" HBox.hgrow="ALWAYS"
+                                        fx:id="threadsCountSlider" blockIncrement="1.0" majorTickUnit="1.0"
+                                        max="4" min="1" minorTickCount="0" snapToTicks="true" />
+                                <Text fx:id="threadsCountLabel">
+                                    <font>
+                                        <Font size="18.0" />
+                                    </font>
+                                </Text>
+                            </HBox>
+                        </VBox>
+                        <SimpleAlert graphicTextGap="10" wrapText="true" text="{search} - для проверки в описании слова&#xD;по которому страница была найдена" maxWidth="Infinity" variant="PRIMARY">
+                            <graphic>
+                                <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+                            </graphic>
+                        </SimpleAlert>
+                        <VBox spacing="5">
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <Label text="Режим проверки описания"
+                                       minWidth="300">
+                                    <font>
+                                        <Font size="16.0"/>
+                                    </font>
+                                </Label>
+                                <ComboBox maxWidth="Infinity" HBox.hgrow="ALWAYS" fx:id="descriptionModeComboBox"/>
+                            </HBox>
+                            <TextArea fx:id="descriptionWordsArea" VBox.vgrow="ALWAYS">
+                                <font>
+                                    <Font size="16.0"/>
+                                </font>
+                            </TextArea>
+                        </VBox>
+                    </VBox>
+                </ScrollPane>
             </VBox>
             <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
         </HBox>

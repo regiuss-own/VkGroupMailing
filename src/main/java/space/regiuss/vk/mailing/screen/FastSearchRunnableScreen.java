@@ -1,9 +1,11 @@
 package space.regiuss.vk.mailing.screen;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -55,6 +57,12 @@ public class FastSearchRunnableScreen extends RunnablePane implements SavableAnd
     private FastSearchTask task;
 
     @FXML
+    private Slider threadsCountSlider;
+
+    @FXML
+    private Text threadsCountLabel;
+
+    @FXML
     private TextArea descriptionWordsArea;
 
     @FXML
@@ -88,6 +96,12 @@ public class FastSearchRunnableScreen extends RunnablePane implements SavableAnd
         pageModeComboBox.getSelectionModel().select(0);
         descriptionModeComboBox.setItems(FXCollections.observableArrayList(DescriptionMode.values()));
         descriptionModeComboBox.getSelectionModel().select(0);
+        threadsCountLabel.textProperty().bind(
+                Bindings.format(
+                        "%.0f",
+                        threadsCountSlider.valueProperty()
+                )
+        );
     }
 
     @PostConstruct
@@ -134,7 +148,9 @@ public class FastSearchRunnableScreen extends RunnablePane implements SavableAnd
                 descriptionModeComboBox.getSelectionModel().getSelectedItem(),
                 pageBlacklistRepository,
                 tryCount,
-                descriptionWords
+                descriptionWords,
+                app.getExecutorService(),
+                threadsCountSlider.valueProperty().intValue()
         );
         FastSearchTask task = new FastSearchTask(data);
         currentKitView.applyWrapperListListener(task.getPageListProperty());
@@ -213,6 +229,14 @@ public class FastSearchRunnableScreen extends RunnablePane implements SavableAnd
         saveLoadManager.add(descriptionModeComboBox);
         saveLoadManager.add(tryCountField);
         saveLoadManager.add(descriptionWordsArea);
+        saveLoadManager.add(
+                os -> {
+                    os.write(threadsCountSlider.valueProperty().intValue());
+                },
+                is -> {
+                    threadsCountSlider.setValue(is.readInt());
+                }
+        );
         saveLoadManager.setOnLoadError(e -> {
             log.warn("load byMail settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));
