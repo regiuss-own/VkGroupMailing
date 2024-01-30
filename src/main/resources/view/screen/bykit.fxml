@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import space.regiuss.vk.mailing.node.CurrentKitView?>
+<?import space.regiuss.vk.mailing.node.SelectAccountButton?>
+<?import space.regiuss.rgfx.node.RunnablePane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.CheckBox?>
+<fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="space.regiuss.vk.mailing.screen.ByKitRunnableScreen">
+    <header>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <SelectAccountButton fx:id="selectAccountButton" fx:factory="getInstance"/>
+        </HBox>
+    </header>
+    <content>
+        <HBox alignment="TOP_CENTER" spacing="50.0">
+            <VBox HBox.hgrow="ALWAYS" maxWidth="550" spacing="10.0">
+                <Text text="Параметры">
+                    <font>
+                        <Font size="30"/>
+                    </font>
+                </Text>
+            </VBox>
+            <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
+        </HBox>
+    </content>
+</fx:root>

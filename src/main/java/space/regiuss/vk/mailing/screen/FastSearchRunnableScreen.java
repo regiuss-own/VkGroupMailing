@@ -231,7 +231,7 @@ public class FastSearchRunnableScreen extends RunnablePane implements SavableAnd
         saveLoadManager.add(descriptionWordsArea);
         saveLoadManager.add(
                 os -> {
-                    os.write(threadsCountSlider.valueProperty().intValue());
+                    os.writeInt(threadsCountSlider.valueProperty().intValue());
                 },
                 is -> {
                     threadsCountSlider.setValue(is.readInt());
