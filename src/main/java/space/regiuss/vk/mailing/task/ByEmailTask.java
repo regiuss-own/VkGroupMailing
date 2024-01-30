@@ -101,7 +101,7 @@ public class ByEmailTask extends Task<Void> {
 
     private List<EmailItemWrapper<Page>> fetchPages(String searchLowerCase) {
         List<EmailItemWrapper<Page>> pages = null;
-        for (int i = 0; i < 3 && !isCancelled(); i++) {
+        for (int i = 0; i < data.getTryCount() && !isCancelled(); i++) {
             try {
                 pages = data.getMessenger().getHints(searchLowerCase);
                 break;
@@ -125,7 +125,7 @@ public class ByEmailTask extends Task<Void> {
             return null;
         }
         Map<Integer, UserInfoData> usersInfo = null;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < data.getTryCount(); i++) {
             try {
                 usersInfo = data.getMessenger().getUserInfoByIds(ids).stream()
                         .collect(Collectors.toMap(UserInfoData::getUserId, o -> o, (t, t2) -> t));
@@ -143,7 +143,7 @@ public class ByEmailTask extends Task<Void> {
             return null;
         }
         Map<Integer, String> groupsInfo = null;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < data.getTryCount(); i++) {
             try {
                 groupsInfo = data.getMessenger().getGroupInfoByIds(ids).stream()
                         .collect(Collectors.toMap(t -> t.get("id").asInt(), o -> o.toString().toLowerCase(Locale.ROOT), (t, t2) -> t));

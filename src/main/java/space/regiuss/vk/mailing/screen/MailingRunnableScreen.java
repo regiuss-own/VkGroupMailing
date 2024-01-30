@@ -44,6 +44,7 @@ import space.regiuss.vk.mailing.popup.SelectMessagePopup;
 import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 import space.regiuss.vk.mailing.service.MessageService;
 import space.regiuss.vk.mailing.task.MailingTask;
+import space.regiuss.vk.mailing.util.Utils;
 import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 import space.regiuss.vk.mailing.wrapper.ProgressItemWrapper;
 
@@ -152,10 +153,10 @@ public class MailingRunnableScreen extends RunnablePane implements SavableAndLoa
             kitListView.refresh();
         }
 
-        int messageDelay = parseNumber(messageDelayField, "messageDelayField", "Задержка между сообщениями");
-        int dialogDelay = parseNumber(dialogDelayField, "dialogDelayField", "Задержка между диалогами");
-        int maxErrors = parseNumber(errorCountField, "errorCountField", "Количество ошибок");
-        int errorsDelay = parseNumber(errorDelayField, "errorDelayField", "Здержка при ошибках");
+        int messageDelay = Utils.parseNumber(messageDelayField,"Задержка между сообщениями", app, 0);
+        int dialogDelay = Utils.parseNumber(dialogDelayField,"Задержка между диалогами", app, 0);
+        int maxErrors = Utils.parseNumber(errorCountField,"Количество ошибок", app, 0);
+        int errorsDelay = Utils.parseNumber(errorDelayField,"Здержка при ошибках", app, 0);
         setState(RunnableState.RUNNING);
         save();
         MailingData mailingData = new MailingData();
@@ -221,25 +222,6 @@ public class MailingRunnableScreen extends RunnablePane implements SavableAndLoa
         });
         this.task = task;
         app.getExecutorService().execute(task);
-    }
-
-    private int parseNumber(TextField field, String fieldName, String fieldDisplayName) {
-        try {
-            return Integer.parseInt(field.getText());
-        } catch (Exception e) {
-            log.warn("{} number convert error", fieldName, e);
-            app.showAlert(
-                    new SimpleAlert(
-                            String.format(
-                                    "Неверный формат поля %s\nиспользовано значение по умолчанию - 0",
-                                    fieldDisplayName
-                            ),
-                            AlertVariant.WARN
-                    ),
-                    Duration.seconds(5)
-            );
-        }
-        return 0;
     }
 
     @Override

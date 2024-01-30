@@ -16,4 +16,5 @@ public class ByEmailData {
     private final PageMode mode;
     private final boolean checkDescription;
     private final PageBlacklistRepository pageBlacklistRepository;
+    private final int tryCount;
 }

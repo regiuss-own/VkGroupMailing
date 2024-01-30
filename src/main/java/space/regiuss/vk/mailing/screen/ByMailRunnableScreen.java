@@ -32,6 +32,7 @@ import space.regiuss.vk.mailing.node.EmailPageListItem;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 import space.regiuss.vk.mailing.task.ByEmailTask;
+import space.regiuss.vk.mailing.util.Utils;
 import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import javax.annotation.PostConstruct;
@@ -51,6 +52,9 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
     private final VkMailingApp app;
     private final PageBlacklistRepository pageBlacklistRepository;
     private ByEmailTask task;
+
+    @FXML
+    private TextField tryCountField;
 
     @FXML
     private CheckBox checkDescriptionCheckBox;
@@ -99,6 +103,15 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
             return;
         }
 
+        int tryCount = Utils.parseNumber(tryCountField, "Количество попыток", app, 3);
+        if (tryCount < 1) {
+            tryCount = 1;
+            app.showAlert(new SimpleAlert(
+                    "Количество попыток не может быть < 1, установлено значение - 1",
+                    AlertVariant.WARN
+            ), Duration.seconds(5));
+        }
+
         save();
         setState(RunnableState.RUNNING);
 
@@ -108,7 +121,8 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
                 Arrays.asList(searchArea.getText().split("\n")),
                 pageModeComboBox.getSelectionModel().getSelectedItem(),
                 checkDescriptionCheckBox.isSelected(),
-                pageBlacklistRepository
+                pageBlacklistRepository,
+                tryCount
         );
         ByEmailTask task = new ByEmailTask(data);
         currentKitView.applyWrapperListListener(task.getPageListProperty());
@@ -185,6 +199,7 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
         saveLoadManager.add(searchArea);
         saveLoadManager.add(pageModeComboBox);
         saveLoadManager.add(checkDescriptionCheckBox);
+        saveLoadManager.add(tryCountField);
         saveLoadManager.setOnLoadError(e -> {
             log.warn("load byMail settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));

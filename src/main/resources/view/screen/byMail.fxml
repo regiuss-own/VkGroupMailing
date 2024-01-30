@@ -64,6 +64,18 @@
                         <Font size="16.0"/>
                     </font>
                 </CheckBox>
+                <VBox>
+                    <Label text="Количество попыток">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="tryCountField" VBox.vgrow="ALWAYS">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
             </VBox>
             <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
         </HBox>

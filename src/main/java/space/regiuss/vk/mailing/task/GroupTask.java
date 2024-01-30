@@ -113,7 +113,7 @@ public class GroupTask extends Task<GroupTaskResult> {
             }
 
             if (pages.isEmpty()) {
-                return;
+                continue;
             }
 
             List<PageId> ids = pages.stream().map(Page::getId).collect(Collectors.toList());
@@ -121,7 +121,7 @@ public class GroupTask extends Task<GroupTaskResult> {
             pages.removeIf(p -> blacklistIds.contains(p.getId()));
 
             if (pages.isEmpty()) {
-                return;
+                continue;
             }
 
             List<Page> finalPages = pages;

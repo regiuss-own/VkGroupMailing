@@ -28,6 +28,7 @@ import space.regiuss.vk.mailing.node.CurrentKitView;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
 import space.regiuss.vk.mailing.task.GroupTask;
+import space.regiuss.vk.mailing.util.Utils;
 import space.regiuss.vk.mailing.wrapper.ImageItemWrapper;
 
 import javax.annotation.PostConstruct;
@@ -97,33 +98,8 @@ public class GroupRunnableScreen extends RunnablePane implements SavableAndLoada
             return;
         }
 
-        int maxSubCount = 0;
-        try {
-            maxSubCount = Integer.parseInt(maxSubCountField.getText());
-        } catch (Exception e) {
-            log.warn("maxSubCount number convert error", e);
-            app.showAlert(
-                    new SimpleAlert(
-                            "Неверный формат поля Максимальное количество подписчиков\nиспользовано значение по умолчанию - 0",
-                            AlertVariant.WARN
-                    ),
-                    Duration.seconds(5)
-            );
-        }
-
-        int minSubCount = 0;
-        try {
-            minSubCount = Integer.parseInt(minSubCountField.getText());
-        } catch (Exception e) {
-            log.warn("minSubCount number convert error", e);
-            app.showAlert(
-                    new SimpleAlert(
-                            "Неверный формат поля Минимальное количество подписчиков\nиспользовано значение по умолчанию - 0",
-                            AlertVariant.WARN
-                    ),
-                    Duration.seconds(5)
-            );
-        }
+        int maxSubCount = Utils.parseNumber(maxSubCountField, "Максимальное количество подписчиков", app, 0);
+        int minSubCount = Utils.parseNumber(minSubCountField, "Минимальное количество подписчиков", app, 0);
 
         setState(RunnableState.RUNNING);
         save();
