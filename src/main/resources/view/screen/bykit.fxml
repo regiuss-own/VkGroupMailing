@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.*?>
+<?import space.regiuss.rgfx.node.*?>
 <?import space.regiuss.vk.mailing.node.CurrentKitView?>
 <?import space.regiuss.vk.mailing.node.SelectAccountButton?>
-<?import space.regiuss.rgfx.node.RunnablePane?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.control.CheckBox?>
 <fx:root type="RunnablePane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          fx:controller="space.regiuss.vk.mailing.screen.ByKitRunnableScreen">
@@ -25,6 +25,42 @@
                         <Font size="30"/>
                     </font>
                 </Text>
+                <VBox>
+                    <SimpleAlert graphicTextGap="10" wrapText="true" text="Пример регулярного выражения&#xD;[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+" maxWidth="Infinity" variant="PRIMARY">
+                        <graphic>
+                            <Icon value="CIRCLE_QUESTION" type="REGULAR" size="16" fill="#052c68"/>
+                        </graphic>
+                    </SimpleAlert>
+                    <Label text="Регулярное выражение:">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="regexField" text="[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]+">
+                        <font>
+                            <Font size="16.0"/>
+                        </font>
+                    </TextField>
+                </VBox>
+                <Button mnemonicParsing="false" text="Импорт" prefWidth="150" alignment="CENTER"
+                        maxWidth="Infinity"
+                        graphicTextGap="10" onAction="#onImportClick">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                    <graphic>
+                        <Icon type="SOLID" value="FILE_IMPORT" size="20" fill="#fff"/>
+                    </graphic>
+                </Button>
+                <ListView VBox.vgrow="ALWAYS" fx:id="checkListView">
+                    <placeholder>
+                        <Text text="Список пуст">
+                            <font>
+                                <Font size="16.0"/>
+                            </font>
+                        </Text>
+                    </placeholder>
+                </ListView>
             </VBox>
             <CurrentKitView fx:factory="getInstance" fx:id="currentKitView" HBox.hgrow="ALWAYS" maxWidth="700"/>
         </HBox>

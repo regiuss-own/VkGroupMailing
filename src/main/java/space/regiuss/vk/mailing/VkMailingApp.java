@@ -94,7 +94,7 @@ public class VkMailingApp extends RGFXAPP {
                 createMenuButton(
                         menuToggleGroup,
                         "По списку",
-                        new Icon(Icon.IconValue.MAGNIFYING_GLASS, Icon.IconType.SOLID, size, fill),
+                        new Icon(Icon.IconValue.RECTANGLE_LIST, Icon.IconType.REGULAR, size, fill),
                         ByKitRunnableScreen.class,
                         () -> openScreen(ByKitRunnableScreen.class)
                 ),
