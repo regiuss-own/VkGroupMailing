@@ -65,7 +65,7 @@ public class BlackListScreen extends VBox implements SavableAndLoadable {
     private ListView<ImageItemWrapper<Page>> blackListView;
 
     {
-        RGFXAPP.load(this, getClass().getResource("/view/screen/blackListScreen.fxml"));
+        RGFXAPP.load(this, getClass().getResource("/view/screen/blackList.fxml"));
         saveLoadManager = createSaveLoadManager();
         countItemsText.visibleProperty().bind(Bindings.isEmpty(blackListView.getItems()).not());
         countItemsText.textProperty().bind(Bindings.size(blackListView.getItems()).asString("(%s)"));

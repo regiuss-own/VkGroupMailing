@@ -31,7 +31,7 @@ public class Utils {
                     Duration.seconds(5)
             );
         }
-        return 0;
+        return defaultValue;
     }
 
 }

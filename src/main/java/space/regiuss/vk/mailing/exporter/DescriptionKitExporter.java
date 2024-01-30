@@ -2,7 +2,7 @@ package space.regiuss.vk.mailing.exporter;
 
 import javafx.scene.control.ListView;
 import space.regiuss.vk.mailing.model.Page;
-import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
+import space.regiuss.vk.mailing.wrapper.DescriptionItemWrapper;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
-public class EmailKitExporter<T extends EmailItemWrapper<Page>> implements KitExporter<T> {
+public class DescriptionKitExporter<T extends DescriptionItemWrapper<Page>> implements KitExporter<T> {
 
     @Override
     public void export(ListView<T> listView, File file, CompletableFuture<?> completableFuture) {
@@ -18,8 +18,8 @@ public class EmailKitExporter<T extends EmailItemWrapper<Page>> implements KitEx
             os.write(239);
             os.write(187);
             os.write(191);
-            os.write("ссылка;id;тип;имя;подписчики;фото;почта\n".getBytes(StandardCharsets.UTF_8));
-            for (EmailItemWrapper<Page> item : listView.getItems()) {
+            os.write("ссылка;id;тип;имя;подписчики;фото;описание\n".getBytes(StandardCharsets.UTF_8));
+            for (DescriptionItemWrapper<Page> item : listView.getItems()) {
                 Page page = item.getItem();
                 os.write(String.format(
                         "%s;%s;%s;%s;%s;%s;%s%n",
@@ -29,7 +29,7 @@ public class EmailKitExporter<T extends EmailItemWrapper<Page>> implements KitEx
                         page.getName().replace(";", ""),
                         page.getSubscribers(),
                         page.getIcon(),
-                        item.getEmail()
+                        item.getDescription()
                 ).getBytes(StandardCharsets.UTF_8));
             }
             completableFuture.complete(null);

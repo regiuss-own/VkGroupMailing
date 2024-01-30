@@ -20,44 +20,48 @@ import space.regiuss.rgfx.manager.SaveLoadManager;
 import space.regiuss.rgfx.node.RunnablePane;
 import space.regiuss.rgfx.node.SimpleAlert;
 import space.regiuss.vk.mailing.VkMailingApp;
+import space.regiuss.vk.mailing.enums.DescriptionMode;
 import space.regiuss.vk.mailing.enums.PageMode;
-import space.regiuss.vk.mailing.exporter.EmailKitExporter;
+import space.regiuss.vk.mailing.exporter.DescriptionKitExporter;
 import space.regiuss.vk.mailing.messenger.Messenger;
 import space.regiuss.vk.mailing.messenger.VkMessenger;
 import space.regiuss.vk.mailing.model.Account;
-import space.regiuss.vk.mailing.model.ByEmailData;
+import space.regiuss.vk.mailing.model.FastSearchData;
 import space.regiuss.vk.mailing.model.Page;
 import space.regiuss.vk.mailing.node.CurrentKitView;
-import space.regiuss.vk.mailing.node.EmailPageListItem;
+import space.regiuss.vk.mailing.node.DescriptionPageListItem;
 import space.regiuss.vk.mailing.node.SelectAccountButton;
 import space.regiuss.vk.mailing.repository.PageBlacklistRepository;
-import space.regiuss.vk.mailing.task.ByEmailTask;
+import space.regiuss.vk.mailing.task.FastSearchTask;
 import space.regiuss.vk.mailing.util.Utils;
-import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
+import space.regiuss.vk.mailing.wrapper.DescriptionItemWrapper;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 @Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 @RequiredArgsConstructor
 @SuppressWarnings("unused")
-public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoadable {
+public class FastSearchRunnableScreen extends RunnablePane implements SavableAndLoadable {
 
     @Getter
     @SuppressWarnings("FieldMayBeFinal")
     private SaveLoadManager saveLoadManager;
     private final VkMailingApp app;
     private final PageBlacklistRepository pageBlacklistRepository;
-    private ByEmailTask task;
+    private FastSearchTask task;
+
+    @FXML
+    private TextArea descriptionWordsArea;
 
     @FXML
     private TextField tryCountField;
 
     @FXML
-    private CheckBox checkDescriptionCheckBox;
+    private ComboBox<DescriptionMode> descriptionModeComboBox;
 
     @FXML
     private ComboBox<PageMode> pageModeComboBox;
@@ -69,7 +73,7 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
     private TextArea searchArea;
 
     @FXML
-    private CurrentKitView<EmailItemWrapper<Page>> currentKitView;
+    private CurrentKitView<DescriptionItemWrapper<Page>> currentKitView;
 
     @FXML
     private Label statusText;
@@ -78,16 +82,18 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
     private ProgressBar progressBar;
 
     {
-        RGFXAPP.load(this, getClass().getResource("/view/screen/byMail.fxml"));
+        RGFXAPP.load(this, getClass().getResource("/view/screen/fastSearch.fxml"));
         saveLoadManager = createSaveLoadManager();
         pageModeComboBox.setItems(FXCollections.observableArrayList(PageMode.values()));
         pageModeComboBox.getSelectionModel().select(0);
+        descriptionModeComboBox.setItems(FXCollections.observableArrayList(DescriptionMode.values()));
+        descriptionModeComboBox.getSelectionModel().select(0);
     }
 
     @PostConstruct
     public void init() {
-        currentKitView.setCellFactory(pageListView -> new EmailPageListItem(app.getHostServices()));
-        currentKitView.setKitExporter(new EmailKitExporter<>());
+        currentKitView.setCellFactory(pageListView -> new DescriptionPageListItem(app.getHostServices()));
+        currentKitView.setKitExporter(new DescriptionKitExporter<>());
         load();
     }
 
@@ -115,20 +121,26 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
         save();
         setState(RunnableState.RUNNING);
 
+        Set<String> descriptionWords = new HashSet<>();
+        for (String s : descriptionWordsArea.getText().toLowerCase(Locale.ROOT).split("\n")) {
+            descriptionWords.add(s.trim());
+        }
+
         Messenger messenger = new VkMessenger(account.getToken());
-        ByEmailData data = new ByEmailData(
+        FastSearchData data = new FastSearchData(
                 messenger,
                 Arrays.asList(searchArea.getText().split("\n")),
                 pageModeComboBox.getSelectionModel().getSelectedItem(),
-                checkDescriptionCheckBox.isSelected(),
+                descriptionModeComboBox.getSelectionModel().getSelectedItem(),
                 pageBlacklistRepository,
-                tryCount
+                tryCount,
+                descriptionWords
         );
-        ByEmailTask task = new ByEmailTask(data);
+        FastSearchTask task = new FastSearchTask(data);
         currentKitView.applyWrapperListListener(task.getPageListProperty());
         applyTask(
                 task,
-                "По почте",
+                "Быстрый поиск",
                 app
         );
         progressBar.progressProperty().bind(task.progressProperty());
@@ -156,7 +168,7 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
     }
 
     @FXML
-    public void onUploadListMail(ActionEvent event) {
+    public void onUploadSearch(ActionEvent event) {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("csv", "*.csv"));
         File file = chooser.showOpenDialog(app.getStage());
@@ -198,8 +210,9 @@ public class ByMailRunnableScreen extends RunnablePane implements SavableAndLoad
         );
         saveLoadManager.add(searchArea);
         saveLoadManager.add(pageModeComboBox);
-        saveLoadManager.add(checkDescriptionCheckBox);
+        saveLoadManager.add(descriptionModeComboBox);
         saveLoadManager.add(tryCountField);
+        saveLoadManager.add(descriptionWordsArea);
         saveLoadManager.setOnLoadError(e -> {
             log.warn("load byMail settings error", e);
             app.showAlert(new SimpleAlert("Не удалось загрузить настройки", AlertVariant.WARN), Duration.seconds(5));

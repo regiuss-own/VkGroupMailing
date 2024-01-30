@@ -2,7 +2,6 @@ package space.regiuss.vk.mailing.messenger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import space.regiuss.vk.mailing.model.*;
-import space.regiuss.vk.mailing.wrapper.EmailItemWrapper;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,5 +25,5 @@ public interface Messenger {
 
     Account getAccount();
 
-    List<EmailItemWrapper<Page>> getHints(String search) throws Exception;
+    List<Page> getHints(String search) throws Exception;
 }

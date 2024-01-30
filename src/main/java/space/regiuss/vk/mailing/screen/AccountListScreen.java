@@ -43,7 +43,7 @@ public class AccountListScreen extends VBox {
     private TileView<AccountManageItem> accountsPane;
 
     {
-        RGFXAPP.load(this, getClass().getResource("/view/screen/accountListScreen.fxml"));
+        RGFXAPP.load(this, getClass().getResource("/view/screen/accountList.fxml"));
         accountsPane.getScrollPane().setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     }
 
