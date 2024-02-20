@@ -22,6 +22,7 @@ public class ImportTask extends Task<List<ImageItemWrapper<Page>>> {
 
     private final Messenger messenger;
     private final File importFile;
+    private int count = 0;
 
     @Override
     protected List<ImageItemWrapper<Page>> call() throws Exception {
@@ -31,6 +32,10 @@ public class ImportTask extends Task<List<ImageItemWrapper<Page>>> {
             String line;
             List<String> pageIds = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
+                count++;
+                if (count % 100 == 0) {
+                    updateMessage(String.format("Импорт... Пройдено строк: %s", count));
+                }
                 if (line.trim().isEmpty())
                     continue;
                 String[] data = line.trim().split(";");
@@ -49,7 +54,7 @@ public class ImportTask extends Task<List<ImageItemWrapper<Page>>> {
                         pageId = pageId.substring(0, index);
                     }
                     pageIds.add(pageId);
-                    if (pageIds.size() >= 10) {
+                    if (pageIds.size() >= 100) {
                         getPagesByIds(pageIds, items);
                     }
                 } else {
@@ -77,14 +82,21 @@ public class ImportTask extends Task<List<ImageItemWrapper<Page>>> {
         if (pageIds == null || pageIds.isEmpty()) {
             return;
         }
-        try {
-            List<Page> pages = messenger.getGroupsById(pageIds);
-            fillItems(pages, items);
-        } catch (Exception ignored) {}
-        try {
-            List<Page> pages = messenger.getUsersById(pageIds);
-            fillItems(pages, items);
-        } catch (Exception ignored) {}
+        for (int i = 0; i < 3; i++) {
+            try {
+                List<Page> pages = messenger.getGroupsById(pageIds);
+                fillItems(pages, items);
+                break;
+            } catch (Exception ignored) {}
+        }
+        for (int i = 0; i < 3; i++) {
+            try {
+                List<Page> pages = messenger.getUsersById(pageIds);
+                fillItems(pages, items);
+                break;
+            } catch (Exception ignored) {}
+        }
+        pageIds.clear();
     }
 
     private void fillItems(List<Page> pages, List<ImageItemWrapper<Page>> items) {

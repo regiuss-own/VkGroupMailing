@@ -133,19 +133,25 @@ public class KitImportPopup extends BackgroundPopup {
 
     private void importFromFile(File file) {
         onClose.run();
-        app.showAlert(new SimpleAlert("Начинаю импорт", AlertVariant.SUCCESS), Duration.seconds(5));
+        SimpleAlert alert = new SimpleAlert("Начинаю импорт", AlertVariant.SUCCESS);
+        app.showAlert(alert);
         Account account = screen.getSelectAccountButton().getCurrentAccount().get();
         Messenger messenger = new VkMessenger(account.getToken());
 
         ImportTask task = new ImportTask(messenger, file);
+        alert.textProperty().bind(task.messageProperty());
         task.setOnSucceeded(event -> {
             app.showAlert(new SimpleAlert("Импорт завершен", AlertVariant.SUCCESS), Duration.seconds(5));
             screen.setKitItems(task.getValue());
+            alert.textProperty().unbind();
+            app.hideAlert(alert);
         });
         task.setOnFailed(event -> {
             Throwable e = task.getException();
             log.warn("import error", e);
             app.showAlert(new SimpleAlert("Ошибка импорта: " + e.getMessage(), AlertVariant.DANGER), Duration.seconds(5));
+            alert.textProperty().unbind();
+            app.hideAlert(alert);
         });
         app.getExecutorService().execute(task);
     }
