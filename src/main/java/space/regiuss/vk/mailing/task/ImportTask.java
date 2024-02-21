@@ -53,7 +53,7 @@ public class ImportTask extends Task<List<ImageItemWrapper<Page>>> {
                     if (index != -1) {
                         pageId = pageId.substring(0, index);
                     }
-                    pageIds.add(pageId);
+                    pageIds.add(pageId.replaceAll("[\\s\"']", ""));
                     if (pageIds.size() >= 100) {
                         getPagesByIds(pageIds, items);
                     }
