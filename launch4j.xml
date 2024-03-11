@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.1.jar</jar>
-  <outfile>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.1.exe</outfile>
+  <jar>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.2.jar</jar>
+  <outfile>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.2.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>

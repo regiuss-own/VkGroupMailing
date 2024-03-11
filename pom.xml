@@ -27,7 +27,7 @@
         <javafx.version>21-ea+24</javafx.version>
         <h2.version>2.2.222</h2.version>
         <spring.boot.version>2.7.17</spring.boot.version>
-        <revision>2.3.2</revision>
+        <revision>2.3.3</revision>
     </properties>
 
     <dependencies>

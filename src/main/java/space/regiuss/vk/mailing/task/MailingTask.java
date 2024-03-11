@@ -9,6 +9,7 @@ import space.regiuss.vk.mailing.model.*;
 import space.regiuss.vk.mailing.wrapper.ProgressItemWrapper;
 
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +39,13 @@ public class MailingTask extends Task<MailingTask.State> {
         }
 
         List<PageId> ids = items.stream().map(wrapper -> wrapper.getItem().getId()).collect(Collectors.toList());
-        Set<PageId> blacklistIds = mailingData.getPageBlacklistRepository().findAllByIdIn(ids);
+        Set<PageId> blacklistIds = new HashSet<>(ids.size());
+
+        for (int i = 0; i < ids.size(); i+=1000) {
+            Set<PageId> blacklist = mailingData.getPageBlacklistRepository().findAllByIdIn(ids.subList(i, Math.min(ids.size(), i + 1000)));
+            blacklistIds.addAll(blacklist);
+        }
+        log.info("-----------------------------");
 
         Iterator<ProgressItemWrapper<Page>> iterator = items.iterator();
         while (iterator.hasNext() && !isCancelled()) {
