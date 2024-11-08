@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.2.jar</jar>
-  <outfile>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.2.exe</outfile>
+  <jar>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.4.jar</jar>
+  <outfile>C:\projects\Java\VkGroupMailing\target\VkMailing-2.3.4.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -16,12 +16,10 @@
   <icon>C:\projects\Java\VkGroupMailing\icon.ico</icon>
   <jre>
     <path>JRE</path>
-    <bundledJre64Bit>false</bundledJre64Bit>
-    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <requiresJdk>true</requiresJdk>
+    <requires64Bit>false</requires64Bit>
     <minVersion>1.8</minVersion>
     <maxVersion></maxVersion>
-    <jdkPreference>jdkOnly</jdkPreference>
-    <runtimeBits>64/32</runtimeBits>
     <opt>-Dfile.encoding=UTF-8</opt>
   </jre>
 </launch4jConfig>

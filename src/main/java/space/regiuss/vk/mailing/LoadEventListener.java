@@ -17,7 +17,6 @@ import space.regiuss.rgfx.node.RootSideBarPane;
 import space.regiuss.vk.mailing.node.UpdateNode;
 import space.regiuss.vk.mailing.popup.ChangelogPopup;
 import space.regiuss.vk.mailing.screen.GroupRunnableScreen;
-import space.regiuss.vk.mailing.task.CheckUpdateTask;
 
 import javax.persistence.EntityManager;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 public class LoadEventListener {
 
     private final VkMailingApp app;
-    private final CheckUpdateTask checkUpdateTask;
     private final UpdateNode updateNode;
     private final EntityManager em;
     @Value("${app.version}")
@@ -42,7 +40,7 @@ public class LoadEventListener {
     public void onApplicationReady() {
         log.info("START {} version {}", appName, appVersion);
         em.createNativeQuery("alter table pages alter column icon varchar(500)").executeUpdate();
-        app.getExecutorService().scheduleAtFixedRate(checkUpdateTask, 0, 5, TimeUnit.MINUTES);
+        em.createNativeQuery("alter table accounts alter column icon varchar(512)").executeUpdate();
         Platform.runLater(() -> {
             RootSideBarPane root = (RootSideBarPane) app.getRoot();
 

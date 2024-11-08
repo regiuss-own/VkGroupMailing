@@ -24,7 +24,7 @@ public class Account {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "icon", nullable = false, length = 200)
+    @Column(name = "icon", nullable = false, length = 512)
     private String icon;
 
     public Account(Integer id, String token, String name, String icon) {
